@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 
-from datacnx.json import to_json_data
-from datacnx.operations import InstanceOperation
+from slumber.json import to_json_data
+from slumber.operations import InstanceOperation
 
 
 class InstanceData(InstanceOperation):
