@@ -18,7 +18,7 @@ class TestBasicViews(TestCase):
             return response, loads(response.content)
         else:
             return response, {}
-            
+
     def do_post(self, url, body):
         response = self.client.post(url, body,
             HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
@@ -128,6 +128,7 @@ class TestBasicViews(TestCase):
             fields=dict(
                 id=dict(data=s.pk, type='django.db.models.fields.AutoField'),
                 for_sale=dict(data=s.for_sale, type='django.db.models.fields.BooleanField'),
+                max_extra_toppings=dict(data=s.max_extra_toppings, type='django.db.models.fields.IntegerField'),
                 name=dict(data=s.name, type='django.db.models.fields.CharField')),
             display='S1',
             data_arrays=dict()))
