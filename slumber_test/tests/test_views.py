@@ -56,21 +56,21 @@ class TestBasicViews(TestCase):
         self.assertFalse(len(json['models']))
 
 
-    #def test_instance_metadata(self):
-        #response, json = self.do_get('/slumber/bmf/customer/CustomerStatus/')
-        #self.assertEquals(response.status_code, 200)
-        #self.assertTrue(json['fields'].has_key('active'))
-        #self.assertEquals(json['fields']['active']['type'],
-            #'django.db.models.fields.BooleanField')
-        #self.assertEquals(json['operations']['instances'],
-            #'/slumber/bmf/customer/CustomerStatus/instances/')
-        #self.assertFalse(json['operations'].has_key('data'), json['operations'])
+    def test_instance_metadata(self):
+        response, json = self.do_get('/slumber/slumber_test/Pizza/')
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(json['fields'].has_key('for_sale'))
+        self.assertEquals(json['fields']['for_sale']['type'],
+            'django.db.models.fields.BooleanField')
+        self.assertEquals(json['operations']['instances'],
+            '/slumber/slumber_test/Pizza/instances/')
+        self.assertFalse(json['operations'].has_key('data'), json['operations'])
 
 
-    #def test_instance_puttable(self):
-        #response, json = self.do_get('/slumber/bmf/customer/FitnessTest/')
-        #self.assertEquals(response.status_code, 200)
-        #self.assertEquals(json['puttable'], [['id'], ['customer', 'date']])
+    def test_instance_puttable(self):
+        response, json = self.do_get('/slumber/slumber_test/Pizza/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['puttable'], [['id'], ['name']])
 
 
     #def test_model_operation_instances_no_instances(self):
