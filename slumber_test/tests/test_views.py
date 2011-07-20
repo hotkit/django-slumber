@@ -3,6 +3,8 @@ from simplejson import loads
 from django.test import TestCase
 from django.test.client import Client
 
+from slumber_test.models import Pizza
+
 
 class TestBasicViews(TestCase):
     def setUp(self):
@@ -73,16 +75,16 @@ class TestBasicViews(TestCase):
         self.assertEquals(json['puttable'], [['id'], ['name']])
 
 
-    #def test_model_operation_instances_no_instances(self):
-        #response, json = self.do_get('/slumber/bmf/customer/CustomerStatus/instances/')
-        #self.assertEquals(response.status_code, 200)
-        #self.assertEquals(len(json['page']), 0)
+    def test_model_operation_instances_no_instances(self):
+        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(json['page']), 0)
 
-    #def test_model_operation_instances_one_instance(self):
-        #Service(name='S1').save()
-        #response, json = self.do_get('/slumber/bmf/core/Service/instances/')
-        #self.assertEquals(response.status_code, 200)
-        #self.assertEquals(len(json['page']), 1)
+    def test_model_operation_instances_one_instance(self):
+        Pizza(name='S1', for_sale=True).save()
+        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(json['page']), 1)
 
     #def test_model_operation_instances_twelve_instances(self):
         #for i in range(12):
