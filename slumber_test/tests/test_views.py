@@ -86,25 +86,25 @@ class TestBasicViews(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 1)
 
-    #def test_model_operation_instances_twelve_instances(self):
-        #for i in range(12):
-            #Service(name='S%s' % i).save()
-        #response, json = self.do_get('/slumber/bmf/core/Service/instances/')
-        #self.assertEquals(response.status_code, 200)
-        #self.assertEquals(len(json['page']), 10)
-        #self.assertEquals(json['next_page'],
-            #'/slumber/bmf/core/Service/instances/?start_after=3')
-        #response, json = self.do_get('/slumber/bmf/core/Service/instances/',
-            #{'start_after': '3'})
-        #self.assertEquals(response.status_code, 200)
-        #self.assertEquals(len(json['page']), 2)
-        #self.assertEquals(json['next_page'],
-            #'/slumber/bmf/core/Service/instances/?start_after=1')
-        #response, json = self.do_get('/slumber/bmf/core/Service/instances/',
-            #{'start_after': '1'})
-        #self.assertEquals(response.status_code, 200)
-        #self.assertEquals(len(json['page']), 0)
-        #self.assertFalse(json.has_key('next_page'), json)
+    def test_model_operation_instances_twelve_instances(self):
+        for i in range(12):
+            Pizza(name='S%s' % i, for_sale=True).save()
+        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(json['page']), 10)
+        self.assertEquals(json['next_page'],
+            '/slumber/slumber_test/Pizza/instances/?start_after=3')
+        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/',
+            {'start_after': '3'})
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(json['page']), 2)
+        self.assertEquals(json['next_page'],
+            '/slumber/slumber_test/Pizza/instances/?start_after=1')
+        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/',
+            {'start_after': '1'})
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(json['page']), 0)
+        self.assertFalse(json.has_key('next_page'), json)
 
 
     #def test_instance_creation_get(self):
