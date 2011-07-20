@@ -42,12 +42,12 @@ class TestBasicViews(TestCase):
         self.assertEquals(response.status_code, 404)
 
 
-    #def test_application_with_models(self):
-        #response, json = self.do_get('/slumber/bmf/customer/')
-        #self.assertEquals(response.status_code, 200)
-        #self.assertTrue(len(json['models']))
-        #self.assertEquals(json['models']['Customer'],
-            #'/slumber/bmf/customer/Customer/')
+    def test_application_with_models(self):
+        response, json = self.do_get('/slumber/slumber_test/')
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(len(json['models']))
+        self.assertEquals(json['models']['Pizza'],
+            '/slumber/slumber_test/Pizza/')
 
 
     #def test_application_without_models(self):
