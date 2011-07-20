@@ -83,4 +83,5 @@ INSTALLED_APPS = (
 
     # Slumber tests
     'slumber_test',
+    'slumber_test.no_models',
 )

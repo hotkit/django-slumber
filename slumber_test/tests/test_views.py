@@ -50,10 +50,10 @@ class TestBasicViews(TestCase):
             '/slumber/slumber_test/Pizza/')
 
 
-    #def test_application_without_models(self):
-        #response, json = self.do_get('/slumber/bmf/rest/')
-        #self.assertEquals(response.status_code, 200)
-        #self.assertFalse(len(json['models']))
+    def test_application_without_models(self):
+        response, json = self.do_get('/slumber/slumber_test/no_models/')
+        self.assertEquals(response.status_code, 200)
+        self.assertFalse(len(json['models']))
 
 
     #def test_instance_metadata(self):
