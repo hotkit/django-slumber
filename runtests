@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+cd test-projects/django1_0
+python manage.py test slumber_test

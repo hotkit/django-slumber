@@ -1,4 +1,7 @@
 # Django settings for django1_0 project.
+import os
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+_join_with_project_path = lambda a, *p: os.path.join(PROJECT_ROOT, a, *p)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -9,8 +12,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = ''           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = ''             # Or path to database file if using sqlite3.
+DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = '/tmp/slumber1-0.sqlite'             # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -66,6 +69,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'django1_0.urls'
 
 TEMPLATE_DIRS = (
+    _join_with_project_path('../templates'),
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -76,4 +80,8 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+
+    # Slumber tests
+    'slumber_test',
+    'slumber_test.no_models',
 )
