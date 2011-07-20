@@ -31,11 +31,11 @@ class TestBasicViews(TestCase):
         apps = json['apps']
         self.assertEquals(apps['slumber_test'], '/slumber/slumber_test/')
 
-    #def test_model_search_success(self):
-        #response, json = self.do_get('/slumber/', {'model': 'customer.Customer'})
-        #self.assertEquals(response.status_code, 302)
-        #self.assertEquals(response['Location'],
-            #'http://localhost/slumber/bmf/customer/Customer/')
+    def test_model_search_success(self):
+        response, json = self.do_get('/slumber/', {'model': 'slumber_test.Pizza'})
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response['Location'],
+            'http://localhost/slumber/slumber_test/Pizza/')
 
     #def test_model_search_invalid(self):
         #response, json = self.do_get('/slumber/', {'model': 'nota.model'})
