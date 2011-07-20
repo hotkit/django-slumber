@@ -37,9 +37,9 @@ class TestBasicViews(TestCase):
         self.assertEquals(response['Location'],
             'http://localhost/slumber/slumber_test/Pizza/')
 
-    #def test_model_search_invalid(self):
-        #response, json = self.do_get('/slumber/', {'model': 'nota.model'})
-        #self.assertEquals(response.status_code, 404)
+    def test_model_search_invalid(self):
+        response, json = self.do_get('/slumber/', {'model': 'nota.model'})
+        self.assertEquals(response.status_code, 404)
 
 
     #def test_application_with_models(self):
