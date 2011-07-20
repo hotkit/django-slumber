@@ -119,16 +119,15 @@ class TestBasicViews(TestCase):
         self.assertEquals(Pizza.objects.all()[0].name, 'Test Pizza')
 
 
-    #def test_instance_data(self):
-        #s = Service(name='S1').saved()
-        #response, json = self.do_get('/slumber/bmf/core/Service/data/%s/' % s.pk)
-        #self.assertEquals(json, dict(
-            #fields=dict(
-                #id=dict(data=s.pk, type='django.db.models.fields.AutoField'),
-                #name=dict(data=s.name, type='django.db.models.fields.CharField')),
-            #display='S1',
-            #data_arrays=dict(
-                    #itemgroup='/slumber/bmf/core/Service/data/1/itemgroup/',
-                    #itemgroupservice='/slumber/bmf/core/Service/data/1/itemgroupservice/',
-                    #mailinglist='/slumber/bmf/core/Service/data/1/mailinglist/',
-                    #promocodetemplate='/slumber/bmf/core/Service/data/1/promocodetemplate/')))
+    def test_instance_data(self):
+        s = Pizza(name='S1', for_sale=True)
+        s.save()
+        response, json = self.do_get('/slumber/slumber_test/Pizza/data/%s/' % s.pk)
+        self.maxDiff = None
+        self.assertEquals(json, dict(
+            fields=dict(
+                id=dict(data=s.pk, type='django.db.models.fields.AutoField'),
+                for_sale=dict(data=s.for_sale, type='django.db.models.fields.BooleanField'),
+                name=dict(data=s.name, type='django.db.models.fields.CharField')),
+            display='S1',
+            data_arrays=dict()))
