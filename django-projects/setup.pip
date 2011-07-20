@@ -1,0 +1,9 @@
+# Required by Slumber
+simplejson
+
+# Used for testing
+coverage
+django-nose
+mock
+nose
+unittest2
