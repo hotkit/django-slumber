@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
 
 cd test-projects/django1_0
-python ./manage.py test slumber slumber_test \
-        --with-coverage --cover-erase \
-        --cover-package=slumber --cover-package=slumber_test
+python manage.py test slumber_test
