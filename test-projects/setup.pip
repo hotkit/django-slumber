@@ -1,0 +1,8 @@
+# Required by Slumber
+simplejson
+
+# Used for testing
+coverage
+mock
+nose
+unittest2
