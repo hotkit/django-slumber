@@ -1,2 +1,2 @@
 *.pyc
-
+/test-projects/django1_3/.coverage
