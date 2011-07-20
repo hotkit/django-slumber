@@ -107,16 +107,16 @@ class TestBasicViews(TestCase):
         self.assertFalse(json.has_key('next_page'), json)
 
 
-    #def test_instance_creation_get(self):
-        #response, json = self.do_get('/slumber/bmf/core/Service/create/')
-        #self.assertFalse(json['created'], json)
+    def test_instance_creation_get(self):
+        response, json = self.do_get('/slumber/slumber_test/Pizza/create/')
+        self.assertFalse(json['created'], json)
 
-    #def test_instance_creation_post(self):
-        #response, json = self.do_post('/slumber/bmf/core/Service/create/',
-            #{'name': 'TestService'})
-        #self.assertTrue(json['created'])
-        #self.assertEquals(Service.objects.count(), 1)
-        #self.assertEquals(Service.objects.all()[0].name, 'TestService')
+    def test_instance_creation_post(self):
+        response, json = self.do_post('/slumber/slumber_test/Pizza/create/',
+            {'name': 'Test Pizza'})
+        self.assertTrue(json['created'])
+        self.assertEquals(Pizza.objects.count(), 1)
+        self.assertEquals(Pizza.objects.all()[0].name, 'Test Pizza')
 
 
     #def test_instance_data(self):
