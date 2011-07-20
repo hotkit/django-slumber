@@ -12,10 +12,10 @@ setup(
     description = ("RESTful data connector for Django"),
     license = "Boost Software License - Version 1.0 - August 17th, 2003",
     keywords = "django rest data",
-    packages=['slumber', 'slumber_test'],
-    long_description=read('README.markdown'),
+    packages = ['slumber', 'slumber_test'],
+    long_description = read('README.markdown'),
     install_requires = ['simplejson'],
-    classifiers=[
+    classifiers = [
         "Development Status :: 3 - Alpha",
         "Framework :: Django",
         "Intended Audience :: Developers",
