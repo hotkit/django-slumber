@@ -3,12 +3,7 @@ from simplejson import loads
 from django.test import TestCase
 from django.test.client import Client
 
-from bmf.testutils.decorators import fixture
 
-from bmf.core.models import Service
-
-
-@fixture
 class TestBasicViews(TestCase):
     def setUp(self):
         self.client = Client()
