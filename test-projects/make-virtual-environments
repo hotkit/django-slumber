@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+cd `dirname $0`
+
+source /usr/local/bin/virtualenvwrapper.sh
+
+mkvirtualenv --no-site-packages slumber1-0
+pip install -r setup.pip -r django1_0/setup.pip
+deactivate
+
+mkvirtualenv --no-site-package slumber1-3
+pip install -r setup.pip -r django1_3/setup.pip
+deactivate
