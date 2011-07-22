@@ -9,42 +9,70 @@ class Client(object):
 
         self._load_apps(root)
 
-    def _do_get(self, uri, query={}):
+    def _do_get(self, uri):
         """
         get response in JSON format from slumber server and loads it into a python dict
         """ 
         url = self._get_url(uri) 
-        print 'url = ', url
-        request, content = self.http.request(url)
-        return request, loads(content)
+        return get(self.http, url) 
         
     def _get_url(self, uri='/'):
         server = self.protocol + '://' + self.server
         return  server + uri
 
-    def _load_apps(self, url):
-        print 'in _load_apps'
+    def _load(self, url, type, obj, sub_fn, cls):
+        """
+        1. make a GET request to the given `url`
+        2. get a dict of json.parse(content)[type] (i.e. 'apps', 'models')
+        3. inject attributes into obj, for each key in the dict
+        4. use the given `sub_fn` to recursively load the url in the value and set it as a result of each attribute
+        """
         response, json = self._do_get(url)
-        apps = json['apps']
+        response_dict = json[type]
 
-        for key, value in apps.items():
-            models_url = value
-            field_name = key.replace('.', '_')
-            setattr(self, field_name, MockedModel())
-            self._load_models(getattr(self, field_name), models_url)
-        print 'exit _load_apps'
+        for key, value in response_dict.items():
+            key = key.replace('.', '_')
+            attribute_value = cls()
+            setattr(obj, key, attribute_value)
+            sub_fn(attribute_value, value)
+
+    def _load_apps(self, url):
+        """
+        inject attribute self.x where x is a key in apps
+        the value of x is loaded using _load_models method from apps[key] 
+        """
+        self._load(url, 'apps', self, self._load_models, MockedModel)
 
     def _load_models(self, app, url):
-        print 'in _load_models'
-        response, json = self._do_get(url)
-        models = json['models']
+        """
+        inject attribute app.x where x is a key in models 
+        the value of x is loaded using _load_model method from models[key] 
+        """
+        self._load(url, 'models', app, self._load_model, DataFetcher)
+
+    def _load_model(self, clz, url):
+        clz.http = self.http
+        clz.url = self._get_url(url)
         
-        for key, value in models.items():
-            model_url = value
-            field_name = key.replace('.', '_')
-            setattr(app, field_name, value)
-
-        print 'exit _load_models'
-
+def get(http, url):
+    response, content = http.request(url)
+    assert response.status == 200, url
+    return response, loads(content)
+ 
 class MockedModel(object):
     pass
+
+class DataFetcher(object):
+    command = 'data/%s/'
+
+    def get(self, **kwargs):
+        pk = kwargs.get('pk', None)
+        if pk is None:
+            return None
+        url = self.url + (self.command % pk)
+        response, json = get(self.http, url)
+        obj = MockedModel()
+        for field, value in json['fields'].items():
+            setattr(obj, field, value['data'])
+        return obj
+

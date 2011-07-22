@@ -38,15 +38,16 @@ class TestDoGet(TestCase):
 
 
 class TestLoads(TestCase):
-    def test_applications(self):
-        client = Client('localhost:8003', '/slumber')
-        self.assertTrue(client.slumber_test)
 
     @patch('slumber.client.Client._load_apps') 
     def test_root_is_passed_in_load_apps(self, mocked_load_apps):
         client = Client(root='/slumber')
         args = (('/slumber',))
         mocked_load_apps.assert_called_with_args(args)
+
+    def test_applications(self):
+        client = Client('localhost:8003', '/slumber')
+        self.assertTrue(client.slumber_test)
 
     def test_applications_with_dots_in_name(self):
         """
@@ -56,9 +57,10 @@ class TestLoads(TestCase):
         client = Client('localhost:8003', '/slumber')
         self.assertTrue(client.django_contrib_messages)
 
-    def test_instance_date(self):
+    def test_instance_data(self):
         s = Pizza(name='S1', for_sale=True)
         s.save()
         client = Client('localhost:8003', '/slumber')
-        pizza = client.slumber_test.Pizza
+        pizza = client.slumber_test.Pizza.get(pk=s.pk)
+        self.assertEqual('S1', pizza.name)        
 
