@@ -6,13 +6,13 @@ def read(fname):
 
 setup(
     name = "django_slumber",
-    version = "0.1",
+    version = "0.1.1",
     author = "Kirit Saelensminde",
     author_email = "kirit@felspar.com",
     description = ("RESTful data connector for Django"),
     license = "Boost Software License - Version 1.0 - August 17th, 2003",
     keywords = "django rest data",
-    packages = ['slumber', 'slumber_test'],
+    packages = ['slumber', 'slumber.operations', 'slumber_test'],
     long_description = read('README.markdown'),
     install_requires = ['simplejson'],
     classifiers = [
