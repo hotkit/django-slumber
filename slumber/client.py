@@ -6,15 +6,19 @@ class Client(object):
         self.protocol = protocol 
         self.server = server
         self.root = root
-        self.slumber_test = True 
-        self.django_contrib_messages = True
         self.http = Http()
 
-    def _do_get(self, uri='/', query={}):
+        self.slumber_test = True 
+        self.django_contrib_messages = True
+
+    def _do_get(self, uri, query={}):
         """
         get response in JSON format from slumber server and loads it into a python dict
         """ 
-        url = self.protocol + '://' + self.server + self.root + uri
+        url = self._get_url(uri) 
         request, content = self.http.request(url)
         return request, loads(content)
         
+    def _get_url(self, uri='/'):
+        server = self.protocol + '://' + self.server
+        return  server + self.root + uri
