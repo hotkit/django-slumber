@@ -3,7 +3,7 @@ from simplejson import loads
 from django.test import TestCase
 from django.test.client import Client
 
-from slumber_test.models import Pizza
+from slumber_test.models import Pizza, PizzaPrice
 
 
 class TestBasicViews(TestCase):
@@ -18,7 +18,7 @@ class TestBasicViews(TestCase):
             return response, loads(response.content)
         else:
             return response, {}
-            
+
     def do_post(self, url, body):
         response = self.client.post(url, body,
             HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
@@ -128,6 +128,32 @@ class TestBasicViews(TestCase):
             fields=dict(
                 id=dict(data=s.pk, type='django.db.models.fields.AutoField'),
                 for_sale=dict(data=s.for_sale, type='django.db.models.fields.BooleanField'),
+                max_extra_toppings=dict(data=s.max_extra_toppings, type='django.db.models.fields.IntegerField'),
                 name=dict(data=s.name, type='django.db.models.fields.CharField')),
             display='S1',
-            data_arrays=dict()))
+            data_arrays=dict(
+                prices='/slumber/slumber_test/Pizza/data/%s/prices/' % s.pk)))
+
+    def test_instance_data_array(self):
+        s = Pizza(name='P', for_sale=True)
+        s.save()
+        for p in range(15):
+            PizzaPrice(pizza=s, amount=str(p), date='2011-04-%s' % (p+1)).save()
+        response, json = self.do_get('/slumber/slumber_test/Pizza/data/%s/prices/' % s.pk)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(json['page']), 10, json)
+        self.assertTrue(json.has_key('next_page'), json)
+        self.assertEquals(json['next_page'],
+            '/slumber/slumber_test/Pizza/data/1/prices/?start_after=6',
+            json['next_page'])
+        response, json = self.do_get('/slumber/slumber_test/Pizza/data/1/prices/',
+            {'start_after': '6'})
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(json['page']), 5)
+        self.assertEquals(json['next_page'],
+            '/slumber/slumber_test/Pizza/data/1/prices/?start_after=1')
+        response, json = self.do_get('/slumber/slumber_test/Pizza/data/1/prices/',
+            {'start_after': '1'})
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(json['page']), 0)
+        self.assertFalse(json.has_key('next_page'))

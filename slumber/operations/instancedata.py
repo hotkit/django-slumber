@@ -40,8 +40,14 @@ class InstanceDataArray(InstanceOperation):
             query = getattr(instance, self.field + '_set').order_by('-pk')
         except AttributeError:
             query = getattr(instance, self.field).order_by('-pk')
+        if request.GET.has_key('start_after'):
+            query = query.filter(pk__lt=request.GET['start_after'])
 
         response['page'] = [
                 dict(pk=o.pk, display=unicode(o),
                     data=root + 'xxx/%s/' % o.pk)
             for o in query[:10]]
+        if len(response['page']) > 0:
+            response['next_page'] = root +self.model.path + \
+                '%s/%s/%s/?start_after=%s' % (
+                    self.name, instance.pk, self.field, response['page'][-1]['pk'])
