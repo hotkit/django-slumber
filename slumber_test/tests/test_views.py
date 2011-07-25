@@ -7,9 +7,6 @@ from slumber_test.models import Pizza, PizzaPrice
 
 
 class TestBasicViews(TestCase):
-    def setUp(self):
-        self.client = Client()
-
 
     def do_get(self, url, query = {}):
         response = self.client.get(url, query,

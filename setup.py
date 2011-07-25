@@ -14,7 +14,7 @@ setup(
     keywords = "django rest data",
     packages = ['slumber', 'slumber.operations', 'slumber_test'],
     long_description = read('README.markdown'),
-    install_requires = ['simplejson'],
+    install_requires = ['simplejson', 'httplib2'],
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Framework :: Django",
