@@ -64,3 +64,7 @@ class TestLoads(TestCase):
         pizza = client.slumber_test.Pizza.get(pk=s.pk)
         self.assertEqual('S1', pizza.name)
 
+    def test_instance_no_pk(self):
+        client = Client('localhost:8000', '/slumber')
+        pizza = client.slumber_test.Pizza.get(pk=None)
+        self.assertTrue(pizza is None)
