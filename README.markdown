@@ -20,6 +20,14 @@ The data client is to be found in `sluber.client`. It must be configured to be t
 
     SLUMBER_LOCAL='http://localhost:8000/'
 
+In order to fetch objects from the remote end you should import the client and make use of it:
+
+    from slumber import client
+
+    def do_something():
+        pizza = client.slumber_test.Pizza.get(pk=1)
+        assert pizza
+
 
 # Doing development #
 
