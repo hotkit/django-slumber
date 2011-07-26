@@ -1,6 +1,17 @@
+from django.conf import settings
+
 from httplib2 import Http
 from simplejson import loads
 
+
+def get(http, url):
+    if url.startswith(getattr(settings, 'SLUMBER_LOCAL', 'http://localhost:8000/')):
+        # Use Fake HTTP client
+        pass
+    else:
+        response, content = http.request(url)
+    assert response.status == 200, url
+    return response, loads(content)
 
 class Client(object):
     def __init__(self, server='localhost', root='', protocol='http'):
@@ -54,11 +65,6 @@ class Client(object):
     def _load_model(self, clz, url):
         clz.http = self.http
         clz.url = self._get_url(url)
-
-def get(http, url):
-    response, content = http.request(url)
-    assert response.status == 200, url
-    return response, loads(content)
 
 class MockedModel(object):
     pass
