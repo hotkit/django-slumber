@@ -13,14 +13,44 @@ class Client(object):
             directory = getattr(settings, 'SLUMBER_DIRECTORY',
                 'http://localhost:8000/slumber/')
         self._directory = directory
+        response, json = get(self._directory)
+        def set_app_attr(on, app_url, *path):
+            if len(path) == 0:
+                on._url = app_url
+                return
+            elif not hasattr(on, path[0]):
+                setattr(on, path[0], AppConnector())
+            set_app_attr(getattr(on, path[0]), app_url, *path[1:])
+        for app, url in json['apps'].items():
+            app_url = urljoin(self._directory, url)
+            set_app_attr(self, app_url, *app.split('.'))
+
+
+class AppConnector(DictObject):
+    _url = None
+    def __getattr__(self, name):
+        if not self._url:
+            raise AttributeError(name)
+        response, json = get(self._url)
+        models = json['models']
+        for m, u in models.items():
+            model_url = urljoin(self._url, u)
+            setattr(self, m, ModelConnector(model_url))
+        if name in models.keys():
+            return getattr(self, name)
+        else:
+            raise AttributeError(name)
 
 
 class ModelConnector(DictObject):
+    def __init__(self, url):
+        self._url = url
+
     def get(self, **kwargs):
         pk = kwargs.get('pk', None)
         if pk is None:
             return None
-        url = self.url + 'get/'
+        url = urljoin(self._url, 'get/')
         response, json = get(url, {'pk': pk})
         def get_data_array(obj, name):
             if name in json['data_arrays'].keys():

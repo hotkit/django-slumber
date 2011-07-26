@@ -4,17 +4,13 @@ from slumber.connector import Client, DictObject
 from slumber_test.models import Pizza
 from mock import patch
 
-class TestGetUrl(TestCase):
+class TestDirectoryURLs(TestCase):
     def test_get_default_url_with_made_client(self):
         client = Client()
         self.assertEqual('http://localhost:8000/slumber/', client._directory)
 
     def test_get_default_url_with_default_client(self):
         self.assertEqual('http://localhost:8000/slumber/', client._directory)
-
-    def test_get_url_of_google(self):
-        client = Client('http://www.google.com/')
-        self.assertEqual('http://www.google.com/', client._directory)
 
 
 class TestLoads(TestCase):
@@ -33,10 +29,13 @@ class TestLoads(TestCase):
     def test_applications_with_dots_in_name(self):
         """
         dots (.) will be replaced with underscores (_) for some apps that may have dots in its name
-        (i.e. django.contrib.messages)
+        (i.e. django.contrib.sites)
         """
-        client = Client('http://localhost:8000/slumber')
-        self.assertTrue(hasattr(client, 'django_contrib_sites'), client.__dict__.keys())
+        client = Client()
+        self.assertTrue(hasattr(client, 'django'), client.__dict__.keys())
+        self.assertTrue(hasattr(client.django, 'contrib'), client.django.__dict__.keys())
+        self.assertTrue(hasattr(client.django.contrib, 'sites'),
+            (type(client.django.contrib), client.django.contrib.__dict__.keys()))
 
     def test_instance_data(self):
         s = Pizza(name='S1', for_sale=True)
