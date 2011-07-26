@@ -55,7 +55,7 @@ class TestBasicViews(TestCase):
         self.assertFalse(len(json['models']))
 
 
-    def test_instance_metadata(self):
+    def test_instance_metadata_pizza(self):
         response, json = self.do_get('/slumber/slumber_test/Pizza/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue(json['fields'].has_key('for_sale'))
@@ -64,6 +64,13 @@ class TestBasicViews(TestCase):
         self.assertEquals(json['operations']['instances'],
             '/slumber/slumber_test/Pizza/instances/')
         self.assertFalse(json['operations'].has_key('data'), json['operations'])
+
+    def test_instance_metadata_pizzaprice(self):
+        response, json = self.do_get('/slumber/slumber_test/PizzaPrice/')
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(json['fields'].has_key('pizza'))
+        self.assertEquals(json['fields']['pizza']['type'],
+            'slumber_test.models.Pizza')
 
 
     def test_instance_puttable(self):
@@ -147,6 +154,8 @@ class TestBasicViews(TestCase):
             {'start_after': '6'})
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 5)
+        self.assertEquals(json['page'][0],
+            {'pk': 5, 'data': '/slumber/slumber_test/PizzaPrice/data/5/', 'display': 'PizzaPrice object'})
         self.assertEquals(json['next_page'],
             '/slumber/slumber_test/Pizza/data/1/prices/?start_after=1')
         response, json = self.do_get('/slumber/slumber_test/Pizza/data/1/prices/',
