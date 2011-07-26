@@ -21,6 +21,32 @@ def get(ua, url):
     return response, loads(content)
 
 
+class DictObject(object):
+    """Allows generic Python objects to be created from a nested dict
+    structure describing the attrbutes.
+    """
+
+    def __init__(self, **kwargs):
+        """Load the specified key values.
+        """
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+
+#def merge_attrs(host, attrs):
+    #"""Sets attributes on an object based on values found in a dict in
+    #a nested manner.
+    #"""
+    #for k, v in attrs.items():
+        #if hasattr(v, 'items'):
+            #if not hasattr(host, k):
+                #setattr(host, k, DictObject(**v))
+            #else:
+                #_merge_attrs(getattr(host, k), v)
+        #else:
+            #setattr(host, k, v)
+
+
 class Client(object):
     def __init__(self, server='localhost', root='', protocol='http'):
         self.protocol = protocol

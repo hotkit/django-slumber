@@ -1,5 +1,5 @@
 from django.test import TestCase
-from slumber.client import Client
+from slumber.client import Client, DictObject
 from slumber_test.models import Pizza
 from mock import patch
 
@@ -45,9 +45,16 @@ class TestLoads(TestCase):
         args = (('/slumber',))
         mocked_load_apps.assert_called_with_args(args)
 
-    def test_applications(self):
+    def test_applications_local(self):
         client = Client('localhost:8000', '/slumber')
         self.assertTrue(hasattr(client, 'slumber_test'))
+
+    def test_applications_remote(self):
+        def request(k, u):
+            self.assertEquals(u, 'http://slumber.example.com/')
+            return DictObject(status=200), '''{"apps":{}}'''
+        with patch('slumber.client.Http.request', request):
+            client = Client('slumber.example.com', '/')
 
     def test_applications_with_dots_in_name(self):
         """
