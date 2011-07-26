@@ -1,5 +1,7 @@
+from django.db.models import ForeignKey
 from django.db.models.fields import FieldDoesNotExist
 
+from slumber.caches import MODEL_CACHE
 from slumber.operations import InstanceList, CreateInstance
 from slumber.operations.instancedata import DereferenceInstance, \
     InstanceData, InstanceDataArray
@@ -9,6 +11,7 @@ class DjangoModel(object):
     """Describes a Django model.
     """
     def __init__(self, app, model_instance):
+        MODEL_CACHE[model_instance] = self
         self.app = app
         self.model = model_instance
         self.name = model_instance.__name__
@@ -19,8 +22,11 @@ class DjangoModel(object):
             try:
                 definition = model_instance._meta.get_field(field)
                 field_type = type(definition)
+                if field_type == ForeignKey:
+                    field_type = definition.rel.to
+                type_name = field_type.__module__ + '.' + field_type.__name__
                 self.fields[field] = dict(name=field,
-                    type=field_type.__module__ + '.' + field_type.__name__,
+                    type=type_name,
                     verbose_name=definition.verbose_name)
             except FieldDoesNotExist:
                 self.data_arrays.append(field)
