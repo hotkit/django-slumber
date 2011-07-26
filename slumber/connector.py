@@ -104,7 +104,7 @@ class Client(object):
         clz.url = self._get_url(url)
 
 
-class ModelConnector(object):
+class ModelConnector(DictObject):
     def get(self, **kwargs):
         pk = kwargs.get('pk', None)
         if pk is None:
