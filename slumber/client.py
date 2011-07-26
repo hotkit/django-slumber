@@ -1,9 +1,10 @@
 from httplib2 import Http
 from simplejson import loads
 
+
 class Client(object):
     def __init__(self, server='localhost', root='', protocol='http'):
-        self.protocol = protocol 
+        self.protocol = protocol
         self.server = server
         self.http = Http()
 
@@ -12,10 +13,10 @@ class Client(object):
     def _do_get(self, uri):
         """
         get response in JSON format from slumber server and loads it into a python dict
-        """ 
-        url = self._get_url(uri) 
-        return get(self.http, url) 
-        
+        """
+        url = self._get_url(uri)
+        return get(self.http, url)
+
     def _get_url(self, uri='/'):
         server = self.protocol + '://' + self.server
         return  server + uri
@@ -39,26 +40,26 @@ class Client(object):
     def _load_apps(self, url):
         """
         inject attribute self.x where x is a key in apps
-        the value of x is loaded using _load_models method from apps[key] 
+        the value of x is loaded using _load_models method from apps[key]
         """
         self._load(url, 'apps', self, self._load_models, MockedModel)
 
     def _load_models(self, app, url):
         """
-        inject attribute app.x where x is a key in models 
-        the value of x is loaded using _load_model method from models[key] 
+        inject attribute app.x where x is a key in models
+        the value of x is loaded using _load_model method from models[key]
         """
         self._load(url, 'models', app, self._load_model, DataFetcher)
 
     def _load_model(self, clz, url):
         clz.http = self.http
         clz.url = self._get_url(url)
-        
+
 def get(http, url):
     response, content = http.request(url)
     assert response.status == 200, url
     return response, loads(content)
- 
+
 class MockedModel(object):
     pass
 
