@@ -48,7 +48,7 @@ class DictObject(object):
 
 
 class Client(object):
-    def __init__(self, server='localhost', root='', protocol='http'):
+    def __init__(self, server='localhost:8000', root='/slumber/', protocol='http'):
         self.protocol = protocol
         self.server = server
         self.fake = FakeClient()

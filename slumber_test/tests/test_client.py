@@ -1,4 +1,5 @@
 from django.test import TestCase
+from slumber import client
 from slumber.connector import Client, DictObject
 from slumber_test.models import Pizza
 from mock import patch
@@ -7,7 +8,7 @@ class TestGetUrl(TestCase):
     @patch('slumber.connector.Client._load_apps')
     def test_get_default_url(self, mocked_load_apps):
         client = Client()
-        self.assertEqual('http://localhost/', client._get_url())
+        self.assertEqual('http://localhost:8000/', client._get_url())
 
     @patch('slumber.connector.Client._load_apps')
     def test_get_url_of_google(self, mocked_load_apps):
@@ -17,12 +18,12 @@ class TestGetUrl(TestCase):
     @patch('slumber.connector.Client._load_apps')
     def test_get_url_with_root(self, mocked_load_apps):
         client = Client()
-        self.assertEqual('http://localhost/', client._get_url())
+        self.assertEqual('http://localhost:8000/', client._get_url())
 
     @patch('slumber.connector.Client._load_apps')
     def test_get_some_url(self, mocked_load_apps):
         client = Client()
-        self.assertEqual('http://localhost/slumber_test/', client._get_url('/slumber_test/'))
+        self.assertEqual('http://localhost:8000/rooted_url/', client._get_url('/rooted_url/'))
 
 
 class TestDoGet(TestCase):
