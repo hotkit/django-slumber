@@ -70,7 +70,7 @@ class Client(object):
     def _get_url(self, uri='/'):
         return urljoin(self._directory, uri)
 
-    def _load(self, url, type, obj, sub_fn, cls, *cls_args):
+    def _load(self, url, type, obj, sub_fn, cls):
         """
         1. make a GET request to the given `url`
         2. get a dict of json.parse(content)[type] (i.e. 'apps', 'models')
@@ -82,7 +82,7 @@ class Client(object):
 
         for key, value in response_dict.items():
             key = key.replace('.', '_')
-            attribute_value = cls(*cls_args)
+            attribute_value = cls()
             setattr(obj, key, attribute_value)
             sub_fn(attribute_value, value)
 
