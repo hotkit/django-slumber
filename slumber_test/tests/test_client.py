@@ -6,8 +6,12 @@ from mock import patch
 
 class TestGetUrl(TestCase):
     @patch('slumber.connector.Client._load_apps')
-    def test_get_default_url(self, mocked_load_apps):
+    def test_get_default_url_with_made_client(self, mocked_load_apps):
         client = Client()
+        self.assertEqual('http://localhost:8000/', client._get_url())
+
+    @patch('slumber.connector.Client._load_apps')
+    def test_get_default_url_with_default_client(self, mocked_load_apps):
         self.assertEqual('http://localhost:8000/', client._get_url())
 
     @patch('slumber.connector.Client._load_apps')
@@ -32,7 +36,6 @@ class TestDoGet(TestCase):
         """
         _do_get should return the dict of the result
         """
-        client = Client('localhost:8000')
         response, json = client._do_get('/slumber')
         apps = json['apps']
         self.assertEquals(apps['slumber_test'], '/slumber/slumber_test/')
@@ -68,11 +71,9 @@ class TestLoads(TestCase):
     def test_instance_data(self):
         s = Pizza(name='S1', for_sale=True)
         s.save()
-        client = Client('localhost:8000', '/slumber')
         pizza = client.slumber_test.Pizza.get(pk=s.pk)
         self.assertEqual('S1', pizza.name)
 
     def test_instance_no_pk(self):
-        client = Client('localhost:8000', '/slumber')
         pizza = client.slumber_test.Pizza.get(pk=None)
         self.assertTrue(pizza is None)
