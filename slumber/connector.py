@@ -20,7 +20,6 @@ def get(url, query={}):
         response = _fake.get(url_fragment, query,
             HTTP_HOST='localhost:8000')
         if response.status_code in [301, 302]:
-            print "Redirecting", response['location']
             return get(response['location'])
         assert response.status_code == 200, (url_fragment, response)
         content = response.content
