@@ -74,6 +74,7 @@ class TestLoads(TestCase):
         s.save()
         pizza = client.slumber_test.Pizza.get(pk=s.pk)
         self.assertEqual('S1', pizza.name)
+        prices = pizza.prices
 
     def test_instance_no_pk(self):
         pizza = client.slumber_test.Pizza.get(pk=None)

@@ -39,7 +39,13 @@ class DictObject(object):
         """Load the specified key values.
         """
         for k, v in kwargs.items():
-            setattr(self, k, v)
+            if k == '__getattr__':
+                self._getattr = v
+            else:
+                setattr(self, k, v)
+
+    def __getattr__(self, name):
+        return self._getattr(self, name)
 
 
 #def merge_attrs(host, attrs):
@@ -116,5 +122,11 @@ class DataFetcher(object):
             return None
         url = self.url + 'get/'
         response, json = get(url, {'pk': pk})
-        obj = DictObject(**dict([(k, from_json_data(j)) for k, j in json['fields'].items()]))
+        def get_data_array(obj, name):
+            if name in json['data_arrays'].keys():
+                return []
+            else:
+                raise AttributeError()
+        obj = DictObject(__getattr__=get_data_array,
+            **dict([(k, from_json_data(j)) for k, j in json['fields'].items()]))
         return obj
