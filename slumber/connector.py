@@ -91,8 +91,6 @@ class Client(object):
         inject attribute self.x where x is a key in apps
         the value of x is loaded using _load_models method from apps[key]
         """
-        def get_models(app, name):
-            raise NotImplemented()
         self._load(url, 'apps', self, self._load_models, DictObject)
 
     def _load_models(self, app, url):
