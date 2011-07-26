@@ -1,3 +1,4 @@
+from django.db.models import ForeignKey
 from django.db.models.fields import FieldDoesNotExist
 
 from slumber.operations import InstanceList, CreateInstance
@@ -18,6 +19,8 @@ class DjangoModel(object):
             try:
                 definition = model_instance._meta.get_field(field)
                 field_type = type(definition)
+                if field_type == ForeignKey:
+                    field_type = definition.rel.to
                 self.fields[field] = dict(name=field,
                     type=field_type.__module__ + '.' + field_type.__name__,
                     verbose_name=definition.verbose_name)
