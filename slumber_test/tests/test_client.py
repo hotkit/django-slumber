@@ -5,50 +5,19 @@ from slumber_test.models import Pizza
 from mock import patch
 
 class TestGetUrl(TestCase):
-    @patch('slumber.connector.Client._load_apps')
-    def test_get_default_url_with_made_client(self, mocked_load_apps):
+    def test_get_default_url_with_made_client(self):
         client = Client()
-        self.assertEqual('http://localhost:8000/', client._get_url())
+        self.assertEqual('http://localhost:8000/slumber/', client._directory)
 
-    @patch('slumber.connector.Client._load_apps')
-    def test_get_default_url_with_default_client(self, mocked_load_apps):
-        self.assertEqual('http://localhost:8000/', client._get_url())
+    def test_get_default_url_with_default_client(self):
+        self.assertEqual('http://localhost:8000/slumber/', client._directory)
 
-    @patch('slumber.connector.Client._load_apps')
-    def test_get_url_of_google(self, mocked_load_apps):
+    def test_get_url_of_google(self):
         client = Client('http://www.google.com/')
-        self.assertEqual('http://www.google.com/', client._get_url())
-
-    @patch('slumber.connector.Client._load_apps')
-    def test_get_url_with_root(self, mocked_load_apps):
-        client = Client()
-        self.assertEqual('http://localhost:8000/', client._get_url())
-
-    @patch('slumber.connector.Client._load_apps')
-    def test_get_some_url(self, mocked_load_apps):
-        client = Client()
-        self.assertEqual('http://localhost:8000/rooted_url/',
-            client._get_url('/rooted_url/'))
-
-
-class TestDoGet(TestCase):
-    @patch('slumber.connector.Client._load_apps')
-    def test_do_get(self, mocked_load_apps):
-        """
-        _do_get should return the dict of the result
-        """
-        response, json = client._do_get('/slumber')
-        apps = json['apps']
-        self.assertEquals(apps['slumber_test'], '/slumber/slumber_test/')
+        self.assertEqual('http://www.google.com/', client._directory)
 
 
 class TestLoads(TestCase):
-
-    @patch('slumber.connector.Client._load_apps')
-    def test_root_is_passed_in_load_apps(self, mocked_load_apps):
-        client = Client('http://localhost:8000/slumber')
-        args = (('http://localhost:8000/slumber',))
-        mocked_load_apps.assert_called_with_args(args)
 
     def test_applications_local(self):
         client = Client('http://localhost:8000/slumber')
