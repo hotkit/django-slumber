@@ -64,6 +64,7 @@ class TestBasicViews(TestCase):
         self.assertEquals(json['operations']['instances'],
             '/slumber/slumber_test/Pizza/instances/')
         self.assertFalse(json['operations'].has_key('data'), json['operations'])
+        self.assertTrue(json['operations'].has_key('get'), json['operations'])
 
 
     def test_instance_puttable(self):
@@ -115,6 +116,17 @@ class TestBasicViews(TestCase):
         self.assertEquals(Pizza.objects.count(), 1)
         self.assertEquals(Pizza.objects.all()[0].name, 'Test Pizza')
 
+
+    def test_get_instance(self):
+        s = Pizza(name='S1', for_sale=True)
+        s.save()
+        response, json = self.do_get('/slumber/slumber_test/Pizza/')
+        get_url = json['operations']['get']
+        self.assertEquals(get_url, '/slumber/slumber_test/Pizza/get/')
+        response, json = self.do_get(get_url, {'pk': s.pk})
+        self.assertEquals(response.status_code, 302, response)
+        self.assertEquals(response['location'],
+            'http://localhost/slumber/slumber_test/Pizza/data/%s/' % s.pk)
 
     def test_instance_data(self):
         s = Pizza(name='S1', for_sale=True)

@@ -27,7 +27,8 @@ class TestGetUrl(TestCase):
     @patch('slumber.connector.Client._load_apps')
     def test_get_some_url(self, mocked_load_apps):
         client = Client()
-        self.assertEqual('http://localhost:8000/rooted_url/', client._get_url('/rooted_url/'))
+        self.assertEqual('http://localhost:8000/rooted_url/',
+            client._get_url('/rooted_url/'))
 
 
 class TestDoGet(TestCase):
