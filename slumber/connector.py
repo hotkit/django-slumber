@@ -6,6 +6,8 @@ from urlparse import urljoin
 from httplib2 import Http
 from simplejson import loads
 
+from slumber.json import from_json_data
+
 
 _fake = FakeClient()
 _http = Http()
@@ -93,7 +95,7 @@ class Client(object):
         inject attribute self.x where x is a key in apps
         the value of x is loaded using _load_models method from apps[key]
         """
-        self._load(url, 'apps', self, self._load_models, MockedModel)
+        self._load(url, 'apps', self, self._load_models, DictObject)
 
     def _load_models(self, app, url):
         """
@@ -105,8 +107,6 @@ class Client(object):
     def _load_model(self, clz, url):
         clz.url = self._get_url(url)
 
-class MockedModel(object):
-    pass
 
 class DataFetcher(object):
     command = 'data/%s/'
@@ -117,8 +117,6 @@ class DataFetcher(object):
             return None
         url = self.url + (self.command % pk)
         response, json = get(url)
-        obj = MockedModel()
-        for field, value in json['fields'].items():
-            setattr(obj, field, value['data'])
+        obj = DictObject(**dict([(k, from_json_data(j)) for k, j in json['fields'].items()]))
         return obj
 
