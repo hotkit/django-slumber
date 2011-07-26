@@ -126,7 +126,7 @@ class DataFetcher(object):
             if name in json['data_arrays'].keys():
                 return []
             else:
-                raise AttributeError()
+                raise AttributeError(name)
         obj = DictObject(__getattr__=get_data_array,
             **dict([(k, from_json_data(j)) for k, j in json['fields'].items()]))
         return obj
