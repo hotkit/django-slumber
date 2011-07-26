@@ -4,29 +4,29 @@ from slumber_test.models import Pizza
 from mock import patch
 
 class TestGetUrl(TestCase):
-    @patch('slumber.client.Client._load_apps') 
+    @patch('slumber.client.Client._load_apps')
     def test_get_default_url(self, mocked_load_apps):
         client = Client()
         self.assertEqual('http://localhost/', client._get_url())
 
-    @patch('slumber.client.Client._load_apps') 
+    @patch('slumber.client.Client._load_apps')
     def test_get_url_of_google(self, mocked_load_apps):
         client = Client('www.google.com')
         self.assertEqual('http://www.google.com/', client._get_url())
-        
-    @patch('slumber.client.Client._load_apps') 
+
+    @patch('slumber.client.Client._load_apps')
     def test_get_url_with_root(self, mocked_load_apps):
         client = Client()
         self.assertEqual('http://localhost/', client._get_url())
 
-    @patch('slumber.client.Client._load_apps') 
+    @patch('slumber.client.Client._load_apps')
     def test_get_some_url(self, mocked_load_apps):
         client = Client()
         self.assertEqual('http://localhost/slumber_test/', client._get_url('/slumber_test/'))
-        
+
 
 class TestDoGet(TestCase):
-    @patch('slumber.client.Client._load_apps') 
+    @patch('slumber.client.Client._load_apps')
     def test_do_get(self, mocked_load_apps):
         """
         _do_get should return the dict of the result
@@ -39,7 +39,7 @@ class TestDoGet(TestCase):
 
 class TestLoads(TestCase):
 
-    @patch('slumber.client.Client._load_apps') 
+    @patch('slumber.client.Client._load_apps')
     def test_root_is_passed_in_load_apps(self, mocked_load_apps):
         client = Client(root='/slumber')
         args = (('/slumber',))
@@ -51,7 +51,7 @@ class TestLoads(TestCase):
 
     def test_applications_with_dots_in_name(self):
         """
-        dots (.) will be replaced with underscores (_) for some apps that may have dots in its name 
+        dots (.) will be replaced with underscores (_) for some apps that may have dots in its name
         (i.e. django.contrib.messages)
         """
         client = Client('localhost:8003', '/slumber')
@@ -62,5 +62,5 @@ class TestLoads(TestCase):
         s.save()
         client = Client('localhost:8003', '/slumber')
         pizza = client.slumber_test.Pizza.get(pk=s.pk)
-        self.assertEqual('S1', pizza.name)        
+        self.assertEqual('S1', pizza.name)
 
