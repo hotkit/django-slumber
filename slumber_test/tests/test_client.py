@@ -75,6 +75,9 @@ class TestLoads(TestCase):
         pizza = client.slumber_test.Pizza.get(pk=s.pk)
         self.assertEqual('S1', pizza.name)
         prices = pizza.prices
+        self.assertEqual(len(prices), 0)
+        with self.assertRaises(AttributeError):
+            pizza.not_a_field
 
     def test_instance_no_pk(self):
         pizza = client.slumber_test.Pizza.get(pk=None)
