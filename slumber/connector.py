@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.test.client import Client as FakeClient
 
+from urlparse import urljoin
+
 from httplib2 import Http
 from simplejson import loads
 
@@ -52,10 +54,13 @@ class DictObject(object):
 
 
 class Client(object):
-    def __init__(self, server='localhost:8000', root='/slumber/', protocol='http'):
-        self.protocol = protocol
-        self.server = server
-        self._load_apps(root)
+
+    def __init__(self, directory=None):
+        if not directory:
+            directory = getattr(settings, 'SLUMBER_DIRECTORY',
+                'http://localhost:8000/slumber/')
+        self._directory = directory
+        self._load_apps(directory)
 
     def _do_get(self, uri):
         """
@@ -65,8 +70,7 @@ class Client(object):
         return get(url)
 
     def _get_url(self, uri='/'):
-        server = self.protocol + '://' + self.server
-        return  server + uri
+        return urljoin(self._directory, uri)
 
     def _load(self, url, type, obj, sub_fn, cls):
         """

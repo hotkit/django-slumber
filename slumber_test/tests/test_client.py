@@ -16,7 +16,7 @@ class TestGetUrl(TestCase):
 
     @patch('slumber.connector.Client._load_apps')
     def test_get_url_of_google(self, mocked_load_apps):
-        client = Client('www.google.com')
+        client = Client('http://www.google.com/')
         self.assertEqual('http://www.google.com/', client._get_url())
 
     @patch('slumber.connector.Client._load_apps')
@@ -45,12 +45,12 @@ class TestLoads(TestCase):
 
     @patch('slumber.connector.Client._load_apps')
     def test_root_is_passed_in_load_apps(self, mocked_load_apps):
-        client = Client(root='/slumber')
-        args = (('/slumber',))
+        client = Client('http://localhost:8000/slumber')
+        args = (('http://localhost:8000/slumber',))
         mocked_load_apps.assert_called_with_args(args)
 
     def test_applications_local(self):
-        client = Client('localhost:8000', '/slumber')
+        client = Client('http://localhost:8000/slumber')
         self.assertTrue(hasattr(client, 'slumber_test'))
 
     def test_applications_remote(self):
@@ -58,14 +58,14 @@ class TestLoads(TestCase):
             self.assertEquals(u, 'http://slumber.example.com/')
             return DictObject(status=200), '''{"apps":{}}'''
         with patch('slumber.connector.Http.request', request):
-            client = Client('slumber.example.com', '/')
+            client = Client('http://slumber.example.com/')
 
     def test_applications_with_dots_in_name(self):
         """
         dots (.) will be replaced with underscores (_) for some apps that may have dots in its name
         (i.e. django.contrib.messages)
         """
-        client = Client('localhost:8000', '/slumber')
+        client = Client('http://localhost:8000/slumber')
         self.assertTrue(hasattr(client, 'django_contrib_sites'), client.__dict__.keys())
 
     def test_instance_data(self):
