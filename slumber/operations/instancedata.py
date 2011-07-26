@@ -1,7 +1,18 @@
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
 from slumber.json import to_json_data
-from slumber.operations import InstanceOperation
+from slumber.operations import InstanceOperation, ModelOperation
+
+
+class DereferenceInstance(ModelOperation):
+    """Given a primary key (or other unique set of attributes) redirects
+    to the instance item."""
+    def operation(self, request, response, appname, modelname):
+        root = reverse('slumber.views.get_applications')
+        instance = self.model.model.objects.get(pk=request.GET['pk'])
+        return HttpResponseRedirect(
+            root + self.model.path + 'data/%s/' % instance.pk)
 
 
 class InstanceData(InstanceOperation):

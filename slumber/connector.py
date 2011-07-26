@@ -1,22 +1,31 @@
 from django.conf import settings
 from django.test.client import Client as FakeClient
 
+from urlparse import urljoin
+
 from httplib2 import Http
 from simplejson import loads
 
+from slumber.json import from_json_data
 
-def get(ua, url):
+
+_fake = FakeClient()
+_http = Http()
+
+
+def get(url, query={}):
     slumber_local = getattr(settings, 'SLUMBER_LOCAL', 'http://localhost:8000/')
     if url.startswith(slumber_local):
         url_fragment = url[len(slumber_local) - 1:]
-        response = ua.fake.get(url_fragment,
+        response = _fake.get(url_fragment, query,
             HTTP_HOST='localhost:8000')
         if response.status_code in [301, 302]:
-            return get(ua, response['location'])
-        assert response.status_code == 200, url
+            return get(response['location'])
+        assert response.status_code == 200, (url_fragment, response)
         content = response.content
     else:
-        response, content = ua.http.request(url)
+        assert not query # Not implemented for remote end yet
+        response, content = _http.request(url)
         assert response.status == 200, url
     return response, loads(content)
 
@@ -48,24 +57,23 @@ class DictObject(object):
 
 
 class Client(object):
-    def __init__(self, server='localhost', root='', protocol='http'):
-        self.protocol = protocol
-        self.server = server
-        self.fake = FakeClient()
-        self.http = Http()
 
-        self._load_apps(root)
+    def __init__(self, directory=None):
+        if not directory:
+            directory = getattr(settings, 'SLUMBER_DIRECTORY',
+                'http://localhost:8000/slumber/')
+        self._directory = directory
+        self._load_apps(directory)
 
     def _do_get(self, uri):
         """
         get response in JSON format from slumber server and loads it into a python dict
         """
         url = self._get_url(uri)
-        return get(self, url)
+        return get(url)
 
     def _get_url(self, uri='/'):
-        server = self.protocol + '://' + self.server
-        return  server + uri
+        return urljoin(self._directory, uri)
 
     def _load(self, url, type, obj, sub_fn, cls):
         """
@@ -88,7 +96,7 @@ class Client(object):
         inject attribute self.x where x is a key in apps
         the value of x is loaded using _load_models method from apps[key]
         """
-        self._load(url, 'apps', self, self._load_models, MockedModel)
+        self._load(url, 'apps', self, self._load_models, DictObject)
 
     def _load_models(self, app, url):
         """
@@ -98,24 +106,15 @@ class Client(object):
         self._load(url, 'models', app, self._load_model, DataFetcher)
 
     def _load_model(self, clz, url):
-        clz.http = self.http
-        clz.fake = self.fake
         clz.url = self._get_url(url)
 
-class MockedModel(object):
-    pass
 
 class DataFetcher(object):
-    command = 'data/%s/'
-
     def get(self, **kwargs):
         pk = kwargs.get('pk', None)
         if pk is None:
             return None
-        url = self.url + (self.command % pk)
-        response, json = get(self, url)
-        obj = MockedModel()
-        for field, value in json['fields'].items():
-            setattr(obj, field, value['data'])
+        url = self.url + 'get/'
+        response, json = get(url, {'pk': pk})
+        obj = DictObject(**dict([(k, from_json_data(j)) for k, j in json['fields'].items()]))
         return obj
-

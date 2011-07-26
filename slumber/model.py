@@ -1,7 +1,8 @@
 from django.db.models.fields import FieldDoesNotExist
 
 from slumber.operations import InstanceList, CreateInstance
-from slumber.operations.instancedata import InstanceData, InstanceDataArray
+from slumber.operations.instancedata import DereferenceInstance, \
+    InstanceData, InstanceDataArray
 
 
 class DjangoModel(object):
@@ -28,5 +29,5 @@ class DjangoModel(object):
         """Return all of  the operations available for this model.
         """
         return [InstanceList(self, 'instances'), CreateInstance(self, 'create'),
-                InstanceData(self, 'data')] + \
+                InstanceData(self, 'data'), DereferenceInstance(self, 'get')] + \
             [InstanceDataArray(self, 'data', f) for f in self.data_arrays]

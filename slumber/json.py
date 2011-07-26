@@ -16,3 +16,7 @@ def to_json_data(model, instance, fieldname, fieldmeta):
             return None
         else:
             return unicode(value)
+
+
+def from_json_data(json):
+    return json['data']
