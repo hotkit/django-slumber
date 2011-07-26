@@ -98,13 +98,13 @@ class Client(object):
         inject attribute app.x where x is a key in models
         the value of x is loaded using _load_model method from models[key]
         """
-        self._load(url, 'models', app, self._load_model, DataFetcher)
+        self._load(url, 'models', app, self._load_model, ModelConnector)
 
     def _load_model(self, clz, url):
         clz.url = self._get_url(url)
 
 
-class DataFetcher(object):
+class ModelConnector(object):
     def get(self, **kwargs):
         pk = kwargs.get('pk', None)
         if pk is None:
