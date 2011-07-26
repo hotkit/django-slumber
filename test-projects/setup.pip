@@ -1,5 +1,6 @@
 # Required by Slumber
 simplejson
+httplib2
 
 # Used for testing
 coverage
