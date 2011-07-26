@@ -13,6 +13,28 @@ _fake = FakeClient()
 _http = Http()
 
 
+class DictObject(object):
+    """Allows generic Python objects to be created from a nested dict
+    structure describing the attrbutes.
+    """
+
+    def __init__(self, **kwargs):
+        """Load the specified key values.
+        """
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+class LazyDictObject(DictObject):
+    """Allows generic Python objects to be created lazily when attributes are requested.
+    """
+    def __init__(self, getattr_function, **kwargs):
+        self._getattr = getattr_function
+        super(LazyDictObject, self).__init__(**kwargs)
+
+    def __getattr__(self, name):
+        return self._getattr(self, name)
+
+
 def get(url, query={}):
     slumber_local = getattr(settings, 'SLUMBER_LOCAL', 'http://localhost:8000/')
     if url.startswith(slumber_local):
@@ -30,40 +52,7 @@ def get(url, query={}):
     return response, loads(content)
 
 
-class DictObject(object):
-    """Allows generic Python objects to be created from a nested dict
-    structure describing the attrbutes.
-    """
-
-    def __init__(self, **kwargs):
-        """Load the specified key values.
-        """
-        for k, v in kwargs.items():
-            if k == '__getattr__':
-                self._getattr = v
-            else:
-                setattr(self, k, v)
-
-    def __getattr__(self, name):
-        return self._getattr(self, name)
-
-
-#def merge_attrs(host, attrs):
-    #"""Sets attributes on an object based on values found in a dict in
-    #a nested manner.
-    #"""
-    #for k, v in attrs.items():
-        #if hasattr(v, 'items'):
-            #if not hasattr(host, k):
-                #setattr(host, k, DictObject(**v))
-            #else:
-                #_merge_attrs(getattr(host, k), v)
-        #else:
-            #setattr(host, k, v)
-
-
 class Client(object):
-
     def __init__(self, directory=None):
         if not directory:
             directory = getattr(settings, 'SLUMBER_DIRECTORY',
@@ -81,7 +70,7 @@ class Client(object):
     def _get_url(self, uri='/'):
         return urljoin(self._directory, uri)
 
-    def _load(self, url, type, obj, sub_fn, cls):
+    def _load(self, url, type, obj, sub_fn, cls, *cls_args):
         """
         1. make a GET request to the given `url`
         2. get a dict of json.parse(content)[type] (i.e. 'apps', 'models')
@@ -93,7 +82,7 @@ class Client(object):
 
         for key, value in response_dict.items():
             key = key.replace('.', '_')
-            attribute_value = cls()
+            attribute_value = cls(*cls_args)
             setattr(obj, key, attribute_value)
             sub_fn(attribute_value, value)
 
@@ -102,6 +91,8 @@ class Client(object):
         inject attribute self.x where x is a key in apps
         the value of x is loaded using _load_models method from apps[key]
         """
+        def get_models(app, name):
+            raise NotImplemented()
         self._load(url, 'apps', self, self._load_models, DictObject)
 
     def _load_models(self, app, url):
@@ -127,6 +118,6 @@ class DataFetcher(object):
                 return []
             else:
                 raise AttributeError(name)
-        obj = DictObject(__getattr__=get_data_array,
+        obj = LazyDictObject(get_data_array,
             **dict([(k, from_json_data(j)) for k, j in json['fields'].items()]))
         return obj
