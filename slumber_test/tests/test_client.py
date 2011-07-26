@@ -1,32 +1,32 @@
 from django.test import TestCase
-from slumber.client import Client, DictObject
+from slumber.connector import Client, DictObject
 from slumber_test.models import Pizza
 from mock import patch
 
 class TestGetUrl(TestCase):
-    @patch('slumber.client.Client._load_apps')
+    @patch('slumber.connector.Client._load_apps')
     def test_get_default_url(self, mocked_load_apps):
         client = Client()
         self.assertEqual('http://localhost/', client._get_url())
 
-    @patch('slumber.client.Client._load_apps')
+    @patch('slumber.connector.Client._load_apps')
     def test_get_url_of_google(self, mocked_load_apps):
         client = Client('www.google.com')
         self.assertEqual('http://www.google.com/', client._get_url())
 
-    @patch('slumber.client.Client._load_apps')
+    @patch('slumber.connector.Client._load_apps')
     def test_get_url_with_root(self, mocked_load_apps):
         client = Client()
         self.assertEqual('http://localhost/', client._get_url())
 
-    @patch('slumber.client.Client._load_apps')
+    @patch('slumber.connector.Client._load_apps')
     def test_get_some_url(self, mocked_load_apps):
         client = Client()
         self.assertEqual('http://localhost/slumber_test/', client._get_url('/slumber_test/'))
 
 
 class TestDoGet(TestCase):
-    @patch('slumber.client.Client._load_apps')
+    @patch('slumber.connector.Client._load_apps')
     def test_do_get(self, mocked_load_apps):
         """
         _do_get should return the dict of the result
@@ -39,7 +39,7 @@ class TestDoGet(TestCase):
 
 class TestLoads(TestCase):
 
-    @patch('slumber.client.Client._load_apps')
+    @patch('slumber.connector.Client._load_apps')
     def test_root_is_passed_in_load_apps(self, mocked_load_apps):
         client = Client(root='/slumber')
         args = (('/slumber',))
@@ -53,7 +53,7 @@ class TestLoads(TestCase):
         def request(k, u):
             self.assertEquals(u, 'http://slumber.example.com/')
             return DictObject(status=200), '''{"apps":{}}'''
-        with patch('slumber.client.Http.request', request):
+        with patch('slumber.connector.Http.request', request):
             client = Client('slumber.example.com', '/')
 
     def test_applications_with_dots_in_name(self):
