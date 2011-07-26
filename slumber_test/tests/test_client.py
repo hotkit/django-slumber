@@ -58,7 +58,7 @@ class TestLoads(TestCase):
         def request(k, u):
             self.assertEquals(u, 'http://slumber.example.com/')
             return DictObject(status=200), '''{"apps":{}}'''
-        with patch('slumber.connector.Http.request', request):
+        with patch('slumber.connector.ua.Http.request', request):
             client = Client('http://slumber.example.com/')
 
     def test_applications_with_dots_in_name(self):
