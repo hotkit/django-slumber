@@ -31,7 +31,7 @@ class TestDoGet(TestCase):
         """
         _do_get should return the dict of the result
         """
-        client = Client('localhost:8003')
+        client = Client('localhost:8000')
         response, json = client._do_get('/slumber')
         apps = json['apps']
         self.assertEquals(apps['slumber_test'], '/slumber/slumber_test/')
@@ -46,21 +46,21 @@ class TestLoads(TestCase):
         mocked_load_apps.assert_called_with_args(args)
 
     def test_applications(self):
-        client = Client('localhost:8003', '/slumber')
-        self.assertTrue(client.slumber_test)
+        client = Client('localhost:8000', '/slumber')
+        self.assertTrue(hasattr(client, 'slumber_test'))
 
     def test_applications_with_dots_in_name(self):
         """
         dots (.) will be replaced with underscores (_) for some apps that may have dots in its name
         (i.e. django.contrib.messages)
         """
-        client = Client('localhost:8003', '/slumber')
-        self.assertTrue(client.django_contrib_messages)
+        client = Client('localhost:8000', '/slumber')
+        self.assertTrue(hasattr(client, 'django_contrib_sites'), client.__dict__.keys())
 
     def test_instance_data(self):
         s = Pizza(name='S1', for_sale=True)
         s.save()
-        client = Client('localhost:8003', '/slumber')
+        client = Client('localhost:8000', '/slumber')
         pizza = client.slumber_test.Pizza.get(pk=s.pk)
         self.assertEqual('S1', pizza.name)
 

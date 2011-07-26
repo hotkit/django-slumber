@@ -1,22 +1,31 @@
 from django.conf import settings
+from django.test.client import Client as FakeClient
 
 from httplib2 import Http
 from simplejson import loads
 
 
-def get(http, url):
-    if url.startswith(getattr(settings, 'SLUMBER_LOCAL', 'http://localhost:8000/')):
-        # Use Fake HTTP client
-        pass
+def get(ua, url):
+    slumber_local = getattr(settings, 'SLUMBER_LOCAL', 'http://localhost:8000/')
+    if url.startswith(slumber_local):
+        url_fragment = url[len(slumber_local) - 1:]
+        response = ua.fake.get(url_fragment,
+            HTTP_HOST='localhost:8000')
+        if response.status_code in [301, 302]:
+            return get(ua, response['location'])
+        assert response.status_code == 200, url
+        content = response.content
     else:
-        response, content = http.request(url)
-    assert response.status == 200, url
+        response, content = ua.http.request(url)
+        assert response.status == 200, url
     return response, loads(content)
+
 
 class Client(object):
     def __init__(self, server='localhost', root='', protocol='http'):
         self.protocol = protocol
         self.server = server
+        self.fake = FakeClient()
         self.http = Http()
 
         self._load_apps(root)
@@ -26,7 +35,7 @@ class Client(object):
         get response in JSON format from slumber server and loads it into a python dict
         """
         url = self._get_url(uri)
-        return get(self.http, url)
+        return get(self, url)
 
     def _get_url(self, uri='/'):
         server = self.protocol + '://' + self.server
@@ -64,6 +73,7 @@ class Client(object):
 
     def _load_model(self, clz, url):
         clz.http = self.http
+        clz.fake = self.fake
         clz.url = self._get_url(url)
 
 class MockedModel(object):
@@ -77,7 +87,7 @@ class DataFetcher(object):
         if pk is None:
             return None
         url = self.url + (self.command % pk)
-        response, json = get(self.http, url)
+        response, json = get(self, url)
         obj = MockedModel()
         for field, value in json['fields'].items():
             setattr(obj, field, value['data'])
