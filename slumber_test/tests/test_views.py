@@ -154,6 +154,8 @@ class TestBasicViews(TestCase):
             {'start_after': '6'})
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 5)
+        self.assertEquals(json['page'][0],
+            {'pk': 5, 'data': '/slumber/slumber_test/PizzaPrice/data/5/', 'display': 'PizzaPrice object'})
         self.assertEquals(json['next_page'],
             '/slumber/slumber_test/Pizza/data/1/prices/?start_after=1')
         response, json = self.do_get('/slumber/slumber_test/Pizza/data/1/prices/',

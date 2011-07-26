@@ -14,4 +14,5 @@ class DjangoApp(object):
             for name in self.module.models.__dict__.keys():
                 potential = getattr(self.module.models, name)
                 if hasattr(potential, '_meta'):
-                    self.models[name] = DjangoModel(self, potential)
+                    dm = DjangoModel(self, potential)
+                    self.models[name] = dm
