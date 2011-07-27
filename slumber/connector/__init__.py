@@ -50,8 +50,6 @@ class AppConnector(DictObject):
             model_url = urljoin(self._url, u)
             setattr(self, m, ModelConnector(model_url))
         if name in models.keys():
-            # We are not yet lazy loading the models so this line won't be
-            # in test coverage
             return getattr(self, name)
         else:
             raise AttributeError(name)
