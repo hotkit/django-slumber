@@ -49,7 +49,7 @@ def _return_data_array(base_url, arrays, instance, name):
     if name in arrays.keys():
         data_array = []
         response, data = get(urljoin(base_url, arrays[name]))
-        while len(data['page']):
+        while True:
             for obj in data['page']:
                 data_array.append(
                     InstanceConnector(
