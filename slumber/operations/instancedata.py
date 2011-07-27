@@ -1,7 +1,19 @@
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
+from slumber.caches import MODEL_CACHE
 from slumber.json import to_json_data
-from slumber.operations import InstanceOperation
+from slumber.operations import InstanceOperation, ModelOperation
+
+
+class DereferenceInstance(ModelOperation):
+    """Given a primary key (or other unique set of attributes) redirects
+    to the instance item."""
+    def operation(self, request, response, appname, modelname):
+        root = reverse('slumber.views.get_applications')
+        instance = self.model.model.objects.get(pk=request.GET['pk'])
+        return HttpResponseRedirect(
+            root + self.model.path + 'data/%s/' % instance.pk)
 
 
 class InstanceData(InstanceOperation):
@@ -37,17 +49,18 @@ class InstanceDataArray(InstanceOperation):
             self.name, str(pk), self.field)
 
         try:
-            query = getattr(instance, self.field + '_set').order_by('-pk')
+            query = getattr(instance, self.field + '_set')
         except AttributeError:
-            query = getattr(instance, self.field).order_by('-pk')
+            query = getattr(instance, self.field)
+        query = query.order_by('-pk')
         if request.GET.has_key('start_after'):
             query = query.filter(pk__lt=request.GET['start_after'])
 
         response['page'] = [
                 dict(pk=o.pk, display=unicode(o),
-                    data=root + 'xxx/%s/' % o.pk)
+                    data=root + MODEL_CACHE[type(o)].path + 'data/%s/' % o.pk)
             for o in query[:10]]
         if len(response['page']) > 0:
-            response['next_page'] = root +self.model.path + \
+            response['next_page'] = root + self.model.path + \
                 '%s/%s/%s/?start_after=%s' % (
                     self.name, instance.pk, self.field, response['page'][-1]['pk'])
