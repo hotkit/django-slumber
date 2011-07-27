@@ -44,8 +44,11 @@ class TestLoads(TestCase):
         self.assertEqual('S1', pizza.name)
         prices = pizza.prices
         self.assertEqual(len(prices), 0)
-        with self.assertRaises(AttributeError):
+        try:
             pizza.not_a_field
+            self.fail("This should have thrown an AttributeError")
+        except AttributeError:
+            pass
 
     def test_instance_data_with_data_array(self):
         s = Pizza(name='S1', for_sale=True)
