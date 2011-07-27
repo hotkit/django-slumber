@@ -71,7 +71,7 @@ class TestBasicViews(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTrue(json['fields'].has_key('pizza'))
         self.assertEquals(json['fields']['pizza']['type'],
-            'slumber_test.models.Pizza')
+            '/slumber/slumber_test/Pizza/')
 
 
     def test_instance_puttable(self):
@@ -135,7 +135,7 @@ class TestBasicViews(TestCase):
         self.assertEquals(response['location'],
             'http://localhost/slumber/slumber_test/Pizza/data/%s/' % s.pk)
 
-    def test_instance_data(self):
+    def test_instance_data_pizza(self):
         s = Pizza(name='S1', for_sale=True)
         s.save()
         response, json = self.do_get('/slumber/slumber_test/Pizza/data/%s/' % s.pk)
@@ -149,6 +149,21 @@ class TestBasicViews(TestCase):
             display='S1',
             data_arrays=dict(
                 prices='/slumber/slumber_test/Pizza/data/%s/prices/' % s.pk)))
+
+    def test_instance_data_pizzaprice(self):
+        s = Pizza(name='p1', for_sale=True)
+        s.save()
+        p = PizzaPrice(pizza=s, date='2010-01-01', amount="13.95")
+        p.save()
+        response, json = self.do_get('/slumber/slumber_test/PizzaPrice/data/%s/' % p.pk)
+        self.assertEquals(json, dict(display="PizzaPrice object",
+            fields=dict(
+                id={'data': 1, 'type': 'django.db.models.fields.AutoField'},
+                pizza={'data': 'p1', 'type': '/slumber/slumber_test/Pizza/'},
+                date={'data': '2010-01-01', 'type': 'django.db.models.fields.DateField'},
+                amount={'data': '13.95', 'type': 'django.db.models.fields.DecimalField'},
+            ),
+            data_arrays={}), json)
 
     def test_instance_data_array(self):
         s = Pizza(name='P', for_sale=True)
