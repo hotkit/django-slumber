@@ -16,7 +16,11 @@ In order to start to use Slumber on the server side you simply need to include i
 
 ## The Slumber data client ##
 
-The data client is to be found at `slumber.client`. It must be configured to be told the URL prefix for local Slumber accesses. This is set as below in `settings.py`. The value shown below is the default.
+The data client is to be found at `slumber.client`. It must be configured to be told the location of the directory server.
+
+    SLUMBER_DIRECTORY='http://localhost:8000/slumber/'
+
+You should also configure a URL prefix for local Slumber accesses. This is set as below in `settings.py`. The value shown below is the default.
 
     SLUMBER_LOCAL='http://localhost:8000/'
 
