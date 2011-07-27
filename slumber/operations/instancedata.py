@@ -26,8 +26,9 @@ class InstanceData(InstanceOperation):
         response['fields'] = {}
         for field, meta in self.model.fields.items():
             data = getattr(instance, field)
-            response['fields'][field] = dict(data=to_json_data(self.model, instance, field, meta),
-                type=meta['type'])
+            response['fields'][field] = dict(
+                data=to_json_data(self.model, instance, field, meta),
+                kind=meta['kind'], type=meta['type'])
         response['data_arrays'] = {}
         for field in self.model.data_arrays:
             response['data_arrays'][field] = root + self.model.path + '%s/%s/%s/' % (
