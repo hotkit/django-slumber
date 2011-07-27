@@ -55,7 +55,8 @@ class TestLoads(TestCase):
         pizza = client.slumber_test.Pizza.get(pk=s.pk)
         self.assertEqual('S1', pizza.name)
         prices = pizza.prices
-        self.assertEqual(len(prices), 15)
+        self.assertEquals(len(prices), 15)
+        self.assertEquals(unicode(prices[0]), "PizzaPrice object")
 
     def test_instance_no_pk(self):
         pizza = client.slumber_test.Pizza.get(pk=None)

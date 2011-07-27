@@ -61,7 +61,7 @@ class ModelConnector(DictObject):
                 response, data = get(urljoin(self._url, json['data_arrays'][name]))
                 while len(data['page']):
                     for obj in data['page']:
-                        data_array.append(obj)
+                        data_array.append(InstanceConnector(obj['data'], obj['display']))
                     if data.has_key('next_page'):
                         response, data = get(urljoin(self._url, data['next_page']))
                     else:
@@ -72,3 +72,16 @@ class ModelConnector(DictObject):
         obj = LazyDictObject(get_data_array,
             **dict([(k, from_json_data(j)) for k, j in json['fields'].items()]))
         return obj
+
+
+class InstanceConnector(DictObject):
+    def __init__(self, url, display, **kwargs):
+        self._url = url
+        self._unicode = display
+        super(InstanceConnector, self).__init__(**kwargs)
+    
+    def __unicode__(self):
+        return self._unicode
+
+    def __getattr__(self, name):
+        response, json = get(self._url)
