@@ -29,11 +29,14 @@ class DjangoModel(object):
                 field_type = type(definition)
                 if field_type == ForeignKey:
                     type_name = root + MODEL_CACHE[definition.rel.to].path
+                    self._fields[field] = dict(name=field,
+                        kind='object', type=type_name,
+                        verbose_name=definition.verbose_name)
                 else:
                     type_name = field_type.__module__ + '.' + field_type.__name__
-                self._fields[field] = dict(name=field,
-                    type=type_name,
-                    verbose_name=definition.verbose_name)
+                    self._fields[field] = dict(name=field,
+                        kind='value', type=type_name,
+                        verbose_name=definition.verbose_name)
             except FieldDoesNotExist:
                 self._data_arrays.append(field)
 

@@ -158,10 +158,11 @@ class TestBasicViews(TestCase):
         response, json = self.do_get('/slumber/slumber_test/PizzaPrice/data/%s/' % p.pk)
         self.assertEquals(json, dict(display="PizzaPrice object",
             fields=dict(
-                id={'data': 1, 'type': 'django.db.models.fields.AutoField'},
-                pizza={'data': 'p1', 'type': '/slumber/slumber_test/Pizza/'},
-                date={'data': '2010-01-01', 'type': 'django.db.models.fields.DateField'},
-                amount={'data': '13.95', 'type': 'django.db.models.fields.DecimalField'},
+                id={'data': 1, 'kind': 'value', 'type': 'django.db.models.fields.AutoField'},
+                pizza={'data': {},
+                    'kind': 'object', 'type': '/slumber/slumber_test/Pizza/'},
+                date={'data': '2010-01-01', 'kind': 'value', 'type': 'django.db.models.fields.DateField'},
+                amount={'data': '13.95', 'kind': 'value', 'type': 'django.db.models.fields.DecimalField'},
             ),
             data_arrays={}), json)
 

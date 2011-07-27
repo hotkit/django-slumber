@@ -75,7 +75,7 @@ class ModelConnector(DictObject):
         def get_data_array(obj, name):
             return _return_data_array(self._url, json['data_arrays'], obj, name)
         obj = LazyDictObject(get_data_array,
-            **dict([(k, from_json_data(j)) for k, j in json['fields'].items()]))
+            **dict([(k, from_json_data(self._url, j)) for k, j in json['fields'].items()]))
         return obj
 
 
@@ -84,14 +84,14 @@ class InstanceConnector(DictObject):
         self._url = url
         self._unicode = display
         super(InstanceConnector, self).__init__(**kwargs)
-    
+
     def __unicode__(self):
         return self._unicode
 
     def __getattr__(self, name):
         response, json = get(self._url)
         for k, v in json['fields'].items():
-            setattr(self, k, from_json_data(v))
+            setattr(self, k, from_json_data(self._url, v))
         if name in json['fields'].keys():
             return getattr(self, name)
         return _return_data_array(self._url, json['data_arrays'], self, name)
