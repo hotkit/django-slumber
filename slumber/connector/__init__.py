@@ -15,17 +15,22 @@ class Client(object):
                 'http://localhost:8000/slumber/')
         self._directory = directory
         response, json = get(self._directory)
-        def set_app_attr(on, app_url, *path):
-            if len(path) == 0:
-                on._url = app_url
-                return
-            elif not hasattr(on, path[0]):
-                setattr(on, path[0], AppConnector())
-            set_app_attr(getattr(on, path[0]), app_url, *path[1:])
-        for app, url in json['apps'].items():
-            app_url = urljoin(self._directory, url)
-            set_app_attr(self, app_url, *app.split('.'))
-
+        apps = {}
+        for app in json['apps'].keys():
+            root = apps
+            for k in app.split('.'):
+                if not root.has_key(k):
+                    root[k] = {}
+                root = root[k]
+        def recurse_apps(loc, apps, name):
+            current_appname = '.'.join(name)
+            if json['apps'].has_key(current_appname):
+                loc._url = urljoin(directory, json['apps'][current_appname])
+            for k, v in apps.items():
+                app_cnx = AppConnector()
+                setattr(loc, k, app_cnx)
+                recurse_apps(app_cnx, v, name + [k])
+        recurse_apps(self, apps, [])
 
 class AppConnector(DictObject):
     _url = None
