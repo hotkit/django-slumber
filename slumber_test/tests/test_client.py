@@ -42,6 +42,11 @@ class TestLoads(TestCase):
         self.assertTrue(hasattr(client.django, 'contrib'), client.django.__dict__.keys())
         self.assertTrue(hasattr(client.django.contrib, 'sites'),
             (type(client.django.contrib), client.django.contrib.__dict__.keys()))
+        try:
+            client.django.NotAModelOrApp
+            self.fail("This should have given an attribute error")
+        except AttributeError:
+            pass
 
     def test_instance_data(self):
         s = Pizza(name='S1', for_sale=True)
