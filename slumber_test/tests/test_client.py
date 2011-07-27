@@ -59,8 +59,10 @@ class TestLoads(TestCase):
         self.assertEqual('S1', pizza.name)
         prices = pizza.prices
         self.assertEquals(len(prices), 15)
-        self.assertEquals(unicode(prices[0]), "PizzaPrice object")
-        self.assertEquals(prices[0].amount, "14")
+        first_price = prices[0]
+        self.assertEquals(unicode(first_price), "PizzaPrice object")
+        self.assertEquals(first_price.amount, "14")
+        self.assertEquals(first_price.pizza.id, s.pk)
 
     def test_instance_no_pk(self):
         pizza = client.slumber_test.Pizza.get(pk=None)
