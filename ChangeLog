@@ -1,3 +1,9 @@
+2011-07-27  Kirit Saelensminde  <kirit@felspar.com>
+ The Slumber client now includes (more or less) full support for the object graph structure.
+
+2011-07-22  juacompe  <juacompe@squire.proteus-tech.com>
+ Added a skeleton for a Slumber clent.
+
 2011-07-20  Kirit Saelensminde  <kirit@felspar.com>
  Initial version that shows how Slumber should look when completed.
  Added ChangeLog
