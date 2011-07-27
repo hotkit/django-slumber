@@ -14,6 +14,8 @@ class Client(object):
             directory = getattr(settings, 'SLUMBER_DIRECTORY',
                 'http://localhost:8000/slumber/')
         self._directory = directory
+
+    def __getattr__(self, attr_name):
         response, json = get(self._directory)
         apps = {}
         for app in json['apps'].keys():
@@ -22,15 +24,20 @@ class Client(object):
                 if not root.has_key(k):
                     root[k] = {}
                 root = root[k]
-        def recurse_apps(loc, apps, name):
+        def recurse_apps(loc, this_level, name):
             current_appname = '.'.join(name)
             if json['apps'].has_key(current_appname):
-                loc._url = urljoin(directory, json['apps'][current_appname])
-            for k, v in apps.items():
+                loc._url = urljoin(self._directory, json['apps'][current_appname])
+            for k, v in this_level.items():
                 app_cnx = AppConnector()
                 setattr(loc, k, app_cnx)
                 recurse_apps(app_cnx, v, name + [k])
         recurse_apps(self, apps, [])
+        if attr_name in apps.keys():
+            return getattr(self, attr_name)
+        else:
+            raise AttributeError(attr_name)
+
 
 class AppConnector(DictObject):
     _url = None
