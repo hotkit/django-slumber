@@ -1,5 +1,7 @@
 from urlparse import urljoin
 
+from slumber.caches import MODEL_CACHE
+
 
 DATA_MAPPING = {
         'django.db.models.fields.AutoField': lambda m, i, fm, v: v,
@@ -11,8 +13,9 @@ DATA_MAPPING = {
 def to_json_data(model, instance, fieldname, fieldmeta):
     value = getattr(instance, fieldname)
     if fieldmeta['kind'] == 'object':
-        return dict(display=unicode(value), data='/slumber/xxx')
-    if DATA_MAPPING.has_key(fieldmeta['type']):
+        rel_to = MODEL_CACHE[type(value)]
+        return dict(display=unicode(value), data='/slumber/' + rel_to.path + 'data/%s/' % value.pk)
+    elif DATA_MAPPING.has_key(fieldmeta['type']):
         return DATA_MAPPING[fieldmeta['type']](model, instance, fieldmeta, value)
     else:
         if value is None:
