@@ -48,6 +48,15 @@ class TestLoads(TestCase):
         except AttributeError:
             pass
 
+    def test_new_client_gives_AttributeError_on_invalid_model(self):
+        client = Client()
+        try:
+            client.django.contrib.auth.NotAModelOrApp
+            self.fail("This should have given an attribute error")
+        except AttributeError:
+            pass
+
+
     def test_instance_data(self):
         s = Pizza(name='S1', for_sale=True)
         s.save()
