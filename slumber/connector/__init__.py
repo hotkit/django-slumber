@@ -45,6 +45,23 @@ class AppConnector(DictObject):
             raise AttributeError(name)
 
 
+def _return_data_array(base_url, arrays, instance, name):
+    if name in arrays.keys():
+        data_array = []
+        response, data = get(urljoin(base_url, arrays[name]))
+        while len(data['page']):
+            for obj in data['page']:
+                data_array.append(
+                    InstanceConnector(
+                        urljoin(base_url, obj['data']), obj['display']))
+            if data.has_key('next_page'):
+                response, data = get(urljoin(base_url, data['next_page']))
+            else:
+                break
+        return data_array
+    else:
+        raise AttributeError(name)
+
 class ModelConnector(DictObject):
     def __init__(self, url):
         self._url = url
@@ -56,19 +73,7 @@ class ModelConnector(DictObject):
         url = urljoin(self._url, 'get/')
         response, json = get(url + '?' + urlencode({'pk': pk}))
         def get_data_array(obj, name):
-            if name in json['data_arrays'].keys():
-                data_array = []
-                response, data = get(urljoin(self._url, json['data_arrays'][name]))
-                while len(data['page']):
-                    for obj in data['page']:
-                        data_array.append(InstanceConnector(obj['data'], obj['display']))
-                    if data.has_key('next_page'):
-                        response, data = get(urljoin(self._url, data['next_page']))
-                    else:
-                        break
-                return data_array
-            else:
-                raise AttributeError(name)
+            return _return_data_array(self._url, json['data_arrays'], obj, name)
         obj = LazyDictObject(get_data_array,
             **dict([(k, from_json_data(j)) for k, j in json['fields'].items()]))
         return obj
@@ -85,3 +90,8 @@ class InstanceConnector(DictObject):
 
     def __getattr__(self, name):
         response, json = get(self._url)
+        for k, v in json['fields'].items():
+            setattr(self, k, from_json_data(v))
+        if name in json['fields'].keys():
+            return getattr(self, name)
+        return _return_data_array(self._url, json['data_arrays'], self, name)
