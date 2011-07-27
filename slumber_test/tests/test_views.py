@@ -142,10 +142,10 @@ class TestBasicViews(TestCase):
         self.maxDiff = None
         self.assertEquals(json, dict(
             fields=dict(
-                id=dict(data=s.pk, type='django.db.models.fields.AutoField'),
-                for_sale=dict(data=s.for_sale, type='django.db.models.fields.BooleanField'),
-                max_extra_toppings=dict(data=s.max_extra_toppings, type='django.db.models.fields.IntegerField'),
-                name=dict(data=s.name, type='django.db.models.fields.CharField')),
+                id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),
+                for_sale=dict(data=s.for_sale, kind='value', type='django.db.models.fields.BooleanField'),
+                max_extra_toppings=dict(data=s.max_extra_toppings, kind='value', type='django.db.models.fields.IntegerField'),
+                name=dict(data=s.name, kind='value', type='django.db.models.fields.CharField')),
             display='S1',
             data_arrays=dict(
                 prices='/slumber/slumber_test/Pizza/data/%s/prices/' % s.pk)))
@@ -159,7 +159,7 @@ class TestBasicViews(TestCase):
         self.assertEquals(json, dict(display="PizzaPrice object",
             fields=dict(
                 id={'data': 1, 'kind': 'value', 'type': 'django.db.models.fields.AutoField'},
-                pizza={'data': {},
+                pizza={'data': {'display':'p1', 'data': '/slumber/xxx'},
                     'kind': 'object', 'type': '/slumber/slumber_test/Pizza/'},
                 date={'data': '2010-01-01', 'kind': 'value', 'type': 'django.db.models.fields.DateField'},
                 amount={'data': '13.95', 'kind': 'value', 'type': 'django.db.models.fields.DecimalField'},
