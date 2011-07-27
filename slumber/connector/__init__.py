@@ -1,5 +1,6 @@
 from django.conf import settings
 
+from urllib import urlencode
 from urlparse import urljoin
 
 from slumber.connector.dictobject import DictObject, LazyDictObject
@@ -37,6 +38,8 @@ class AppConnector(DictObject):
             model_url = urljoin(self._url, u)
             setattr(self, m, ModelConnector(model_url))
         if name in models.keys():
+            # We are not yet lazy loading the models so this line won't be
+            # in test coverage
             return getattr(self, name)
         else:
             raise AttributeError(name)
@@ -51,10 +54,19 @@ class ModelConnector(DictObject):
         if pk is None:
             return None
         url = urljoin(self._url, 'get/')
-        response, json = get(url, {'pk': pk})
+        response, json = get(url + '?' + urlencode({'pk': pk}))
         def get_data_array(obj, name):
             if name in json['data_arrays'].keys():
-                return []
+                data_array = []
+                response, data = get(urljoin(self._url, json['data_arrays'][name]))
+                while len(data['page']):
+                    for obj in data['page']:
+                        data_array.append(obj)
+                    if data.has_key('next_page'):
+                        response, data = get(urljoin(self._url, data['next_page']))
+                    else:
+                        break
+                return data_array
             else:
                 raise AttributeError(name)
         obj = LazyDictObject(get_data_array,

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from slumber import client
 from slumber.connector import Client, DictObject
-from slumber_test.models import Pizza
+from slumber_test.models import Pizza, PizzaPrice
 from mock import patch
 
 class TestDirectoryURLs(TestCase):
@@ -46,6 +46,16 @@ class TestLoads(TestCase):
         self.assertEqual(len(prices), 0)
         with self.assertRaises(AttributeError):
             pizza.not_a_field
+
+    def test_instance_data_with_data_array(self):
+        s = Pizza(name='S1', for_sale=True)
+        s.save()
+        for p in range(15):
+            PizzaPrice(pizza=s, amount=str(p), date='2011-04-%s' % (p+1)).save()
+        pizza = client.slumber_test.Pizza.get(pk=s.pk)
+        self.assertEqual('S1', pizza.name)
+        prices = pizza.prices
+        self.assertEqual(len(prices), 15)
 
     def test_instance_no_pk(self):
         pizza = client.slumber_test.Pizza.get(pk=None)
