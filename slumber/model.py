@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.db.models import ForeignKey
 from django.db.models.fields import FieldDoesNotExist
 
@@ -17,19 +18,34 @@ class DjangoModel(object):
         self.name = model_instance.__name__
         self.path = app.path + '/' + self.name + '/'
 
-        self.fields, self.data_arrays = {}, []
-        for field in model_instance._meta.get_all_field_names():
+        self._fields, self._data_arrays = {}, []
+
+    def _get_fields_and_data_arrays(self):
+        if self._fields or self._data_arrays: return
+        root = '/slumber/'
+        for field in self.model._meta.get_all_field_names():
             try:
-                definition = model_instance._meta.get_field(field)
+                definition = self.model._meta.get_field(field)
                 field_type = type(definition)
                 if field_type == ForeignKey:
-                    field_type = definition.rel.to
-                type_name = field_type.__module__ + '.' + field_type.__name__
-                self.fields[field] = dict(name=field,
+                    type_name = root + MODEL_CACHE[definition.rel.to].path
+                else:
+                    type_name = field_type.__module__ + '.' + field_type.__name__
+                self._fields[field] = dict(name=field,
                     type=type_name,
                     verbose_name=definition.verbose_name)
             except FieldDoesNotExist:
-                self.data_arrays.append(field)
+                self._data_arrays.append(field)
+
+    @property
+    def fields(self):
+        self._get_fields_and_data_arrays()
+        return self._fields
+
+    @property
+    def data_arrays(self):
+        self._get_fields_and_data_arrays()
+        return self._data_arrays
 
     def operations(self):
         """Return all of  the operations available for this model.
