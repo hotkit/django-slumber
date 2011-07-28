@@ -34,4 +34,7 @@ class TestSlumberMock(TestCase):
     def test_get_pizza(self):
         p1 = client.slumber.Pizza.get(pk=1)
         self.assertEquals(p1.pk, 1)
+        self.assertEquals(getattr(p1, 'name', None), 'Margarita', p1.__dict__)
         p2 = client.slumber.Pizza.get(pk=2)
+        self.assertEquals(p2.pk, 2)
+
