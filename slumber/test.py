@@ -11,6 +11,8 @@ def mock_client(**instances):
             if not hasattr(root, k):
                 setattr(root, k, DictObject())
             root = getattr(root, k)
+        root.instances = instances
+        root.get = lambda pk: instances[0]
 
     def decorator(test_method):
         @mock.patch('slumber._client', models)
