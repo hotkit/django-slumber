@@ -32,4 +32,6 @@ class TestSlumberMock(TestCase):
                 date='2010-01-01', amount=Decimal("14")),
         ])
     def test_get_pizza(self):
-        self.assertTrue(client.slumber.Pizza.get(pk=1))
+        p1 = client.slumber.Pizza.get(pk=1)
+        self.assertEquals(p1.pk, 1)
+        p2 = client.slumber.Pizza.get(pk=2)
