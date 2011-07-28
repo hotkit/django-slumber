@@ -23,8 +23,14 @@ class TestLoads(TestCase):
         def request(k, u):
             self.assertEquals(u, 'http://slumber.example.com/')
             return DictObject(status=200), '''{"apps":{}}'''
-        with patch('slumber.connector.ua.Http.request', request):
+        with patch('slumber.connector.ua.Http.request', self.fail):
             client = Client('http://slumber.example.com/')
+        with patch('slumber.connector.ua.Http.request', request):
+            try:
+                client.no_module
+                self.fail("This should have given an attribute error")
+            except AttributeError:
+                pass
 
     def test_applications_with_dots_in_name(self):
         """
@@ -36,6 +42,20 @@ class TestLoads(TestCase):
         self.assertTrue(hasattr(client.django, 'contrib'), client.django.__dict__.keys())
         self.assertTrue(hasattr(client.django.contrib, 'sites'),
             (type(client.django.contrib), client.django.contrib.__dict__.keys()))
+        try:
+            client.django.NotAModelOrApp
+            self.fail("This should have given an attribute error")
+        except AttributeError:
+            pass
+
+    def test_new_client_gives_AttributeError_on_invalid_model(self):
+        client = Client()
+        try:
+            client.django.contrib.auth.NotAModelOrApp
+            self.fail("This should have given an attribute error")
+        except AttributeError:
+            pass
+
 
     def test_instance_data(self):
         s = Pizza(name='S1', for_sale=True)

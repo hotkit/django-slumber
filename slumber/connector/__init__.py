@@ -14,17 +14,29 @@ class Client(object):
             directory = getattr(settings, 'SLUMBER_DIRECTORY',
                 'http://localhost:8000/slumber/')
         self._directory = directory
+
+    def __getattr__(self, attr_name):
         response, json = get(self._directory)
-        def set_app_attr(on, app_url, *path):
-            if len(path) == 0:
-                on._url = app_url
-                return
-            elif not hasattr(on, path[0]):
-                setattr(on, path[0], AppConnector())
-            set_app_attr(getattr(on, path[0]), app_url, *path[1:])
-        for app, url in json['apps'].items():
-            app_url = urljoin(self._directory, url)
-            set_app_attr(self, app_url, *app.split('.'))
+        apps = {}
+        for app in json['apps'].keys():
+            root = apps
+            for k in app.split('.'):
+                if not root.has_key(k):
+                    root[k] = {}
+                root = root[k]
+        def recurse_apps(loc, this_level, name):
+            current_appname = '.'.join(name)
+            if json['apps'].has_key(current_appname):
+                loc._url = urljoin(self._directory, json['apps'][current_appname])
+            for k, v in this_level.items():
+                app_cnx = AppConnector()
+                setattr(loc, k, app_cnx)
+                recurse_apps(app_cnx, v, name + [k])
+        recurse_apps(self, apps, [])
+        if attr_name in apps.keys():
+            return getattr(self, attr_name)
+        else:
+            raise AttributeError(attr_name)
 
 
 class AppConnector(DictObject):
@@ -38,8 +50,6 @@ class AppConnector(DictObject):
             model_url = urljoin(self._url, u)
             setattr(self, m, ModelConnector(model_url))
         if name in models.keys():
-            # We are not yet lazy loading the models so this line won't be
-            # in test coverage
             return getattr(self, name)
         else:
             raise AttributeError(name)
