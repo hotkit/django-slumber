@@ -12,6 +12,10 @@ class TestSlumberMock(TestCase):
     @mock_client(app__contrib__auth__Model=[], app__Pizza=[])
     def test_basic_app_data(self):
         self.assertTrue(hasattr(client, 'app'))
+        self.assertTrue(hasattr(client.app, 'contrib'))
+        self.assertTrue(hasattr(client.app.contrib, 'auth'))
+        self.assertTrue(hasattr(client.app.contrib.auth, 'Model'))
+        self.assertTrue(hasattr(client.app, 'Pizza'))
         self.assertFalse(hasattr(client, 'slumber'))
 
     #@mock_client(
