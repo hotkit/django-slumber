@@ -1,6 +1,6 @@
 from urlparse import urljoin
 
-from slumber.caches import MODEL_CACHE
+from slumber._caches import MODEL_CACHE
 
 
 DATA_MAPPING = {
