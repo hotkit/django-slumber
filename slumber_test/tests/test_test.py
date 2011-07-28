@@ -35,10 +35,13 @@ class TestSlumberMock(TestCase):
         p1 = client.slumber.Pizza.get(pk=1)
         self.assertEquals(p1.pk, 1)
         self.assertEquals(getattr(p1, 'name', None), 'Margarita', p1.__dict__)
+
         p2 = client.slumber.Pizza.get(pk=2)
         self.assertEquals(p2.pk, 2)
+        self.assertEquals(len(p2.prices), 1)
+        self.assertTrue(hasattr(p2.prices[0], 'pk'), type(p2.prices[0]))
+        self.assertEquals(p2.prices[0].amount, Decimal("13"))
 
         pp1 = client.slumber.PizzaPrice.get(pk=1)
         self.assertEquals(pp1.pk, 1)
         self.assertEquals(pp1.pizza.name, 'Margarita')
-
