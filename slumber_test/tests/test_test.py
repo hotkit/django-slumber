@@ -38,3 +38,7 @@ class TestSlumberMock(TestCase):
         p2 = client.slumber.Pizza.get(pk=2)
         self.assertEquals(p2.pk, 2)
 
+        pp1 = client.slumber.PizzaPrice.get(pk=1)
+        self.assertEquals(pp1.pk, 1)
+        self.assertEquals(pp1.pizza.name, 'Margarita')
+
