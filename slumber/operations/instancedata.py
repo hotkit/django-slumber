@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
-from slumber.caches import MODEL_CACHE
+from slumber._caches import MODEL_CACHE
 from slumber.json import to_json_data
 from slumber.operations import InstanceOperation, ModelOperation
 

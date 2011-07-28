@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import ForeignKey
 from django.db.models.fields import FieldDoesNotExist
 
-from slumber.caches import MODEL_CACHE
+from slumber._caches import MODEL_CACHE
 from slumber.operations import InstanceList, CreateInstance
 from slumber.operations.instancedata import DereferenceInstance, \
     InstanceData, InstanceDataArray
