@@ -1,3 +1,6 @@
+2011-07-28  Kirit Saelensminde  <kirit@felspar.com>
+ Added some simple mocking capability so that client code that uses Slumber can be tested.
+
 2011-07-27  Kirit Saelensminde  <kirit@felspar.com>
  The Slumber client now includes (more or less) full support for the object graph structure.
 
