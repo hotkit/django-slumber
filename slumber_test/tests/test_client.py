@@ -74,14 +74,13 @@ class TestLoads(TestCase):
         s = Pizza(name='S1', for_sale=True)
         s.save()
         for p in range(15):
-            PizzaPrice(pizza=s, amount=str(p), date='2011-04-%s' % (p+1)).save()
+            PizzaPrice(pizza=s, date='2011-04-%s' % (p+1)).save()
         pizza = client.slumber_test.Pizza.get(pk=s.pk)
         self.assertEqual('S1', pizza.name)
         prices = pizza.prices
         self.assertEquals(len(prices), 15)
         first_price = prices[0]
         self.assertEquals(unicode(first_price), "PizzaPrice object")
-        self.assertEquals(first_price.amount, "14")
         self.assertEquals(first_price.pizza.for_sale, True)
 
     def test_instance_no_pk(self):
