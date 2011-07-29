@@ -14,7 +14,7 @@ then {
             --cover-package=slumber --cover-package=slumber_test
     then {
         cd ../..
-        pylint --rcfile=pylintrc --output-format=colorized slumber slumber_test
+        pylint --rcfile=pylintrc --output-format=colorized slumber
     } else {
         exit 1
     }
