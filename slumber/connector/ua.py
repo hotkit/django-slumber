@@ -1,3 +1,7 @@
+"""
+    Implements the user agent used to communicate with the Slumber
+    servers.
+"""
 from django.conf import settings
 from django.test.client import Client as FakeClient
 
@@ -11,14 +15,21 @@ _http = Http()
 
 
 def _parse_qs(url):
+    """Split the query string off (this is needed to support Django 1.0's
+    fake HTTP client.
+    """
     if url.find('?') >= 0:
-        path, qs = url.split('?')
-        return path, parse_qs(qs)
+        path, query_string = url.split('?')
+        return path, parse_qs(query_string)
     else:
         return url, {}
 
 
 def get(url):
+    """Perform a GET request against a Slumber server.
+    """
+    # Pylint gets confused by the fake HTTP client
+    # pylint: disable=E1103
     slumber_local = getattr(settings, 'SLUMBER_LOCAL', 'http://localhost:8000/')
     if url.startswith(slumber_local):
         url_fragment = url[len(slumber_local) - 1:]

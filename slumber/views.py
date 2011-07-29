@@ -1,7 +1,7 @@
-from simplejson import dumps
-
-from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+"""
+    Some basic server views.
+"""
+from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.core.urlresolvers import reverse
 
 from slumber.http import view_handler
@@ -24,7 +24,7 @@ def get_applications(request, response):
 
 
 @view_handler
-def get_models(request, response, appname):
+def get_models(_, response, appname):
     """Return the models that comprise an application.
     """
     root = reverse('slumber.views.get_applications')
@@ -34,15 +34,16 @@ def get_models(request, response, appname):
 
 
 @view_handler
-def get_model(request, response, appname, modelname):
+def get_model(_, response, appname, modelname):
     """Return meta data about the model.
     """
     app = get_application(appname)
     model = app.models[modelname]
     response['fields'] = model.fields
-    # TODO If the id field is a django.db.models.fields.AutoField then we
-    # should not include it in the puttable fields
-    response['puttable'] = [[f] for f in model.fields if model.model._meta.get_field(f).unique] + \
+    # We have to access _meta
+    # pylint: disable=W0212
+    response['puttable'] = [[f] for f in model.fields
+        if model.model._meta.get_field(f).unique] + \
         list(model.model._meta.unique_together)
     response['data_arrays'] = model.data_arrays
     response['operations'] = dict(
