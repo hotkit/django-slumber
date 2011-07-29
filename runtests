@@ -20,4 +20,5 @@ check_worked python manage.py test slumber_test \
         --with-coverage --cover-erase \
         --cover-package=slumber --cover-package=slumber_test
 
+cd ../..
 check_worked pylint --rcfile=pylintrc --output-format=colorized slumber
