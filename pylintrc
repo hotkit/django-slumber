@@ -30,7 +30,8 @@ load-plugins=
 #enable=
 
 # R0903 Too few public methods
-disable=R0903
+# W0142 Used * or ** magic
+disable=R0903, W0142
 
 
 [REPORTS]
