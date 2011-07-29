@@ -153,7 +153,7 @@ class TestBasicViews(TestCase):
     def test_instance_data_pizzaprice(self):
         s = Pizza(name='p1', for_sale=True)
         s.save()
-        p = PizzaPrice(pizza=s, date='2010-01-01', amount="13.95")
+        p = PizzaPrice(pizza=s, date='2010-01-01')
         p.save()
         response, json = self.do_get('/slumber/slumber_test/PizzaPrice/data/%s/' % p.pk)
         self.assertEquals(json, dict(display="PizzaPrice object",
@@ -162,15 +162,14 @@ class TestBasicViews(TestCase):
                 pizza={'data': {'display':'p1', 'data': '/slumber/slumber_test/Pizza/data/1/'},
                     'kind': 'object', 'type': '/slumber/slumber_test/Pizza/'},
                 date={'data': '2010-01-01', 'kind': 'value', 'type': 'django.db.models.fields.DateField'},
-                amount={'data': '13.95', 'kind': 'value', 'type': 'django.db.models.fields.DecimalField'},
             ),
-            data_arrays={}), json)
+            data_arrays={'amounts': '/slumber/slumber_test/PizzaPrice/data/1/amounts/'}), json)
 
     def test_instance_data_array(self):
         s = Pizza(name='P', for_sale=True)
         s.save()
         for p in range(15):
-            PizzaPrice(pizza=s, amount=str(p), date='2011-04-%s' % (p+1)).save()
+            PizzaPrice(pizza=s, date='2011-04-%s' % (p+1)).save()
         response, json = self.do_get('/slumber/slumber_test/Pizza/data/%s/prices/' % s.pk)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 10, json)

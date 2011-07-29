@@ -4,17 +4,17 @@
 """
 from django.conf.urls.defaults import patterns
 
-from slumber.http import view_handler
-from slumber.meta import applications
+from slumber.server.http import view_handler
+from slumber.server.meta import applications
 
 
-_urls = {'^$': 'slumber.views.get_applications'}
+_urls = {'^$': 'slumber.server.views.get_applications'}
 
 for app in applications():
-    _urls['^(%s)/$' % app.path] = 'slumber.views.get_models'
+    _urls['^(%s)/$' % app.path] = 'slumber.server.views.get_models'
     for model in app.models.values():
         _urls['^(%s)/(%s)/$' % (app.path, model.name)] = \
-            'slumber.views.get_model'
+            'slumber.server.views.get_model'
         for op in model.operations():
             _urls['^(%s)/(%s)/%s/%s$' %
                     (app.path, model.name, op.name, op.regex)] = \

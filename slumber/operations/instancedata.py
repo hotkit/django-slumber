@@ -16,7 +16,7 @@ class DereferenceInstance(ModelOperation):
         """Work out the correct data URL for an instance we're going to
         search for.
         """
-        root = reverse('slumber.views.get_applications')
+        root = reverse('slumber.server.views.get_applications')
         instance = self.model.model.objects.get(pk=request.GET['pk'])
         return HttpResponseRedirect(
             root + self.model.path + 'data/%s/' % instance.pk)
@@ -28,7 +28,7 @@ class InstanceData(InstanceOperation):
     def operation(self, _request, response, _appname, _modelname, pk):
         """Implement the fetching of attribute data for an instance.
         """
-        root = reverse('slumber.views.get_applications')
+        root = reverse('slumber.server.views.get_applications')
         instance = self.model.model.objects.get(pk=pk)
         response['display'] = unicode(instance)
         response['fields'] = {}
@@ -54,7 +54,7 @@ class InstanceDataArray(InstanceOperation):
     def operation(self, request, response, _appname, _modelname, pk, _dataset):
         """Return one page of the array data.
         """
-        root = reverse('slumber.views.get_applications')
+        root = reverse('slumber.server.views.get_applications')
         instance = self.model.model.objects.get(pk=pk)
         response['instance'] = root + self.model.path + '%s/%s/%s/' % (
             self.name, str(pk), self.field)
