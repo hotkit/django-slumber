@@ -9,9 +9,16 @@ if python manage.py test slumber_test
 then {
     workon slumber1-3
     cd ../django1_3
-    python manage.py test slumber_test \
+    if python manage.py test slumber_test \
             --with-coverage --cover-erase \
             --cover-package=slumber --cover-package=slumber_test
+    then {
+        cd ../..
+        pylint --rcfile=pylintrc --output-format=colorized slumber slumber_test
+    } else {
+        exit 1
+    }
+    fi
 } else {
     exit 1
 }
