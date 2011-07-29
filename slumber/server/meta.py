@@ -3,7 +3,7 @@
 """
 from django.conf import settings
 
-from slumber.application import DjangoApp
+from slumber.server.application import DjangoApp
 
 
 def applications():

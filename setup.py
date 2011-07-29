@@ -1,9 +1,6 @@
 import os
 from setuptools import setup
 
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
 setup(
     name = "django_slumber",
     version = "0.2.2",
@@ -13,7 +10,7 @@ setup(
     license = "Boost Software License - Version 1.0 - August 17th, 2003",
     keywords = "django rest data",
     packages = [
-        'slumber', 'slumber.connector', 'slumber.operations',
+        'slumber', 'slumber.connector', 'slumber.operations', 'slumber.server',
         'slumber_test'],
     long_description = read('README.markdown'),
     install_requires = ['simplejson', 'httplib2'],
@@ -26,3 +23,6 @@ setup(
         "License :: OSI Approved :: Boost Software License - Version 1.0 - August 17th, 2003",
     ],
 )
+
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()

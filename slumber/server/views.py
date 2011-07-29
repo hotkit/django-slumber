@@ -4,15 +4,15 @@
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.core.urlresolvers import reverse
 
-from slumber.http import view_handler
-from slumber.meta import applications, get_application
+from slumber.server.http import view_handler
+from slumber.server.meta import applications, get_application
 
 
 @view_handler
 def get_applications(request, response):
     """Return the list of applications and the dataconnection URLs for them.
     """
-    root = reverse('slumber.views.get_applications')
+    root = reverse('slumber.server.views.get_applications')
     if request.GET.has_key('model'):
         appname, modelname = request.GET['model'].split('.')
         for app in applications():
@@ -27,7 +27,7 @@ def get_applications(request, response):
 def get_models(_, response, appname):
     """Return the models that comprise an application.
     """
-    root = reverse('slumber.views.get_applications')
+    root = reverse('slumber.server.views.get_applications')
     app = get_application(appname)
     response['models'] = dict([(n, root + m.path)
         for n, m in app.models.items()])
@@ -47,6 +47,6 @@ def get_model(_, response, appname, modelname):
         list(model.model._meta.unique_together)
     response['data_arrays'] = model.data_arrays
     response['operations'] = dict(
-        [(op.name, reverse('slumber.views.get_applications') + op.path)
+        [(op.name, reverse('slumber.server.views.get_applications') + op.path)
             for op in model.operations() if op.model_operation])
 

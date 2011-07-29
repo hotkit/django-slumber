@@ -1,7 +1,7 @@
 """
     Implements the Django application wrapper for the Slumber server.
 """
-from slumber.model import DjangoModel
+from slumber.server.model import DjangoModel
 
 
 class DjangoApp(object):

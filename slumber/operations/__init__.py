@@ -30,7 +30,7 @@ class InstanceList(ModelOperation):
     def operation(self, request, response, _appname, _modelname):
         """Return a paged set of instances for this model.
         """
-        root = reverse('slumber.views.get_applications')
+        root = reverse('slumber.server.views.get_applications')
         response['model'] = root + self.model.path
 
         query = self.model.model.objects.order_by('-pk')
