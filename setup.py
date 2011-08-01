@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name = "django_slumber",
-    version = "0.3",
+    version = "0.3.1",
     author = "Kirit Saelensminde",
     author_email = "kirit@felspar.com",
     description = ("RESTful data connector for Django"),
