@@ -16,7 +16,11 @@ In order to start to use Slumber on the server side you simply need to include i
 
 ## The Slumber data client ##
 
-The data client is to be found at `slumber.client`. It must be configured to be told the URL prefix for local Slumber accesses. This is set as below in `settings.py`. The value shown below is the default.
+The data client is to be found at `slumber.client`. It must be configured to be told the location of the directory server.
+
+    SLUMBER_DIRECTORY='http://localhost:8000/slumber/'
+
+You should also configure a URL prefix for local Slumber accesses. This is set as below in `settings.py`. The value shown below is the default.
 
     SLUMBER_LOCAL='http://localhost:8000/'
 
@@ -32,3 +36,15 @@ In order to fetch objects from the remote end you should import the client and m
 # Doing development #
 
 _This project uses git flow. Don't forget to do `git flow init`_ (use defaults for all options).
+
+First you will want to create virtual environments to run the tests in. There is a helper script in `test-projects` for this.
+
+    test-projects/make-virtual-environments
+
+In order to use this you will need virtualenv and virtualenv-wrapper.
+
+Once the virtual environments are created the tests can be run using the `runtests` script.
+
+    ./runtests
+
+Note that you do not need to be in a virtual environment when you run this script. It will switch between the required virtual environments automatically when the tests are run.

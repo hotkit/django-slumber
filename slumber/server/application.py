@@ -1,4 +1,7 @@
-from slumber.model import DjangoModel
+"""
+    Implements the Django application wrapper for the Slumber server.
+"""
+from slumber.server.model import DjangoModel
 
 
 class DjangoApp(object):
@@ -14,5 +17,5 @@ class DjangoApp(object):
             for name in self.module.models.__dict__.keys():
                 potential = getattr(self.module.models, name)
                 if hasattr(potential, '_meta'):
-                    dm = DjangoModel(self, potential)
-                    self.models[name] = dm
+                    model = DjangoModel(self, potential)
+                    self.models[name] = model

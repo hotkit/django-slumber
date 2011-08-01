@@ -1,8 +1,9 @@
 from django.test import TestCase
 from slumber import client
 from slumber.connector import Client, DictObject
-from slumber_test.models import Pizza, PizzaPrice
+from slumber_test.models import Pizza, PizzaPrice, PizzaSizePrice
 from mock import patch
+
 
 class TestDirectoryURLs(TestCase):
     def test_get_default_url_with_made_client(self):
@@ -23,8 +24,14 @@ class TestLoads(TestCase):
         def request(k, u):
             self.assertEquals(u, 'http://slumber.example.com/')
             return DictObject(status=200), '''{"apps":{}}'''
-        with patch('slumber.connector.ua.Http.request', request):
+        with patch('slumber.connector.ua.Http.request', self.fail):
             client = Client('http://slumber.example.com/')
+        with patch('slumber.connector.ua.Http.request', request):
+            try:
+                client.no_module
+                self.fail("This should have given an attribute error")
+            except AttributeError:
+                pass
 
     def test_applications_with_dots_in_name(self):
         """
@@ -36,6 +43,20 @@ class TestLoads(TestCase):
         self.assertTrue(hasattr(client.django, 'contrib'), client.django.__dict__.keys())
         self.assertTrue(hasattr(client.django.contrib, 'sites'),
             (type(client.django.contrib), client.django.contrib.__dict__.keys()))
+        try:
+            client.django.NotAModelOrApp
+            self.fail("This should have given an attribute error")
+        except AttributeError:
+            pass
+
+    def test_new_client_gives_AttributeError_on_invalid_model(self):
+        client = Client()
+        try:
+            client.django.contrib.auth.NotAModelOrApp
+            self.fail("This should have given an attribute error")
+        except AttributeError:
+            pass
+
 
     def test_instance_data(self):
         s = Pizza(name='S1', for_sale=True)
@@ -54,15 +75,29 @@ class TestLoads(TestCase):
         s = Pizza(name='S1', for_sale=True)
         s.save()
         for p in range(15):
-            PizzaPrice(pizza=s, amount=str(p), date='2011-04-%s' % (p+1)).save()
+            PizzaPrice(pizza=s, date='2011-04-%s' % (p+1)).save()
         pizza = client.slumber_test.Pizza.get(pk=s.pk)
         self.assertEqual('S1', pizza.name)
         prices = pizza.prices
         self.assertEquals(len(prices), 15)
         first_price = prices[0]
         self.assertEquals(unicode(first_price), "PizzaPrice object")
-        self.assertEquals(first_price.amount, "14")
         self.assertEquals(first_price.pizza.for_sale, True)
+
+    def test_instance_data_with_nested_data_array(self):
+        s = Pizza(name='p1', for_sale=True)
+        s.save()
+        p = PizzaPrice(pizza=s, date='2010-06-20')
+        p.save()
+        PizzaSizePrice(price=p, size='s', amount='13.95').save()
+        PizzaSizePrice(price=p, size='m', amount='15.95').save()
+        PizzaSizePrice(price=p, size='l', amount='19.95').save()
+        pizza = client.slumber_test.Pizza.get(pk=s.pk)
+        self.assertEqual('p1', pizza.name)
+        self.assertEqual(len(pizza.prices), 1)
+        self.assertEqual(len(pizza.prices[0].amounts), 3)
+        for a in pizza.prices[0].amounts:
+            self.assertIn(a.size, ['s', 'm', 'l'])
 
     def test_instance_no_pk(self):
         pizza = client.slumber_test.Pizza.get(pk=None)

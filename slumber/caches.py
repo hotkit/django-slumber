@@ -1,3 +1,0 @@
-
-
-MODEL_CACHE = {}

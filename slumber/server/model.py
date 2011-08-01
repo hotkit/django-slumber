@@ -1,8 +1,10 @@
-from django.core.urlresolvers import reverse
+"""
+    Implements the server side wrapper for a Django model.
+"""
 from django.db.models import ForeignKey
 from django.db.models.fields import FieldDoesNotExist
 
-from slumber.caches import MODEL_CACHE
+from slumber._caches import MODEL_CACHE
 from slumber.operations import InstanceList, CreateInstance
 from slumber.operations.instancedata import DereferenceInstance, \
     InstanceData, InstanceDataArray
@@ -21,8 +23,13 @@ class DjangoModel(object):
         self._fields, self._data_arrays = {}, []
 
     def _get_fields_and_data_arrays(self):
-        if self._fields or self._data_arrays: return
+        """Work out what the fields we have are.
+        """
+        if self._fields or self._data_arrays:
+            return
         root = '/slumber/'
+        # We have to access _meta
+        # pylint: disable=W0212
         for field in self.model._meta.get_all_field_names():
             try:
                 definition = self.model._meta.get_field(field)
@@ -33,7 +40,8 @@ class DjangoModel(object):
                         kind='object', type=type_name,
                         verbose_name=definition.verbose_name)
                 else:
-                    type_name = field_type.__module__ + '.' + field_type.__name__
+                    type_name = field_type.__module__ + '.' + \
+                        field_type.__name__
                     self._fields[field] = dict(name=field,
                         kind='value', type=type_name,
                         verbose_name=definition.verbose_name)
@@ -42,17 +50,22 @@ class DjangoModel(object):
 
     @property
     def fields(self):
+        """Return the non-array fields.
+        """
         self._get_fields_and_data_arrays()
         return self._fields
 
     @property
     def data_arrays(self):
+        """Return the data array fields.
+        """
         self._get_fields_and_data_arrays()
         return self._data_arrays
 
     def operations(self):
         """Return all of  the operations available for this model.
         """
-        return [InstanceList(self, 'instances'), CreateInstance(self, 'create'),
-                InstanceData(self, 'data'), DereferenceInstance(self, 'get')] + \
+        return [InstanceList(self, 'instances'),
+                CreateInstance(self, 'create'), InstanceData(self, 'data'),
+                DereferenceInstance(self, 'get')] + \
             [InstanceDataArray(self, 'data', f) for f in self.data_arrays]
