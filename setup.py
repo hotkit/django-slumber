@@ -1,9 +1,13 @@
 import os
 from setuptools import setup
 
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+
 setup(
     name = "django_slumber",
-    version = "0.3",
+    version = "0.3.1",
     author = "Kirit Saelensminde",
     author_email = "kirit@felspar.com",
     description = ("RESTful data connector for Django"),
@@ -23,6 +27,3 @@ setup(
         "License :: OSI Approved :: Boost Software License - Version 1.0 - August 17th, 2003",
     ],
 )
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
