@@ -24,7 +24,7 @@ def to_json_data(model, instance, fieldname, fieldmeta):
         rel_to = MODEL_CACHE[type(value)]
         root = reverse('slumber.server.views.get_applications')
         return dict(display=unicode(value),
-            data='/slumber/' + rel_to.path + 'data/%s/' % value.pk)
+            data = root + rel_to.path + 'data/%s/' % value.pk)
     elif DATA_MAPPING.has_key(fieldmeta['type']):
         return DATA_MAPPING[fieldmeta['type']](
             model, instance, fieldmeta, value)
