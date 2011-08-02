@@ -1,6 +1,8 @@
 """
     Implements the JSON formatting for both the client and the server.
 """
+from django.core.urlresolvers import reverse
+
 from urlparse import urljoin
 
 from slumber._caches import MODEL_CACHE
@@ -20,6 +22,7 @@ def to_json_data(model, instance, fieldname, fieldmeta):
     value = getattr(instance, fieldname)
     if fieldmeta['kind'] == 'object':
         rel_to = MODEL_CACHE[type(value)]
+        root = reverse('slumber.server.views.get_applications')
         return dict(display=unicode(value),
             data='/slumber/' + rel_to.path + 'data/%s/' % value.pk)
     elif DATA_MAPPING.has_key(fieldmeta['type']):
