@@ -9,6 +9,8 @@ from slumber.operations import InstanceList, CreateInstance
 from slumber.operations.instancedata import DereferenceInstance, \
     InstanceData, InstanceDataArray
 
+from slumber.server.configuration import get_slumber_root
+
 
 class DjangoModel(object):
     """Describes a Django model.
@@ -27,24 +29,12 @@ class DjangoModel(object):
         """
         if self._fields or self._data_arrays:
             return
-        root = '/slumber/'
         # We have to access _meta
         # pylint: disable=W0212
         for field in self.model._meta.get_all_field_names():
             try:
                 definition = self.model._meta.get_field(field)
-                field_type = type(definition)
-                if field_type == ForeignKey:
-                    type_name = root + MODEL_CACHE[definition.rel.to].path
-                    self._fields[field] = dict(name=field,
-                        kind='object', type=type_name,
-                        verbose_name=definition.verbose_name)
-                else:
-                    type_name = field_type.__module__ + '.' + \
-                        field_type.__name__
-                    self._fields[field] = dict(name=field,
-                        kind='value', type=type_name,
-                        verbose_name=definition.verbose_name)
+                self._fields[field] = definition
             except FieldDoesNotExist:
                 self._data_arrays.append(field)
 
@@ -53,7 +43,22 @@ class DjangoModel(object):
         """Return the non-array fields.
         """
         self._get_fields_and_data_arrays()
-        return self._fields
+        fields = {}
+        for field, definition in self._fields.items():
+            field_type = type(definition)
+            if field_type == ForeignKey:
+                fields[field] = dict(
+                    name=field,
+                    kind='object',
+                    type= get_slumber_root() + MODEL_CACHE[definition.rel.to].path,
+                    verbose_name=definition.verbose_name)
+            else:
+                type_name = field_type.__module__ + '.' + \
+                    field_type.__name__
+                fields[field] = dict(name=field,
+                    kind='value', type=type_name,
+                    verbose_name=definition.verbose_name)
+        return fields
 
     @property
     def data_arrays(self):
