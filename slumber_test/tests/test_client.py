@@ -97,7 +97,7 @@ class TestLoads(TestCase):
         self.assertEqual(len(pizza.prices), 1)
         self.assertEqual(len(pizza.prices[0].amounts), 3)
         for a in pizza.prices[0].amounts:
-            self.assertIn(a.size, ['s', 'm', 'l'])
+            self.assertTrue(a.size in ['s', 'm', 'l'], a.size)
 
     def test_instance_no_pk(self):
         pizza = client.slumber_test.Pizza.get(pk=None)
