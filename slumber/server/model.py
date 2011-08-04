@@ -8,8 +8,7 @@ from slumber._caches import MODEL_CACHE
 from slumber.operations import InstanceList, CreateInstance
 from slumber.operations.instancedata import DereferenceInstance, \
     InstanceData, InstanceDataArray
-
-from slumber.server.configuration import get_slumber_root
+from slumber.server import get_slumber_root
 
 
 class DjangoModel(object):
@@ -50,7 +49,8 @@ class DjangoModel(object):
                 fields[field] = dict(
                     name=field,
                     kind='object',
-                    type= get_slumber_root() + MODEL_CACHE[definition.rel.to].path,
+                    type= get_slumber_root() +
+                        MODEL_CACHE[definition.rel.to].path,
                     verbose_name=definition.verbose_name)
             else:
                 type_name = field_type.__module__ + '.' + \
