@@ -3,6 +3,10 @@
 """
 from django.core.urlresolvers import reverse
 
+def _forbidden(_request, response, *_):
+    """Return an error to say that the method type is not allowed.
+    """
+    response['_meta']['status'] = 403
 
 class ModelOperation(object):
     """Base class for model operations.
@@ -14,18 +18,14 @@ class ModelOperation(object):
         self.regex = ''
         self.path = model.path + name + '/'
 
-    def forbidden(self, request, response, *_):
-        """Return an error to say that the method type is not allowed.
-        """
-        response['_meta']['status'] = 403
-
     def operation(self, request, response, *args):
         """Perform the requested operation in the server.
         """
         if request.method in ['GET', 'POST', 'PUT', 'DELETE']:
-            getattr(self, request.method.lower(), self.forbidden)(request, response, *args)
+            return getattr(self, request.method.lower(), _forbidden)(
+                request, response, *args)
         else:
-            self.forbidden(request, response)
+            _forbidden(request, response)
 
 
 class InstanceOperation(ModelOperation):

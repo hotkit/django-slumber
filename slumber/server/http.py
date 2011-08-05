@@ -16,8 +16,8 @@ def view_handler(view):
         """
         response = {'_meta': dict(status=200, message='OK')}
         http_response = view(request, response, *args, **kwargs)
-        if not http_response:
-            http_response = HttpResponse(dumps(response, indent=4), 'text/plain',
-                status=response['_meta']['status'])
-        return http_response
+        if http_response:
+            return http_response
+        return HttpResponse(dumps(response, indent=4), 'text/plain',
+            status=response['_meta']['status'])
     return wrapper

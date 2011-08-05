@@ -11,7 +11,7 @@ class DereferenceInstance(ModelOperation):
     """Given a primary key (or other unique set of attributes) redirects
     to the instance item.
     """
-    def operation(self, request, _response, _appname, _modelname):
+    def get(self, request, _response, _appname, _modelname):
         """Work out the correct data URL for an instance we're going to
         search for.
         """

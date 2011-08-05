@@ -127,7 +127,7 @@ class TestBasicViews(ViewTests):
 
     def test_instance_creation_get(self):
         response, json = self.do_get('/slumber/slumber_test/Pizza/create/')
-        self.assertFalse(json['created'], json)
+        self.assertEquals(response.status_code, 403, response.content)
 
     def test_instance_creation_post(self):
         response, json = self.do_post('/slumber/slumber_test/Pizza/create/',
