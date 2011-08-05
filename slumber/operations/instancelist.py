@@ -8,7 +8,7 @@ from slumber.server import get_slumber_root
 class InstanceList(ModelOperation):
     """Allows access to the instances.
     """
-    def operation(self, request, response, _appname, _modelname):
+    def get(self, request, response, _appname, _modelname):
         """Return a paged set of instances for this model.
         """
         root = get_slumber_root()

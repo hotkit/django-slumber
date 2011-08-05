@@ -1,29 +1,42 @@
 from simplejson import loads
 
 from django.test import TestCase
-from django.test.client import Client
 
 from slumber_test.models import Pizza, PizzaPrice
 
 
-class TestBasicViews(TestCase):
+def _perform(client, method, url, data):
+    response = getattr(client, method)(url, data,
+        HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+    if response.status_code == 200:
+        return response, loads(response.content)
+    else:
+        return response, {}
 
+
+class ViewTests(TestCase):
+    """Base class for view tests that give us some user agent functionality.
+    """
     def do_get(self, url, query = {}):
-        response = self.client.get(url, query,
-            HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
-        if response.status_code == 200:
-            return response, loads(response.content)
-        else:
-            return response, {}
+        return _perform(self.client, 'get', url, query)
 
     def do_post(self, url, body):
-        response = self.client.post(url, body,
-            HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
-        if response.status_code == 200:
-            return response, loads(response.content)
-        else:
-            return response, {}
+        return _perform(self.client, 'post', url, body)
 
+
+class TestViewErrors(ViewTests):
+
+    def test_method_error(self):
+        response, json = self.do_post('/slumber/slumber_test/Pizza/instances/', {})
+        self.assertEquals(response.status_code, 403)
+    
+    def test_invalid_method(self):
+        response = self.client.get('/slumber/slumber_test/Pizza/instances/',
+            REQUEST_METHOD='PURGE', HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+        self.assertEquals(response.status_code, 403, response.content)
+
+
+class TestBasicViews(ViewTests):
 
     def test_applications(self):
         response, json = self.do_get('/slumber/')
@@ -114,7 +127,7 @@ class TestBasicViews(TestCase):
 
     def test_instance_creation_get(self):
         response, json = self.do_get('/slumber/slumber_test/Pizza/create/')
-        self.assertFalse(json['created'], json)
+        self.assertEquals(response.status_code, 403, response.content)
 
     def test_instance_creation_post(self):
         response, json = self.do_post('/slumber/slumber_test/Pizza/create/',
@@ -141,6 +154,7 @@ class TestBasicViews(TestCase):
         response, json = self.do_get('/slumber/slumber_test/Pizza/data/%s/' % s.pk)
         self.maxDiff = None
         self.assertEquals(json, dict(
+            _meta={'message': 'OK', 'status': 200},
             fields=dict(
                 id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),
                 for_sale=dict(data=s.for_sale, kind='value', type='django.db.models.fields.BooleanField'),
@@ -156,7 +170,9 @@ class TestBasicViews(TestCase):
         p = PizzaPrice(pizza=s, date='2010-01-01')
         p.save()
         response, json = self.do_get('/slumber/slumber_test/PizzaPrice/data/%s/' % p.pk)
-        self.assertEquals(json, dict(display="PizzaPrice object",
+        self.assertEquals(json, dict(
+            _meta={'message': 'OK', 'status': 200},
+            display="PizzaPrice object",
             fields=dict(
                 id={'data': 1, 'kind': 'value', 'type': 'django.db.models.fields.AutoField'},
                 pizza={'data': {'display':'p1', 'data': '/slumber/slumber_test/Pizza/data/1/'},

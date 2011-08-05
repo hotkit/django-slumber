@@ -11,7 +11,7 @@ from slumber.operations import InstanceOperation
 class InstanceData(InstanceOperation):
     """Return the instance data.
     """
-    def operation(self, _request, response, _appname, _modelname, pk):
+    def get(self, _request, response, _appname, _modelname, pk):
         """Implement the fetching of attribute data for an instance.
         """
         root = reverse('slumber.server.views.get_applications')
@@ -37,7 +37,7 @@ class InstanceDataArray(InstanceOperation):
         self.field = field
         self.regex = '([^/]+)/(%s)/' % field
 
-    def operation(self, request, response, _appname, _modelname, pk, _dataset):
+    def get(self, request, response, _appname, _modelname, pk, _dataset):
         """Return one page of the array data.
         """
         root = reverse('slumber.server.views.get_applications')
