@@ -5,7 +5,8 @@ from django.db.models import ForeignKey
 from django.db.models.fields import FieldDoesNotExist
 
 from slumber._caches import MODEL_CACHE
-from slumber.operations import InstanceList, CreateInstance
+from slumber.operations import CreateInstance
+from slumber.operations.instancelist import InstanceList
 from slumber.operations.instancedata import DereferenceInstance, \
     InstanceData, InstanceDataArray
 from slumber.server import get_slumber_root
