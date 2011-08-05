@@ -6,9 +6,9 @@ from django.db.models.fields import FieldDoesNotExist
 
 from slumber._caches import MODEL_CACHE
 from slumber.operations.create import CreateInstance
-from slumber.operations.dereference import DereferenceInstance
-from slumber.operations.instancelist import InstanceList
 from slumber.operations.instancedata import InstanceData, InstanceDataArray
+from slumber.operations.instancelist import InstanceList
+from slumber.operations.search import DereferenceInstance
 from slumber.server import get_slumber_root
 
 
