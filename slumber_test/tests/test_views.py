@@ -1,7 +1,6 @@
 from simplejson import loads
 
 from django.test import TestCase
-from django.test.client import Client
 
 from slumber_test.models import Pizza, PizzaPrice
 
@@ -28,10 +27,13 @@ class ViewTests(TestCase):
 class TestViewErrors(ViewTests):
 
     def test_method_error(self):
-        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/')
-        self.assertEquals(response.status_code, 200)
         response, json = self.do_post('/slumber/slumber_test/Pizza/instances/', {})
         self.assertEquals(response.status_code, 403)
+    
+    def test_invalid_method(self):
+        response = self.client.get('/slumber/slumber_test/Pizza/instances/',
+            REQUEST_METHOD='PURGE', HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+        self.assertEquals(response.status_code, 403, response.content)
 
 
 class TestBasicViews(ViewTests):
