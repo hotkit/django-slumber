@@ -14,10 +14,10 @@ def view_handler(view):
     def wrapper(request, *args, **kwargs):
         """The decorated implementation.
         """
-        response = {}
+        response = {'_meta': dict(status=200, message='OK')}
         http_response = view(request, response, *args, **kwargs)
-        if http_response:
-            return http_response
-        else:
-            return HttpResponse(dumps(response, indent=4), 'text/plain')
+        if not http_response:
+            http_response = HttpResponse(dumps(response, indent=4), 'text/plain')
+            http_response.status_code = response['_meta']['status']
+        return http_response
     return wrapper

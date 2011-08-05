@@ -14,14 +14,27 @@ def _perform(client, method, url, data):
     else:
         return response, {}
 
-class TestBasicViews(TestCase):
 
+class ViewTests(TestCase):
+    """Base class for view tests that give us some user agent functionality.
+    """
     def do_get(self, url, query = {}):
         return _perform(self.client, 'get', url, query)
 
     def do_post(self, url, body):
         return _perform(self.client, 'post', url, body)
 
+
+class TestViewErrors(ViewTests):
+
+    def test_method_error(self):
+        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/')
+        self.assertEquals(response.status_code, 200)
+        response, json = self.do_post('/slumber/slumber_test/Pizza/instances/', {})
+        self.assertEquals(response.status_code, 403)
+
+
+class TestBasicViews(ViewTests):
 
     def test_applications(self):
         response, json = self.do_get('/slumber/')
@@ -139,6 +152,7 @@ class TestBasicViews(TestCase):
         response, json = self.do_get('/slumber/slumber_test/Pizza/data/%s/' % s.pk)
         self.maxDiff = None
         self.assertEquals(json, dict(
+            _meta={'message': 'OK', 'status': 200},
             fields=dict(
                 id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),
                 for_sale=dict(data=s.for_sale, kind='value', type='django.db.models.fields.BooleanField'),
@@ -154,7 +168,9 @@ class TestBasicViews(TestCase):
         p = PizzaPrice(pizza=s, date='2010-01-01')
         p.save()
         response, json = self.do_get('/slumber/slumber_test/PizzaPrice/data/%s/' % p.pk)
-        self.assertEquals(json, dict(display="PizzaPrice object",
+        self.assertEquals(json, dict(
+            _meta={'message': 'OK', 'status': 200},
+            display="PizzaPrice object",
             fields=dict(
                 id={'data': 1, 'kind': 'value', 'type': 'django.db.models.fields.AutoField'},
                 pizza={'data': {'display':'p1', 'data': '/slumber/slumber_test/Pizza/data/1/'},
