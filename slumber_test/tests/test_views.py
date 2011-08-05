@@ -6,23 +6,21 @@ from django.test.client import Client
 from slumber_test.models import Pizza, PizzaPrice
 
 
+def _perform(client, method, url, data):
+    response = getattr(client, method)(url, data,
+        HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+    if response.status_code == 200:
+        return response, loads(response.content)
+    else:
+        return response, {}
+
 class TestBasicViews(TestCase):
 
     def do_get(self, url, query = {}):
-        response = self.client.get(url, query,
-            HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
-        if response.status_code == 200:
-            return response, loads(response.content)
-        else:
-            return response, {}
+        return _perform(self.client, 'get', url, query)
 
     def do_post(self, url, body):
-        response = self.client.post(url, body,
-            HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
-        if response.status_code == 200:
-            return response, loads(response.content)
-        else:
-            return response, {}
+        return _perform(self.client, 'post', url, body)
 
 
     def test_applications(self):
