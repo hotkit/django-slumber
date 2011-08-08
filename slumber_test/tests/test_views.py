@@ -137,6 +137,16 @@ class TestBasicViews(ViewTests):
         self.assertEquals(Pizza.objects.all()[0].name, 'Test Pizza')
 
 
+    def test_update_instance(self):
+        s = Pizza(name='S1', for_sale=True)
+        s.save()
+        response, json = self.do_post('/slumber/slumber_test/Pizza/update/1/', {
+            'name': 'New pizza'})
+        self.assertEquals(response.status_code, 302)
+        n = Pizza.objects.get(pk=1)
+        self.assertEquals(n.name, "New pizza")
+
+
     def test_get_instance(self):
         s = Pizza(name='S1', for_sale=True)
         s.save()
