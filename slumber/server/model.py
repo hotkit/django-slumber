@@ -9,6 +9,7 @@ from slumber.operations.create import CreateInstance
 from slumber.operations.instancedata import InstanceData, InstanceDataArray
 from slumber.operations.instancelist import InstanceList
 from slumber.operations.search import DereferenceInstance
+from slumber.operations.update import UpdateInstance
 from slumber.server import get_slumber_root
 
 
@@ -72,6 +73,8 @@ class DjangoModel(object):
         """Return all of  the operations available for this model.
         """
         return [InstanceList(self, 'instances'),
-                CreateInstance(self, 'create'), InstanceData(self, 'data'),
-                DereferenceInstance(self, 'get')] + \
+                CreateInstance(self, 'create'),
+                InstanceData(self, 'data'),
+                DereferenceInstance(self, 'get'),
+                UpdateInstance(self, 'update')] + \
             [InstanceDataArray(self, 'data', f) for f in self.data_arrays]
