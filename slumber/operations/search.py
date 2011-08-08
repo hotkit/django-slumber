@@ -16,6 +16,8 @@ class DereferenceInstance(ModelOperation):
         search for.
         """
         root = get_slumber_root()
-        instance = self.model.model.objects.get(pk=request.GET['pk'])
+        instance = self.model.model.objects.get(
+            **dict([(k, request.GET[k])
+                for k in request.GET.keys()]))
         return HttpResponseRedirect(
             root + self.model.path + 'data/%s/' % instance.pk)

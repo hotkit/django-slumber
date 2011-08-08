@@ -153,10 +153,14 @@ class TestBasicViews(ViewTests):
         response, json = self.do_get('/slumber/slumber_test/Pizza/')
         get_url = json['operations']['get']
         self.assertEquals(get_url, '/slumber/slumber_test/Pizza/get/')
-        response, json = self.do_get(get_url, {'pk': s.pk})
-        self.assertEquals(response.status_code, 302, response)
-        self.assertEquals(response['location'],
-            'http://localhost/slumber/slumber_test/Pizza/data/%s/' % s.pk)
+        def check_query(query):
+            response, json = self.do_get(get_url, query)
+            self.assertEquals(response.status_code, 302, response)
+            self.assertEquals(response['location'],
+                'http://localhost/slumber/slumber_test/Pizza/data/%s/' % s.pk)
+        check_query({'pk': s.pk})
+        check_query({'id': s.pk})
+        check_query({'name': s.name})
 
     def test_instance_data_pizza(self):
         s = Pizza(name='S1', for_sale=True)
