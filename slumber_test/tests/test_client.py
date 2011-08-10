@@ -57,6 +57,24 @@ class TestLoads(TestCase):
         except AttributeError:
             pass
 
+    def test_module_attributes(self):
+        self.assertTrue(client.slumber_test.Pizza.module, 'slumber_test')
+        self.assertTrue(client.slumber_test.Pizza.name, 'Pizza')
+        try:
+            client.slumber_test.Pizza.not_a_module_attr
+            self.fail("This should have thrown an attribute error")
+        except AttributeError:
+            pass
+
+
+    def test_instance_type(self):
+        s = Pizza(name='S1', for_sale=True)
+        s.save()
+        pizza = client.slumber_test.Pizza.get(pk=s.pk)
+        self.assertEqual(s.pk, pizza.id)
+        self.assertEqual(type(pizza).__name__, 'slumber_test.Pizza')
+        self.assertEqual(str(type(pizza)),
+            "<class 'slumber.connector.slumber_test.Pizza'>")
 
     def test_instance_data(self):
         s = Pizza(name='S1', for_sale=True)

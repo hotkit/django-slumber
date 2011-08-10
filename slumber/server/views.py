@@ -38,6 +38,8 @@ def get_model(_, response, appname, modelname):
     """
     app = get_application(appname)
     model = app.models[modelname]
+    response['name'] = model.name
+    response['module'] = model.app.name
     response['fields'] = model.fields
     # We have to access _meta
     # pylint: disable=W0212
