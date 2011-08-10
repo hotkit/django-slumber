@@ -73,6 +73,8 @@ class TestLoads(TestCase):
         pizza = client.slumber_test.Pizza.get(pk=s.pk)
         self.assertEqual(s.pk, pizza.id)
         self.assertEqual(type(pizza).__name__, 'slumber_test.Pizza')
+        self.assertEqual(str(type(pizza)),
+            "<class 'slumber.connector.slumber_test.Pizza'>")
 
     def test_instance_data(self):
         s = Pizza(name='S1', for_sale=True)
