@@ -5,11 +5,12 @@ from django.db.models import ForeignKey
 from django.db.models.fields import FieldDoesNotExist
 
 from slumber._caches import MODEL_CACHE
-from slumber.operations import InstanceList, CreateInstance
-from slumber.operations.instancedata import DereferenceInstance, \
-    InstanceData, InstanceDataArray
-
-from slumber.server.configuration import get_slumber_root
+from slumber.operations.create import CreateInstance
+from slumber.operations.instancedata import InstanceData, InstanceDataArray
+from slumber.operations.instancelist import InstanceList
+from slumber.operations.search import DereferenceInstance
+from slumber.operations.update import UpdateInstance
+from slumber.server import get_slumber_root
 
 
 class DjangoModel(object):
@@ -50,7 +51,8 @@ class DjangoModel(object):
                 fields[field] = dict(
                     name=field,
                     kind='object',
-                    type= get_slumber_root() + MODEL_CACHE[definition.rel.to].path,
+                    type= get_slumber_root() +
+                        MODEL_CACHE[definition.rel.to].path,
                     verbose_name=definition.verbose_name)
             else:
                 type_name = field_type.__module__ + '.' + \
@@ -71,6 +73,8 @@ class DjangoModel(object):
         """Return all of  the operations available for this model.
         """
         return [InstanceList(self, 'instances'),
-                CreateInstance(self, 'create'), InstanceData(self, 'data'),
-                DereferenceInstance(self, 'get')] + \
+                CreateInstance(self, 'create'),
+                InstanceData(self, 'data'),
+                DereferenceInstance(self, 'get'),
+                UpdateInstance(self, 'update')] + \
             [InstanceDataArray(self, 'data', f) for f in self.data_arrays]

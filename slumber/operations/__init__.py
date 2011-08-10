@@ -3,6 +3,10 @@
 """
 from django.core.urlresolvers import reverse
 
+def _forbidden(_request, response, *_):
+    """Return an error to say that the method type is not allowed.
+    """
+    response['_meta']['status'] = 403
 
 class ModelOperation(object):
     """Base class for model operations.
@@ -14,6 +18,15 @@ class ModelOperation(object):
         self.regex = ''
         self.path = model.path + name + '/'
 
+    def operation(self, request, response, *args):
+        """Perform the requested operation in the server.
+        """
+        if request.method in ['GET', 'POST', 'PUT', 'DELETE']:
+            return getattr(self, request.method.lower(), _forbidden)(
+                request, response, *args)
+        else:
+            _forbidden(request, response)
+
 
 class InstanceOperation(ModelOperation):
     """Base class for operations on instances.
@@ -22,41 +35,3 @@ class InstanceOperation(ModelOperation):
     def __init__(self, model, name):
         super(InstanceOperation, self).__init__(model, name)
         self.regex = '([^/]+)/'
-
-
-class InstanceList(ModelOperation):
-    """Allows access to the instances.
-    """
-    def operation(self, request, response, _appname, _modelname):
-        """Return a paged set of instances for this model.
-        """
-        root = reverse('slumber.server.views.get_applications')
-        response['model'] = root + self.model.path
-
-        query = self.model.model.objects.order_by('-pk')
-        if request.GET.has_key('start_after'):
-            query = query.filter(pk__lt=request.GET['start_after'])
-
-        response['page'] = [
-                dict(pk=o.pk, display=unicode(o),
-                    data=root + self.model.path + 'data/%s/' % o.pk)
-            for o in query[:10]]
-        if len(response['page']) > 0:
-            response['next_page'] = root +self.model.path + \
-                'instances/?start_after=%s' % response['page'][-1]['pk']
-
-
-class CreateInstance(ModelOperation):
-    """Allows for the creation of new instances.
-    """
-    def operation(self, request, response, _appname, _modelname):
-        """Perform the object creation.
-        """
-        if request.method == 'POST':
-            response['created'] = True
-            instance = self.model.model(**dict([(k, str(v))
-                for k, v in request.POST.items()]))
-            instance.save()
-            response['pk'] = instance.pk
-        else:
-            response['created'] = False

@@ -2,30 +2,16 @@
     Implements the server side for the instance operators.
 """
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
 
 from slumber._caches import MODEL_CACHE
 from slumber.json import to_json_data
-from slumber.operations import InstanceOperation, ModelOperation
-
-
-class DereferenceInstance(ModelOperation):
-    """Given a primary key (or other unique set of attributes) redirects
-    to the instance item."""
-    def operation(self, request, _response, _appname, _modelname):
-        """Work out the correct data URL for an instance we're going to
-        search for.
-        """
-        root = reverse('slumber.server.views.get_applications')
-        instance = self.model.model.objects.get(pk=request.GET['pk'])
-        return HttpResponseRedirect(
-            root + self.model.path + 'data/%s/' % instance.pk)
+from slumber.operations import InstanceOperation
 
 
 class InstanceData(InstanceOperation):
     """Return the instance data.
     """
-    def operation(self, _request, response, _appname, _modelname, pk):
+    def get(self, _request, response, _appname, _modelname, pk):
         """Implement the fetching of attribute data for an instance.
         """
         root = reverse('slumber.server.views.get_applications')
@@ -51,7 +37,7 @@ class InstanceDataArray(InstanceOperation):
         self.field = field
         self.regex = '([^/]+)/(%s)/' % field
 
-    def operation(self, request, response, _appname, _modelname, pk, _dataset):
+    def get(self, request, response, _appname, _modelname, pk, _dataset):
         """Return one page of the array data.
         """
         root = reverse('slumber.server.views.get_applications')

@@ -3,9 +3,10 @@
 """
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 
+from slumber.server import get_slumber_root
 from slumber.server.http import view_handler
 from slumber.server.meta import applications, get_application
-from slumber.server.configuration import get_slumber_root
+
 
 @view_handler
 def get_applications(request, response):
@@ -20,7 +21,6 @@ def get_applications(request, response):
         return HttpResponseNotFound()
     response['apps'] = dict([(app.name, root + app.path + '/')
         for app in applications()])
-
 
 @view_handler
 def get_models(_, response, appname):
