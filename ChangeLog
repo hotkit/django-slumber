@@ -1,4 +1,7 @@
-2011-08-058 Kirit Saelensminde  <kirit@felspar.com>
+2011-08-10 Kirit Saelensminde  <kirit@felspar.com>
+ The type of the returned instances in the client from `get` now makes sense.
+
+2011-08-05 Kirit Saelensminde  <kirit@felspar.com>
  Added a server side implementation for updating instances.
  The model `get` method can now be passed any unique combination of attributes and the right instance will be returned.
 
