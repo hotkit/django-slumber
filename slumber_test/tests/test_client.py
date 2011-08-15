@@ -83,6 +83,7 @@ class TestLoads(TestCase):
         self.assertEqual('S1', pizza.name)
         prices = pizza.prices
         self.assertEqual(len(prices), 0)
+        self.assertTrue(pizza.exclusive_to is None, pizza.exclusive_to)
         try:
             pizza.not_a_field
             self.fail("This should have thrown an AttributeError")
