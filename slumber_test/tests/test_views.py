@@ -29,7 +29,7 @@ class TestViewErrors(ViewTests):
     def test_method_error(self):
         response, json = self.do_post('/slumber/slumber_test/Pizza/instances/', {})
         self.assertEquals(response.status_code, 403)
-    
+
     def test_invalid_method(self):
         response = self.client.get('/slumber/slumber_test/Pizza/instances/',
             REQUEST_METHOD='PURGE', HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
@@ -173,7 +173,8 @@ class TestBasicViews(ViewTests):
                 id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),
                 for_sale=dict(data=s.for_sale, kind='value', type='django.db.models.fields.BooleanField'),
                 max_extra_toppings=dict(data=s.max_extra_toppings, kind='value', type='django.db.models.fields.IntegerField'),
-                name=dict(data=s.name, kind='value', type='django.db.models.fields.CharField')),
+                name=dict(data=s.name, kind='value', type='django.db.models.fields.CharField'),
+                exclusive_to={'data': None, 'kind': 'object', 'type': '/slumber/slumber_test/Shop/'}),
             display='S1',
             data_arrays=dict(
                 prices='/slumber/slumber_test/Pizza/data/%s/prices/' % s.pk)))

@@ -21,10 +21,13 @@ def to_json_data(model, instance, fieldname, fieldmeta):
     """
     value = getattr(instance, fieldname)
     if fieldmeta['kind'] == 'object':
-        rel_to = MODEL_CACHE[type(value)]
-        root = reverse('slumber.server.views.get_applications')
-        return dict(display=unicode(value),
-            data = root + rel_to.path + 'data/%s/' % value.pk)
+        if value is None:
+            return None
+        else:
+            rel_to = MODEL_CACHE[type(value)]
+            root = reverse('slumber.server.views.get_applications')
+            return dict(display=unicode(value),
+                data = root + rel_to.path + 'data/%s/' % value.pk)
     elif DATA_MAPPING.has_key(fieldmeta['type']):
         return DATA_MAPPING[fieldmeta['type']](
             model, instance, fieldmeta, value)
@@ -40,10 +43,13 @@ def from_json_data(base_url, json):
     the client.
     """
     if json['kind'] == 'object':
-        # It's a remote object
-        from slumber.connector import InstanceConnector
-        return InstanceConnector(
-            urljoin(base_url, json['data']['data']),
-            json['data']['display'])
+        if json['data'] is None:
+            return None
+        else:
+            # It's a remote object
+            from slumber.connector import InstanceConnector
+            return InstanceConnector(
+                urljoin(base_url, json['data']['data']),
+                json['data']['display'])
     else:
         return json['data']
