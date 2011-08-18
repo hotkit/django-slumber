@@ -118,5 +118,6 @@ class TestLoads(TestCase):
             self.assertTrue(a.size in ['s', 'm', 'l'], a.size)
 
     def test_instance_no_pk(self):
-        pizza = client.slumber_test.Pizza.get(pk=None)
-        self.assertTrue(pizza is None)
+        with self.assertRaises(AssertionError):
+            pizza = client.slumber_test.Pizza.get()
+

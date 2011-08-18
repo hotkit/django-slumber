@@ -108,11 +108,10 @@ class ModelConnector(DictObject):
     def get(self, **kwargs):
         """Implements the client side for the model 'get' operator.
         """
-        pk = kwargs.get('pk', None)
-        if pk is None:
-            return None
+        assert len(kwargs), \
+            "You must supply kwargs to filter on to fetch the instance"
         url = urljoin(self._url, 'get/')
-        _, json = get(url + '?' + urlencode({'pk': pk}))
+        _, json = get(url + '?' + urlencode(kwargs))
         def get_data_array(obj, name):
             """Implement simple partial application using a closure.
             """
