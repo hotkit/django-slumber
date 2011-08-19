@@ -41,5 +41,6 @@ def mock_client(**instances):
             """The wrapper for the test method.
             """
             test_method(test)
+        test_wrapped.__doc__ = test_method.__doc__
         return test_wrapped
     return decorator
