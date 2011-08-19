@@ -131,10 +131,11 @@ class TestBasicViews(ViewTests):
 
     def test_instance_creation_post(self):
         response, json = self.do_post('/slumber/slumber_test/Pizza/create/',
-            {'name': 'Test Pizza'})
+            {'name': 'Test Pizza', 'for_sale': ''})
         self.assertTrue(json['created'])
         self.assertEquals(Pizza.objects.count(), 1)
         self.assertEquals(Pizza.objects.all()[0].name, 'Test Pizza')
+        self.assertFalse(Pizza.objects.all()[0].for_sale)
 
 
     def test_update_instance(self):
