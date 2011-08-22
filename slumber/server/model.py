@@ -6,6 +6,7 @@ from django.db.models.fields import FieldDoesNotExist
 
 from slumber._caches import MODEL_CACHE
 from slumber.operations.create import CreateInstance
+from slumber.operations.delete import DeleteInstance
 from slumber.operations.instancedata import InstanceData, InstanceDataArray
 from slumber.operations.instancelist import InstanceList
 from slumber.operations.search import DereferenceInstance
@@ -75,6 +76,7 @@ class DjangoModel(object):
         return [InstanceList(self, 'instances'),
                 CreateInstance(self, 'create'),
                 InstanceData(self, 'data'),
+                DeleteInstance(self, 'delete'),
                 DereferenceInstance(self, 'get'),
                 UpdateInstance(self, 'update')] + \
             [InstanceDataArray(self, 'data', f) for f in self.data_arrays]
