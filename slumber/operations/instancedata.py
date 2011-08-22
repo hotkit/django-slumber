@@ -17,6 +17,9 @@ class InstanceData(InstanceOperation):
         root = reverse('slumber.server.views.get_applications')
         instance = self.model.model.objects.get(pk=pk)
         response['display'] = unicode(instance)
+        response['operations'] = dict(
+            [(op.name, root + op.path + '%s/' % instance.pk)
+                for op in self.model.operations() if not op.model_operation])
         response['fields'] = {}
         for field, meta in self.model.fields.items():
             response['fields'][field] = dict(
