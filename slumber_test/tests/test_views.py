@@ -230,3 +230,15 @@ class TestBasicViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 0)
         self.assertFalse(json.has_key('next_page'))
+
+
+    def test_delete_instance(self):
+        s = Pizza(name='P')
+        s.save()
+        response, json = self.do_get('/slumber/slumber_test/Pizza/data/%s/' % s.pk)
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(json['operations'].has_key('delete'), json['operations'])
+        response, json = self.do_post(json['operations']['delete'], {})
+        self.assertEquals(response.status_code, 200)
+        with self.assertRaises(Pizza.DoesNotExist):
+            Pizza.objects.get(pk=s.pk)
