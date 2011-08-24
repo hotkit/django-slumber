@@ -11,6 +11,8 @@ class TestSlumberMock(TestCase):
 
     @mock_client(app__contrib__auth__Model=[], app__Pizza=[])
     def test_basic_app_data(self):
+        """Ensure that the basic meta data part of the mock works as it should.
+        """
         self.assertTrue(hasattr(client, 'app'))
         self.assertTrue(hasattr(client.app, 'contrib'))
         self.assertTrue(hasattr(client.app.contrib, 'auth'))
@@ -32,6 +34,8 @@ class TestSlumberMock(TestCase):
                 date='2010-01-01', amount=Decimal("14")),
         ])
     def test_get_pizza(self):
+        """Ensure that we can manage instances and data arrays properly.
+        """
         p1 = client.slumber.Pizza.get(pk=1)
         self.assertEquals(p1.pk, 1)
         self.assertEquals(getattr(p1, 'name', None), 'Margarita', p1.__dict__)

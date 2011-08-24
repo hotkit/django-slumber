@@ -37,9 +37,10 @@ def mock_client(**instances):
         """The actual decorator that is going to be used on the test method.
         """
         @mock.patch('slumber._client', models)
-        def wrapped(test):
+        def test_wrapped(test):
             """The wrapper for the test method.
             """
             test_method(test)
-        return wrapped
+        test_wrapped.__doc__ = test_method.__doc__
+        return test_wrapped
     return decorator

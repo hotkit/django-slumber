@@ -29,7 +29,7 @@ class TestViewErrors(ViewTests):
     def test_method_error(self):
         response, json = self.do_post('/slumber/slumber_test/Pizza/instances/', {})
         self.assertEquals(response.status_code, 403)
-    
+
     def test_invalid_method(self):
         response = self.client.get('/slumber/slumber_test/Pizza/instances/',
             REQUEST_METHOD='PURGE', HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
@@ -131,10 +131,11 @@ class TestBasicViews(ViewTests):
 
     def test_instance_creation_post(self):
         response, json = self.do_post('/slumber/slumber_test/Pizza/create/',
-            {'name': 'Test Pizza'})
+            {'name': 'Test Pizza', 'for_sale': ''})
         self.assertTrue(json['created'])
         self.assertEquals(Pizza.objects.count(), 1)
         self.assertEquals(Pizza.objects.all()[0].name, 'Test Pizza')
+        self.assertFalse(Pizza.objects.all()[0].for_sale)
 
 
     def test_update_instance(self):
@@ -169,12 +170,17 @@ class TestBasicViews(ViewTests):
         self.maxDiff = None
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
+            operations=dict(
+                data='/slumber/slumber_test/Pizza/data/1/',
+                delete='/slumber/slumber_test/Pizza/delete/1/',
+                update='/slumber/slumber_test/Pizza/update/1/'),
+            display='S1',
             fields=dict(
                 id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),
                 for_sale=dict(data=s.for_sale, kind='value', type='django.db.models.fields.BooleanField'),
                 max_extra_toppings=dict(data=s.max_extra_toppings, kind='value', type='django.db.models.fields.IntegerField'),
-                name=dict(data=s.name, kind='value', type='django.db.models.fields.CharField')),
-            display='S1',
+                name=dict(data=s.name, kind='value', type='django.db.models.fields.CharField'),
+                exclusive_to={'data': None, 'kind': 'object', 'type': '/slumber/slumber_test/Shop/'}),
             data_arrays=dict(
                 prices='/slumber/slumber_test/Pizza/data/%s/prices/' % s.pk)))
 
@@ -186,6 +192,10 @@ class TestBasicViews(ViewTests):
         response, json = self.do_get('/slumber/slumber_test/PizzaPrice/data/%s/' % p.pk)
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
+            operations=dict(
+                data='/slumber/slumber_test/PizzaPrice/data/1/',
+                delete='/slumber/slumber_test/PizzaPrice/delete/1/',
+                update='/slumber/slumber_test/PizzaPrice/update/1/'),
             display="PizzaPrice object",
             fields=dict(
                 id={'data': 1, 'kind': 'value', 'type': 'django.db.models.fields.AutoField'},
@@ -193,7 +203,7 @@ class TestBasicViews(ViewTests):
                     'kind': 'object', 'type': '/slumber/slumber_test/Pizza/'},
                 date={'data': '2010-01-01', 'kind': 'value', 'type': 'django.db.models.fields.DateField'},
             ),
-            data_arrays={'amounts': '/slumber/slumber_test/PizzaPrice/data/1/amounts/'}), json)
+            data_arrays={'amounts': '/slumber/slumber_test/PizzaPrice/data/1/amounts/'}))
 
     def test_instance_data_array(self):
         s = Pizza(name='P', for_sale=True)
@@ -220,3 +230,15 @@ class TestBasicViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 0)
         self.assertFalse(json.has_key('next_page'))
+
+
+    def test_delete_instance(self):
+        s = Pizza(name='P')
+        s.save()
+        response, json = self.do_get('/slumber/slumber_test/Pizza/data/%s/' % s.pk)
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(json['operations'].has_key('delete'), json['operations'])
+        response, json = self.do_post(json['operations']['delete'], {})
+        self.assertEquals(response.status_code, 200)
+        with self.assertRaises(Pizza.DoesNotExist):
+            Pizza.objects.get(pk=s.pk)
