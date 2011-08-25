@@ -1,5 +1,6 @@
 from simplejson import loads
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from slumber_test.models import Pizza, PizzaPrice
@@ -90,6 +91,8 @@ class TestBasicViews(ViewTests):
         response, json = self.do_get('/slumber/django/contrib/auth/User/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue(json['operations'].has_key('authenticate'), json['operations'])
+        self.assertEquals(json['operations']['authenticate'],
+            '/slumber/django/contrib/auth/User/authenticate/')
 
 
     def test_instance_puttable(self):
@@ -247,3 +250,12 @@ class TestBasicViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         with self.assertRaises(Pizza.DoesNotExist):
             Pizza.objects.get(pk=s.pk)
+
+
+class TestUserViews(ViewTests):
+    authn = '/slumber/django/contrib/auth/User/authenticate/'
+    def test_user_not_found(self):
+        response, json = self.do_post(self.authn, dict(username='not-a-user', password=''))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['authenticated'], False, json)
+        self.assertIsNone(json['user'], json)

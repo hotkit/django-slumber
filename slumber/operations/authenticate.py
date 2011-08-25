@@ -14,7 +14,8 @@ class AuthenticateUser(ModelOperation):
     def post(self, request, response, _appname, _modelname):
         """Perform the authentication.
         """
-        user = authenticate(**request.POST)
+        user = authenticate(**dict([(str(k), str(v))
+            for k, v in request.POST.items()]))
         if user:
             root = get_slumber_root()
             return HttpResponseRedirect(
