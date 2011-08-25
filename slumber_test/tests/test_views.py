@@ -259,3 +259,13 @@ class TestUserViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(json['authenticated'], False, json)
         self.assertIsNone(json['user'], json)
+
+    def test_user_wrong_password(self):
+        user = User(username='test-user')
+        user.save()
+        response, json = self.do_post(self.authn, dict(username=user.username,
+            password=''))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['authenticated'], False, json)
+        self.assertIsNone(json['user'], json)
+
