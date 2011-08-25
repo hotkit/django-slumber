@@ -277,6 +277,5 @@ class TestUserViews(ViewTests):
             password='asdf'))
         self.assertEquals(response.status_code, 200)
         self.assertEquals(json['authenticated'], True, json)
-        self.assertEquals(json['user'],
-            '/slumber/django/contrib/auth/User/data/%s/' % user.pk)
+        self.assertEquals(json['user'], {'pk': user.pk})
 
