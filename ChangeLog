@@ -1,3 +1,6 @@
+2011-08-25  Kirit Saelensminde  <kirit@felspar.com>
+ We are now able to authenticate Django Users.
+
 2011-08-22  Kirit Saelensminde  <kirit@felspar.com>
  Added a delete operation for instances.
 
