@@ -86,6 +86,11 @@ class TestBasicViews(ViewTests):
         self.assertEquals(json['fields']['pizza']['type'],
             '/slumber/slumber_test/Pizza/')
 
+    def test_instance_metadata_user(self):
+        response, json = self.do_get('/slumber/django/contrib/auth/User/')
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(json['operations'].has_key('authenticate'), json['operations'])
+
 
     def test_instance_puttable(self):
         response, json = self.do_get('/slumber/slumber_test/Pizza/')
