@@ -269,3 +269,14 @@ class TestUserViews(ViewTests):
         self.assertEquals(json['authenticated'], False, json)
         self.assertIsNone(json['user'], json)
 
+    def test_user_authenticates(self):
+        user = User(username='test-user')
+        user.set_password('asdf')
+        user.save()
+        response, json = self.do_post(self.authn, dict(username=user.username,
+            password='asdf'))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['authenticated'], True, json)
+        self.assertEquals(json['user'],
+            '/slumber/django/contrib/auth/User/data/%s/' % user.pk)
+
