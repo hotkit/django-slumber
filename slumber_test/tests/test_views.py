@@ -178,11 +178,12 @@ class TestBasicViews(ViewTests):
         self.maxDiff = None
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
+            identity='/slumber/slumber_test/Pizza/data/1/',
+            display='S1',
             operations=dict(
                 data='/slumber/slumber_test/Pizza/data/1/',
                 delete='/slumber/slumber_test/Pizza/delete/1/',
                 update='/slumber/slumber_test/Pizza/update/1/'),
-            display='S1',
             fields=dict(
                 id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),
                 for_sale=dict(data=s.for_sale, kind='value', type='django.db.models.fields.BooleanField'),
@@ -200,11 +201,12 @@ class TestBasicViews(ViewTests):
         response, json = self.do_get('/slumber/slumber_test/PizzaPrice/data/%s/' % p.pk)
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
+            identity='/slumber/slumber_test/PizzaPrice/data/1/',
+            display="PizzaPrice object",
             operations=dict(
                 data='/slumber/slumber_test/PizzaPrice/data/1/',
                 delete='/slumber/slumber_test/PizzaPrice/delete/1/',
                 update='/slumber/slumber_test/PizzaPrice/update/1/'),
-            display="PizzaPrice object",
             fields=dict(
                 id={'data': 1, 'kind': 'value', 'type': 'django.db.models.fields.AutoField'},
                 pizza={'data': {'display':'p1', 'data': '/slumber/slumber_test/Pizza/data/1/'},

@@ -16,6 +16,8 @@ class InstanceData(InstanceOperation):
         """
         root = reverse('slumber.server.views.get_applications')
         instance = self.model.model.objects.get(pk=pk)
+        response['identity'] = root + self.model.path + \
+            '%s/%s/' % (self.name, instance.pk)
         response['display'] = unicode(instance)
         response['operations'] = dict(
             [(op.name, root + op.path + '%s/' % instance.pk)
@@ -28,8 +30,7 @@ class InstanceData(InstanceOperation):
         response['data_arrays'] = {}
         for field in self.model.data_arrays:
             response['data_arrays'][field] = \
-                root + self.model.path + '%s/%s/%s/' % \
-                    (self.name, str(pk), field)
+                response['identity'] + '%s/' % field
 
 
 class InstanceDataArray(InstanceOperation):
