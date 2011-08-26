@@ -26,7 +26,8 @@ def to_json_data(model, instance, fieldname, fieldmeta):
         else:
             rel_to = DJANGO_MODEL_TO_SLUMBER_MODEL[type(value)]
             root = reverse('slumber.server.views.get_applications')
-            return dict(display=unicode(value),
+            return dict(type=root + rel_to.path,
+                display=unicode(value),
                 data = root + rel_to.path + 'data/%s/' % value.pk)
     elif DATA_MAPPING.has_key(fieldmeta['type']):
         return DATA_MAPPING[fieldmeta['type']](

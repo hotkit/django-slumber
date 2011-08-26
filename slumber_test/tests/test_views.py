@@ -209,7 +209,9 @@ class TestBasicViews(ViewTests):
                 update='/slumber/slumber_test/PizzaPrice/update/1/'),
             fields=dict(
                 id={'data': 1, 'kind': 'value', 'type': 'django.db.models.fields.AutoField'},
-                pizza={'data': {'display':'p1', 'data': '/slumber/slumber_test/Pizza/data/1/'},
+                pizza={'data': {
+                        'type': '/slumber/slumber_test/Pizza/', 'display':'p1',
+                        'data': '/slumber/slumber_test/Pizza/data/1/'},
                     'kind': 'object', 'type': '/slumber/slumber_test/Pizza/'},
                 date={'data': '2010-01-01', 'kind': 'value', 'type': 'django.db.models.fields.DateField'},
             ),
