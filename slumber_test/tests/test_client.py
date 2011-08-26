@@ -118,3 +118,8 @@ class TestsWithPizza(TestCase):
         with self.assertRaises(AssertionError):
             pizza = client.slumber_test.Pizza.get()
 
+    def test_2nd_pizza_comes_from_cache(self):
+        fail = lambda *a, **f: self.fail("_InstanceConnector.__init__ called again %s, %s" % (a, f))
+        with patch('slumber.connector.instance._InstanceConnector.__init__', fail):
+            pizza2 = client.slumber_test.Pizza.get(pk=self.s.pk)
+

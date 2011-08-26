@@ -3,6 +3,7 @@
 """
 from urlparse import urljoin
 
+from slumber._caches import CLIENT_INSTANCE_CACHE
 from slumber.connector.dictobject import DictObject
 from slumber.connector.ua import get
 from slumber.connector.json import from_json_data
@@ -11,11 +12,14 @@ from slumber.connector.json import from_json_data
 def get_instance(model, instance_url, display_name, **fields):
     """Return an instance of the specified model etc.
     """
-    instance_type = type(model.module + '.' + model.name,
-        (_InstanceConnector,), {})
-    obj = instance_type(
-        instance_url, display_name,
-        **fields)
+    obj = CLIENT_INSTANCE_CACHE.get(instance_url, None)
+    if not obj:
+        instance_type = type(model.module + '.' + model.name,
+            (_InstanceConnector,), {})
+        obj = instance_type(
+            instance_url, display_name,
+            **fields)
+        CLIENT_INSTANCE_CACHE[instance_url] = obj
     return obj
 
 
