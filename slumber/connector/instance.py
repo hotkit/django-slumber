@@ -12,15 +12,40 @@ from slumber.connector.json import from_json_data
 def get_instance(model, instance_url, display_name, **fields):
     """Return an instance of the specified model etc.
     """
-    obj = CLIENT_INSTANCE_CACHE.get(instance_url, None)
-    if not obj:
-        instance_type = type(model.module + '.' + model.name,
-            (_InstanceConnector,), {})
-        obj = instance_type(
-            instance_url, display_name,
-            **fields)
-        CLIENT_INSTANCE_CACHE[instance_url] = obj
-    return obj
+    instance_type = type(model.module + '.' + model.name,
+        (_InstanceProxy,), {})
+    return instance_type(instance_url, display_name, **fields)
+
+
+class _InstanceProxy(object):
+    """Add an extra layer of indirection between the objects being manipulated
+    by the application code and the underlying object. This allows us to
+    better handle the cache.
+    """
+    def __init__(self, url, display, **fields):
+        self._url = url
+        self._display = display
+        self._fields = fields
+        self._instance = None
+
+    def __getattr__(self, name):
+        """Fetch the underlying instance from the cache if necessary and
+        return the attribute value it has.
+        """
+        if not self._instance:
+            # Try to find it in the cache
+            self._instance = CLIENT_INSTANCE_CACHE.get(self._url, None)
+        if not self._instance:
+            # We now have a cache miss so construct a new connector
+            self._instance = _InstanceConnector(
+                self._url, self._display, **self._fields)
+            CLIENT_INSTANCE_CACHE[self._url] = self._instance
+        return getattr(self._instance, name)
+
+    def __unicode__(self):
+        """Allow us to take the unicode name of the instance
+        """
+        return self._display
 
 
 def _return_data_array(base_url, arrays, _, name):
