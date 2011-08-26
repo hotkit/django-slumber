@@ -5,7 +5,7 @@ from urllib import urlencode
 from urlparse import urljoin
 
 from slumber.connector.dictobject import DictObject
-from slumber.connector.instance import InstanceConnector
+from slumber.connector.instance import get_instance
 from slumber.connector.ua import get
 from slumber.json import from_json_data
 
@@ -34,10 +34,7 @@ class ModelConnector(DictObject):
             "You must supply kwargs to filter on to fetch the instance"
         url = urljoin(self._url, 'get/')
         _, json = get(url + '?' + urlencode(kwargs))
-        instance_type = type(self.module + '.' + self.name,
-            (InstanceConnector,), {})
-        obj = instance_type(
+        return get_instance(self,
             urljoin(self._url, json['identity']), json['display'],
             **dict([(k, from_json_data(self._url, j))
                 for k, j in json['fields'].items()]))
-        return obj

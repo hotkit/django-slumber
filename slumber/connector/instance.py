@@ -8,6 +8,17 @@ from slumber.connector.ua import get
 from slumber.json import from_json_data
 
 
+def get_instance(model, instance_url, display_name, **fields):
+    """Return an instance of the specified model etc.
+    """
+    instance_type = type(model.module + '.' + model.name,
+        (_InstanceConnector,), {})
+    obj = instance_type(
+        instance_url, display_name,
+        **fields)
+    return obj
+
+
 def _return_data_array(base_url, arrays, _, name):
     """Implement the lazy fetching of the instance data.
     """
@@ -19,7 +30,7 @@ def _return_data_array(base_url, arrays, _, name):
         while True:
             for obj in data['page']:
                 data_array.append(
-                    InstanceConnector(
+                    _InstanceConnector(
                         urljoin(base_url, obj['data']), obj['display']))
             if data.has_key('next_page'):
                 _, data = get(urljoin(base_url, data['next_page']))
@@ -30,13 +41,13 @@ def _return_data_array(base_url, arrays, _, name):
         raise AttributeError(name)
 
 
-class InstanceConnector(DictObject):
+class _InstanceConnector(DictObject):
     """Connects to a remote instance.
     """
     def __init__(self, url, display, **kwargs):
         self._url = url
         self._unicode = display
-        super(InstanceConnector, self).__init__(**kwargs)
+        super(_InstanceConnector, self).__init__(**kwargs)
 
     def __unicode__(self):
         return self._unicode

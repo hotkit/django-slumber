@@ -47,8 +47,9 @@ def from_json_data(base_url, json):
             return None
         else:
             # It's a remote object
-            from slumber.connector.instance import InstanceConnector
-            return InstanceConnector(
+            # TODO: Use get_instance instead of _InstanceConnector
+            from slumber.connector.instance import _InstanceConnector
+            return _InstanceConnector(
                 urljoin(base_url, json['data']['data']),
                 json['data']['display'])
     else:
