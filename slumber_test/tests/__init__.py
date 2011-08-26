@@ -1,4 +1,4 @@
 from client import *
+from mock_client import *
 from server import *
-from test import *
 from views import *
