@@ -178,11 +178,12 @@ class TestBasicViews(ViewTests):
         self.maxDiff = None
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
+            identity='/slumber/slumber_test/Pizza/data/1/',
+            display='S1',
             operations=dict(
                 data='/slumber/slumber_test/Pizza/data/1/',
                 delete='/slumber/slumber_test/Pizza/delete/1/',
                 update='/slumber/slumber_test/Pizza/update/1/'),
-            display='S1',
             fields=dict(
                 id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),
                 for_sale=dict(data=s.for_sale, kind='value', type='django.db.models.fields.BooleanField'),
@@ -200,14 +201,17 @@ class TestBasicViews(ViewTests):
         response, json = self.do_get('/slumber/slumber_test/PizzaPrice/data/%s/' % p.pk)
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
+            identity='/slumber/slumber_test/PizzaPrice/data/1/',
+            display="PizzaPrice object",
             operations=dict(
                 data='/slumber/slumber_test/PizzaPrice/data/1/',
                 delete='/slumber/slumber_test/PizzaPrice/delete/1/',
                 update='/slumber/slumber_test/PizzaPrice/update/1/'),
-            display="PizzaPrice object",
             fields=dict(
                 id={'data': 1, 'kind': 'value', 'type': 'django.db.models.fields.AutoField'},
-                pizza={'data': {'display':'p1', 'data': '/slumber/slumber_test/Pizza/data/1/'},
+                pizza={'data': {
+                        'type': '/slumber/slumber_test/Pizza/', 'display':'p1',
+                        'data': '/slumber/slumber_test/Pizza/data/1/'},
                     'kind': 'object', 'type': '/slumber/slumber_test/Pizza/'},
                 date={'data': '2010-01-01', 'kind': 'value', 'type': 'django.db.models.fields.DateField'},
             ),
@@ -229,15 +233,10 @@ class TestBasicViews(ViewTests):
             {'start_after': '6'})
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 5)
-        self.assertEquals(json['page'][0],
-            {'pk': 5, 'data': '/slumber/slumber_test/PizzaPrice/data/5/', 'display': 'PizzaPrice object'})
-        self.assertEquals(json['next_page'],
-            '/slumber/slumber_test/Pizza/data/1/prices/?start_after=1')
-        response, json = self.do_get('/slumber/slumber_test/Pizza/data/1/prices/',
-            {'start_after': '1'})
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(len(json['page']), 0)
-        self.assertFalse(json.has_key('next_page'))
+        self.assertEquals(json['page'][0], {
+            'type': '/slumber/slumber_test/PizzaPrice/',
+            'pk': 5, 'data': '/slumber/slumber_test/PizzaPrice/data/5/', 'display': 'PizzaPrice object'})
+        self.assertFalse(json.has_key('next_page'), json.keys())
 
 
     def test_delete_instance(self):

@@ -6,9 +6,11 @@ from django.conf import settings
 from urllib import urlencode
 from urlparse import urljoin
 
-from slumber.connector.dictobject import DictObject, LazyDictObject
+from slumber._caches import MODEL_URL_TO_SLUMBER_MODEL
+from slumber.connector.dictobject import DictObject
+from slumber.connector.json import from_json_data
+from slumber.connector.model import ModelConnector
 from slumber.connector.ua import get
-from slumber.json import from_json_data
 
 
 class Client(object):
@@ -58,87 +60,13 @@ class AppConnector(DictObject):
             raise AttributeError(name)
         _, json = get(self._url)
         models = json['models']
-        for model, url in models.items():
+        for model_name, url in models.items():
             model_url = urljoin(self._url, url)
-            setattr(self, model, ModelConnector(model_url))
+            model = MODEL_URL_TO_SLUMBER_MODEL.get(model_url, None)
+            if not model:
+                model = ModelConnector(model_url)
+            setattr(self, model_name, model)
         if name in models.keys():
             return getattr(self, name)
         else:
             raise AttributeError(name)
-
-
-def _return_data_array(base_url, arrays, _, name):
-    """Implement the lazy fetching of the instance data.
-    """
-    # Pylint makes a bad type deduction
-    # pylint: disable=E1103
-    if name in arrays.keys():
-        data_array = []
-        _, data = get(urljoin(base_url, arrays[name]))
-        while True:
-            for obj in data['page']:
-                data_array.append(
-                    InstanceConnector(
-                        urljoin(base_url, obj['data']), obj['display']))
-            if data.has_key('next_page'):
-                _, data = get(urljoin(base_url, data['next_page']))
-            else:
-                break
-        return data_array
-    else:
-        raise AttributeError(name)
-
-class ModelConnector(DictObject):
-    """Handles the connection to a Django model.
-    """
-    def __init__(self, url, **kwargs):
-        self._url = url
-        super(ModelConnector, self).__init__(**kwargs)
-
-    def __getattr__(self, name):
-        attrs = ['name', 'module']
-        if name in attrs:
-            _, json = get(self._url)
-            for attr in attrs:
-                setattr(self, attr, json[attr])
-            return getattr(self, name)
-        else:
-            raise AttributeError(name)
-
-    def get(self, **kwargs):
-        """Implements the client side for the model 'get' operator.
-        """
-        assert len(kwargs), \
-            "You must supply kwargs to filter on to fetch the instance"
-        url = urljoin(self._url, 'get/')
-        _, json = get(url + '?' + urlencode(kwargs))
-        def get_data_array(obj, name):
-            """Implement simple partial application using a closure.
-            """
-            return _return_data_array(self._url, json['data_arrays'], obj, name)
-        instance_type = type(self.module + '.' + self.name,
-            (LazyDictObject,), {})
-        obj = instance_type(get_data_array,
-            **dict([(k, from_json_data(self._url, j))
-                for k, j in json['fields'].items()]))
-        return obj
-
-
-class InstanceConnector(DictObject):
-    """Connects to a remote instance.
-    """
-    def __init__(self, url, display, **kwargs):
-        self._url = url
-        self._unicode = display
-        super(InstanceConnector, self).__init__(**kwargs)
-
-    def __unicode__(self):
-        return self._unicode
-
-    def __getattr__(self, name):
-        _, json = get(self._url)
-        for k, v in json['fields'].items():
-            setattr(self, k, from_json_data(self._url, v))
-        if name in json['fields'].keys():
-            return getattr(self, name)
-        return _return_data_array(self._url, json['data_arrays'], self, name)
