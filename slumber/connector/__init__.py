@@ -6,6 +6,7 @@ from django.conf import settings
 from urllib import urlencode
 from urlparse import urljoin
 
+from slumber._caches import MODEL_URL_TO_SLUMBER_MODEL
 from slumber.connector.dictobject import DictObject
 from slumber.connector.model import ModelConnector
 from slumber.connector.ua import get
@@ -59,9 +60,12 @@ class AppConnector(DictObject):
             raise AttributeError(name)
         _, json = get(self._url)
         models = json['models']
-        for model, url in models.items():
+        for model_name, url in models.items():
             model_url = urljoin(self._url, url)
-            setattr(self, model, ModelConnector(model_url))
+            model = MODEL_URL_TO_SLUMBER_MODEL.get(model_url, None)
+            if not model:
+                model = ModelConnector(model_url)
+            setattr(self, model_name, model)
         if name in models.keys():
             return getattr(self, name)
         else:

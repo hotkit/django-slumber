@@ -4,6 +4,7 @@
 from urllib import urlencode
 from urlparse import urljoin
 
+from slumber._caches import MODEL_URL_TO_SLUMBER_MODEL
 from slumber.connector.dictobject import DictObject
 from slumber.connector.instance import get_instance
 from slumber.connector.ua import get
@@ -14,6 +15,9 @@ class ModelConnector(DictObject):
     """Handles the connection to a Django model.
     """
     def __init__(self, url, **kwargs):
+        assert not MODEL_URL_TO_SLUMBER_MODEL.has_key(url), \
+            (url, MODEL_URL_TO_SLUMBER_MODEL.keys())
+        MODEL_URL_TO_SLUMBER_MODEL[url] = self
         self._url = url
         super(ModelConnector, self).__init__(**kwargs)
 
