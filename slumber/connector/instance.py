@@ -39,7 +39,7 @@ class _InstanceProxy(object):
         if not self._instance:
             # We now have a cache miss so construct a new connector
             self._instance = _InstanceConnector(
-                self._url, self._display, **self._fields)
+                self._url, **self._fields)
             CLIENT_INSTANCE_CACHE[self._url] = self._instance
         return getattr(self._instance, name)
 
@@ -76,13 +76,9 @@ def _return_data_array(base_url, arrays, _, name):
 class _InstanceConnector(DictObject):
     """Connects to a remote instance.
     """
-    def __init__(self, url, display, **kwargs):
+    def __init__(self, url, **kwargs):
         self._url = url
-        self._unicode = display
         super(_InstanceConnector, self).__init__(**kwargs)
-
-    def __unicode__(self):
-        return self._unicode
 
     def __getattr__(self, name):
         _, json = get(self._url)
