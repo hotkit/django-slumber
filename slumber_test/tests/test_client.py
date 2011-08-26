@@ -92,6 +92,7 @@ class TestsWithPizza(TestCase):
         except AttributeError:
             pass
 
+
     def test_instance_data_with_data_array(self):
         for p in range(15):
             PizzaPrice(pizza=self.s, date='2011-04-%s' % (p+1)).save()
@@ -101,6 +102,10 @@ class TestsWithPizza(TestCase):
         first_price = prices[0]
         self.assertEquals(unicode(first_price), "PizzaPrice object")
         self.assertEquals(first_price.pizza.for_sale, True)
+        first_price_type = str(type(first_price))
+        self.assertTrue(first_price_type.endswith("slumber_test.PizzaPrice'>"),
+            first_price_type)
+
 
     def test_instance_data_with_nested_data_array(self):
         p = PizzaPrice(pizza=self.s, date='2010-06-20')

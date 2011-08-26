@@ -3,7 +3,8 @@
 """
 from urlparse import urljoin
 
-from slumber._caches import CLIENT_INSTANCE_CACHE
+from slumber._caches import CLIENT_INSTANCE_CACHE, \
+    MODEL_URL_TO_SLUMBER_MODEL
 from slumber.connector.dictobject import DictObject
 from slumber.connector.ua import get
 from slumber.connector.json import from_json_data
@@ -58,8 +59,10 @@ def _return_data_array(base_url, arrays, _, name):
         _, data = get(urljoin(base_url, arrays[name]))
         while True:
             for obj in data['page']:
+                model_url = urljoin(base_url, obj['type'])
+                model = MODEL_URL_TO_SLUMBER_MODEL[model_url]
                 data_array.append(
-                    _InstanceConnector(
+                    get_instance(model,
                         urljoin(base_url, obj['data']), obj['display']))
             if data.has_key('next_page'):
                 _, data = get(urljoin(base_url, data['next_page']))
