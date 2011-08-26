@@ -4,7 +4,7 @@
 from django.db.models import ForeignKey
 from django.db.models.fields import FieldDoesNotExist
 
-from slumber._caches import MODEL_CACHE
+from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.operations.authenticate import AuthenticateUser
 from slumber.operations.create import CreateInstance
 from slumber.operations.delete import DeleteInstance
@@ -19,7 +19,7 @@ class DjangoModel(object):
     """Describes a Django model.
     """
     def __init__(self, app, model_instance):
-        MODEL_CACHE[model_instance] = self
+        DJANGO_MODEL_TO_SLUMBER_MODEL[model_instance] = self
         self.app = app
         self.model = model_instance
         self.name = model_instance.__name__
@@ -54,7 +54,7 @@ class DjangoModel(object):
                     name=field,
                     kind='object',
                     type= get_slumber_root() +
-                        MODEL_CACHE[definition.rel.to].path,
+                        DJANGO_MODEL_TO_SLUMBER_MODEL[definition.rel.to].path,
                     verbose_name=definition.verbose_name)
             else:
                 type_name = field_type.__module__ + '.' + \

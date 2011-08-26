@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 
 from urlparse import urljoin
 
-from slumber._caches import MODEL_CACHE
+from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 
 
 DATA_MAPPING = {
@@ -24,7 +24,7 @@ def to_json_data(model, instance, fieldname, fieldmeta):
         if value is None:
             return None
         else:
-            rel_to = MODEL_CACHE[type(value)]
+            rel_to = DJANGO_MODEL_TO_SLUMBER_MODEL[type(value)]
             root = reverse('slumber.server.views.get_applications')
             return dict(display=unicode(value),
                 data = root + rel_to.path + 'data/%s/' % value.pk)

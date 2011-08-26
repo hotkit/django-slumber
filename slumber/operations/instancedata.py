@@ -3,7 +3,7 @@
 """
 from django.core.urlresolvers import reverse
 
-from slumber._caches import MODEL_CACHE
+from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.json import to_json_data
 from slumber.operations import InstanceOperation
 
@@ -59,7 +59,8 @@ class InstanceDataArray(InstanceOperation):
 
         response['page'] = [
                 dict(pk=o.pk, display=unicode(o),
-                    data=root + MODEL_CACHE[type(o)].path + 'data/%s/' % o.pk)
+                    data=root + DJANGO_MODEL_TO_SLUMBER_MODEL[type(o)].path +
+                        'data/%s/' % o.pk)
             for o in query[:10]]
         if len(response['page']) > 0:
             response['next_page'] = root + self.model.path + \

@@ -7,7 +7,9 @@ import threading
 _threadlocals = threading.local()
 
 # Stores the server model for a given Django model in the server
-MODEL_CACHE = {}
+DJANGO_MODEL_TO_SLUMBER_MODEL = {}
+# Stores the slumber models for given model URLs
+MODEL_URL_TO_SLUMBER_MODEL = {}
 
 # Stores instances in the client
 _threadlocals.INSTANCE_CACHE = {}
