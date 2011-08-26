@@ -1,5 +1,5 @@
 """
-    Code for the Slumber client connector.
+    Code for the Slumber model connector.
 """
 from urllib import urlencode
 from urlparse import urljoin
