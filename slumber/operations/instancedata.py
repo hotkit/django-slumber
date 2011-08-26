@@ -4,8 +4,8 @@
 from django.core.urlresolvers import reverse
 
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
-from slumber.json import to_json_data
 from slumber.operations import InstanceOperation
+from slumber.server.json import to_json_data
 
 
 class InstanceData(InstanceOperation):

@@ -5,7 +5,7 @@ from urlparse import urljoin
 
 from slumber.connector.dictobject import DictObject
 from slumber.connector.ua import get
-from slumber.json import from_json_data
+from slumber.connector.json import from_json_data
 
 
 def get_instance(model, instance_url, display_name, **fields):

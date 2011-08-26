@@ -8,9 +8,9 @@ from urlparse import urljoin
 
 from slumber._caches import MODEL_URL_TO_SLUMBER_MODEL
 from slumber.connector.dictobject import DictObject
+from slumber.connector.json import from_json_data
 from slumber.connector.model import ModelConnector
 from slumber.connector.ua import get
-from slumber.json import from_json_data
 
 
 class Client(object):
