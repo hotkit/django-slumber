@@ -6,7 +6,7 @@ from django.conf import settings
 from urllib import urlencode
 from urlparse import urljoin
 
-from slumber.connector.dictobject import DictObject, LazyDictObject
+from slumber.connector.dictobject import DictObject
 from slumber.connector.model import ModelConnector
 from slumber.connector.ua import get
 from slumber.json import from_json_data
