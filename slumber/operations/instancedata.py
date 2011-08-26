@@ -65,7 +65,7 @@ class InstanceDataArray(InstanceOperation):
                     pk=obj.pk, display=unicode(obj),
                     data=root + model.path + 'data/%s/' % obj.pk))
 
-        if len(response['page']) > 0:
+        if query.count() > len(response['page']):
             response['next_page'] = root + self.model.path + \
                 '%s/%s/%s/?start_after=%s' % (
                     self.name, instance.pk, self.field,

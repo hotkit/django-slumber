@@ -236,13 +236,7 @@ class TestBasicViews(ViewTests):
         self.assertEquals(json['page'][0], {
             'type': '/slumber/slumber_test/PizzaPrice/',
             'pk': 5, 'data': '/slumber/slumber_test/PizzaPrice/data/5/', 'display': 'PizzaPrice object'})
-        self.assertEquals(json['next_page'],
-            '/slumber/slumber_test/Pizza/data/1/prices/?start_after=1')
-        response, json = self.do_get('/slumber/slumber_test/Pizza/data/1/prices/',
-            {'start_after': '1'})
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(len(json['page']), 0)
-        self.assertFalse(json.has_key('next_page'))
+        self.assertFalse(json.has_key('next_page'), json.keys())
 
 
     def test_delete_instance(self):
