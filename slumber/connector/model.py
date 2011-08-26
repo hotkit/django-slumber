@@ -2,7 +2,7 @@
     Code for the Slumber model connector.
 """
 from urllib import urlencode
-from urlparse import urljoin
+from urlparse import urljoin, urlparse
 
 from slumber._caches import MODEL_URL_TO_SLUMBER_MODEL
 from slumber.connector.dictobject import DictObject
@@ -11,10 +11,24 @@ from slumber.connector.ua import get
 from slumber.json import from_json_data
 
 
+def _ensure_absolute(url):
+    """Assert that a given URL is absolute.
+    """
+    assert urlparse(url)[0], "The URL <> must be absolute" % url
+
+
+def get_model(url):
+    """Return the client model connector for a gven URL.
+    """
+    _ensure_absolute(url)
+    return MODEL_URL_TO_SLUMBER_MODEL[url]
+
+
 class ModelConnector(DictObject):
     """Handles the connection to a Django model.
     """
     def __init__(self, url, **kwargs):
+        _ensure_absolute(url)
         assert not MODEL_URL_TO_SLUMBER_MODEL.has_key(url), \
             (url, MODEL_URL_TO_SLUMBER_MODEL.keys())
         MODEL_URL_TO_SLUMBER_MODEL[url] = self
