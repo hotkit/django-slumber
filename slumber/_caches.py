@@ -10,4 +10,6 @@ MODEL_URL_TO_SLUMBER_MODEL = {}
 
 
 # Stores instances in the client
-CLIENT_INSTANCE_CACHE = {}
+CLIENT_INSTANCE_CACHE = type('cache', (dict,), {})()
+# Leave the cache off by default
+CLIENT_INSTANCE_CACHE.enabled = False

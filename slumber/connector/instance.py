@@ -40,7 +40,8 @@ class _InstanceProxy(object):
             # We now have a cache miss so construct a new connector
             self._instance = _InstanceConnector(
                 self._url, **self._fields)
-            CLIENT_INSTANCE_CACHE[self._url] = self._instance
+            if CLIENT_INSTANCE_CACHE.enabled:
+                CLIENT_INSTANCE_CACHE[self._url] = self._instance
         return getattr(self._instance, name)
 
     def __unicode__(self):
