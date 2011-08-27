@@ -1,3 +1,6 @@
+2011-08-27  Kirit Saelensminde  <kirit@felspar.com>
+ Added an instance cache together with some cache flushing middleware. This should improve the efficiency of the cache and reduce the number of requests to fetch objects from the back end.
+
 2011-08-25  Kirit Saelensminde  <kirit@felspar.com>
  We are now able to authenticate Django Users.
 
