@@ -1,7 +1,10 @@
 from django.test import TestCase
+
 from slumber import client
+from slumber._caches import CLIENT_INSTANCE_CACHE
 from slumber.connector import Client, DictObject
 from slumber_test.models import Pizza, PizzaPrice, PizzaSizePrice
+
 from mock import patch
 
 
@@ -69,6 +72,7 @@ class TestLoads(TestCase):
 
 class TestsWithPizza(TestCase):
     def setUp(self):
+        client._flush_client_instance_cache()
         self.s = Pizza(name='S1', for_sale=True)
         self.s.save()
         self.pizza = client.slumber_test.Pizza.get(pk=self.s.pk)

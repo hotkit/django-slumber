@@ -49,7 +49,7 @@ class _InstanceProxy(object):
         return self._display
 
 
-def _return_data_array(base_url, arrays, _, name):
+def _return_data_array(base_url, arrays, instance, name):
     """Implement the lazy fetching of the instance data.
     """
     # Pylint makes a bad type deduction
@@ -61,13 +61,14 @@ def _return_data_array(base_url, arrays, _, name):
             for obj in data['page']:
                 model_url = urljoin(base_url, obj['type'])
                 model = MODEL_URL_TO_SLUMBER_MODEL[model_url]
+                instance_url = urljoin(base_url, obj['data'])
                 data_array.append(
-                    get_instance(model,
-                        urljoin(base_url, obj['data']), obj['display']))
+                    get_instance(model, instance_url, obj['display']))
             if data.has_key('next_page'):
                 _, data = get(urljoin(base_url, data['next_page']))
             else:
                 break
+        setattr(instance, name, data_array)
         return data_array
     else:
         raise AttributeError(name)
