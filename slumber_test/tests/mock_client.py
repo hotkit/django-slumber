@@ -1,12 +1,13 @@
 from decimal import Decimal
 
-from unittest2 import TestCase
+import unittest2
+import django.test
 
 from slumber import client
 from slumber.test import mock_client
 
 
-class TestSlumberMock(TestCase):
+class TestSlumberMock(unittest2.TestCase):
     margarita = dict(pk=1, name='Margarita', for_sale=True)
 
     @mock_client(app__contrib__auth__Model=[], app__Pizza=[])
@@ -50,3 +51,11 @@ class TestSlumberMock(TestCase):
         pp1 = client.slumber.PizzaPrice.get(pk=1)
         self.assertEquals(pp1.pk, 1)
         self.assertEquals(pp1.pizza.name, 'Margarita')
+
+
+class TestViews(django.test.TestCase):
+    @mock_client()
+    def test_view(self):
+        """Make sure that a simple view works with the mocked client.
+        """
+        self.client.get('/')
