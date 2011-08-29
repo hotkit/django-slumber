@@ -1,7 +1,10 @@
 from decimal import Decimal
 
-import unittest2
 import django.test
+import mock
+import unittest2
+
+from django.http import HttpResponse
 
 from slumber import client
 from slumber.test import mock_client
@@ -58,4 +61,16 @@ class TestViews(django.test.TestCase):
     def test_view(self):
         """Make sure that a simple view works with the mocked client.
         """
+        self.client.get('/')
+
+    @mock_client()
+    @mock.patch('slumber_test.views.ok_text')
+    def test_mocked_then_patched(self, ok_text_patch):
+        ok_text_patch.return_value = HttpResponse('patched')
+        self.client.get('/')
+
+    @mock.patch('slumber_test.views.ok_text')
+    @mock_client()
+    def test_patched_then_mocked(self, ok_text_patch):
+        ok_text_patch.return_value = HttpResponse('patched')
         self.client.get('/')
