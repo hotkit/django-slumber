@@ -13,6 +13,7 @@ from slumber.test import mock_client
 class TestSlumberMock(unittest2.TestCase):
     margarita = dict(pk=1, name='Margarita', for_sale=True)
 
+
     @mock_client(app__contrib__auth__Model=[], app__Pizza=[])
     def test_basic_app_data(self):
         """Ensure that the basic meta data part of the mock works as it should.
@@ -23,6 +24,7 @@ class TestSlumberMock(unittest2.TestCase):
         self.assertTrue(hasattr(client.app.contrib.auth, 'Model'))
         self.assertTrue(hasattr(client.app, 'Pizza'))
         self.assertFalse(hasattr(client, 'slumber'))
+
 
     @mock_client(
         slumber__Pizza=[
@@ -54,6 +56,12 @@ class TestSlumberMock(unittest2.TestCase):
         pp1 = client.slumber.PizzaPrice.get(pk=1)
         self.assertEquals(pp1.pk, 1)
         self.assertEquals(pp1.pizza.name, 'Margarita')
+
+
+    @mock_client(django__contrib__auth__User=[])
+    def test_not_found_asserts(self):
+        with self.assertRaises(AssertionError):
+            client.django.contrib.auth.User.get(pk=1)
 
 
 class TestViews(django.test.TestCase):

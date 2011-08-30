@@ -15,6 +15,7 @@ def _do_get(model, **query):
             found = found and getattr(i, k) == v
         if found:
             return i
+    assert False, "The instance was not found"
 
 
 class _MockClient(DictObject):

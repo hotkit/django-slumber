@@ -85,6 +85,7 @@ class TestsWithPizza(TestCase):
         self.assertTrue(pizza_type.endswith("slumber_test.Pizza'>"),
             pizza_type)
 
+
     def test_instance_data(self):
         self.assertEqual('S1', self.pizza.name)
         prices = self.pizza.prices
@@ -123,9 +124,11 @@ class TestsWithPizza(TestCase):
         for a in self.pizza.prices[0].amounts:
             self.assertTrue(a.size in ['s', 'm', 'l'], a.size)
 
+
     def test_instance_no_pk(self):
         with self.assertRaises(AssertionError):
             pizza = client.slumber_test.Pizza.get()
+
 
     def test_2nd_pizza_comes_from_cache(self):
         # Force a cache read
@@ -136,3 +139,7 @@ class TestsWithPizza(TestCase):
             pizza2 = client.slumber_test.Pizza.get(pk=self.s.pk)
             self.assertEqual(unicode(pizza2), u"S1")
 
+
+    def test_pizza_not_found(self):
+        with self.assertRaises(AssertionError):
+            p2 = client.slumber_test.Pizza.get(pk=2)
