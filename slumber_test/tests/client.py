@@ -143,3 +143,16 @@ class TestsWithPizza(TestCase):
     def test_pizza_not_found(self):
         with self.assertRaises(AssertionError):
             p2 = client.slumber_test.Pizza.get(pk=2)
+
+
+    def test_aliase_writes_are_visible(self):
+        m1 = client.slumber_test.Pizza.get(pk=1)
+        m2 = client.slumber_test.Pizza.get(pk=1)
+        self.assertEqual(m1.id, m2.id)
+        with self.assertRaises(AttributeError):
+            m1.attr
+        with self.assertRaises(AttributeError):
+            m2.attr
+        m1.attr = 'attribute data'
+        self.assertEqual(m1.attr, 'attribute data')
+        self.assertEqual(m1.attr, m2.attr)

@@ -29,9 +29,8 @@ class _InstanceProxy(object):
         self._fields = fields
         self._instance = None
 
-    def __getattr__(self, name):
-        """Fetch the underlying instance from the cache if necessary and
-        return the attribute value it has.
+    def _fetch_instance(self):
+        """Fetch the underlying instance.
         """
         if not self._instance:
             # Try to find it in the cache
@@ -42,7 +41,21 @@ class _InstanceProxy(object):
                 self._url, **self._fields)
             if CLIENT_INSTANCE_CACHE.enabled:
                 CLIENT_INSTANCE_CACHE[self._url] = self._instance
+
+    def __getattr__(self, name):
+        """Fetch the underlying instance from the cache if necessary and
+        return the attribute value it has.
+        """
+        self._fetch_instance()
         return getattr(self._instance, name)
+
+    def __setattr__(self, name, value):
+        """Write the attribute through to the underlying instance.
+        """
+        if name.startswith('_'):
+            return super(_InstanceProxy, self).__setattr__(name, value)
+        self._fetch_instance()
+        return setattr(self._instance, name, value)
 
     def __unicode__(self):
         """Allow us to take the unicode name of the instance

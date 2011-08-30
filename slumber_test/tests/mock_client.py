@@ -64,6 +64,22 @@ class TestSlumberMock(unittest2.TestCase):
             client.django.contrib.auth.User.get(pk=1)
 
 
+    @mock_client(app__Model=[
+        dict(pk=1)
+    ])
+    def test_aliase_writes_are_visible(self):
+        m1 = client.app.Model.get(pk=1)
+        m2 = client.app.Model.get(pk=1)
+        self.assertEqual(m1.pk, m2.pk)
+        with self.assertRaises(AttributeError):
+            m1.attr
+        with self.assertRaises(AttributeError):
+            m2.attr
+        m1.attr = 'attribute data'
+        self.assertEqual(m1.attr, 'attribute data')
+        self.assertEqual(m1.attr, m2.attr)
+
+
 class TestViews(django.test.TestCase):
     @mock_client()
     def test_view(self):
