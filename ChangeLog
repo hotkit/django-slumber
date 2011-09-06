@@ -1,3 +1,6 @@
+2011-09-06  Kirit Saelensminde  <kirit@felspar.com>
+ Added a User operation that allows permissions to be checked.
+
 2011-08-27  Kirit Saelensminde  <kirit@felspar.com>
  Added an instance cache together with some cache flushing middleware. This should improve the efficiency of the cache and reduce the number of requests to fetch objects from the back end.
 

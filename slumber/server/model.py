@@ -6,6 +6,7 @@ from django.db.models.fields import FieldDoesNotExist
 
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.operations.authenticate import AuthenticateUser
+from slumber.operations.authorization import PermissionCheck
 from slumber.operations.create import CreateInstance
 from slumber.operations.delete import DeleteInstance
 from slumber.operations.instancedata import InstanceData, InstanceDataArray
@@ -84,4 +85,5 @@ class DjangoModel(object):
         extra_operations = []
         if self.path == 'django/contrib/auth/User/':
             extra_operations.append(AuthenticateUser(self, 'authenticate'))
+            extra_operations.append(PermissionCheck(self, 'has-permission'))
         return base_operations + extra_operations
