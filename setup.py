@@ -12,7 +12,7 @@ setup(
     author_email = "kirit@felspar.com",
     description = ("RESTful data connector for Django"),
     license = "Boost Software License - Version 1.0 - August 17th, 2003",
-    keywords = "django rest data",
+    keywords = "django rest data server client",
     packages = [
         'slumber', 'slumber.connector', 'slumber.operations', 'slumber.server',
         'slumber_test'],
