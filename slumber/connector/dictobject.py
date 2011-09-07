@@ -18,13 +18,3 @@ class DictObject(object):
             else:
                 setattr(self, key, proc(value))
 
-class LazyDictObject(DictObject):
-    """Allows generic Python objects to be created lazily when attributes
-    are requested.
-    """
-    def __init__(self, getattr_function, **kwargs):
-        self._getattr = getattr_function
-        super(LazyDictObject, self).__init__(**kwargs)
-
-    def __getattr__(self, name):
-        return self._getattr(self, name)

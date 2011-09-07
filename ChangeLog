@@ -1,10 +1,19 @@
-2011-08-22 Kirit Saelensminde  <kirit@felspar.com>
+2011-09-06  Kirit Saelensminde  <kirit@felspar.com>
+ Added a User operation that allows permissions to be checked.
+
+2011-08-27  Kirit Saelensminde  <kirit@felspar.com>
+ Added an instance cache together with some cache flushing middleware. This should improve the efficiency of the cache and reduce the number of requests to fetch objects from the back end.
+
+2011-08-25  Kirit Saelensminde  <kirit@felspar.com>
+ We are now able to authenticate Django Users.
+
+2011-08-22  Kirit Saelensminde  <kirit@felspar.com>
  Added a delete operation for instances.
 
-2011-08-10 Kirit Saelensminde  <kirit@felspar.com>
+2011-08-10  Kirit Saelensminde  <kirit@felspar.com>
  The type of the returned instances in the client from `get` now makes sense.
 
-2011-08-05 Kirit Saelensminde  <kirit@felspar.com>
+2011-08-08  Kirit Saelensminde  <kirit@felspar.com>
  Added a server side implementation for updating instances.
  The model `get` method can now be passed any unique combination of attributes and the right instance will be returned.
 

@@ -1,11 +1,9 @@
 """
-    Implements the JSON formatting for both the client and the server.
+    Implements the JSON formatting for both the server.
 """
 from django.core.urlresolvers import reverse
 
-from urlparse import urljoin
-
-from slumber._caches import MODEL_CACHE
+from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 
 
 DATA_MAPPING = {
@@ -24,9 +22,10 @@ def to_json_data(model, instance, fieldname, fieldmeta):
         if value is None:
             return None
         else:
-            rel_to = MODEL_CACHE[type(value)]
+            rel_to = DJANGO_MODEL_TO_SLUMBER_MODEL[type(value)]
             root = reverse('slumber.server.views.get_applications')
-            return dict(display=unicode(value),
+            return dict(type=root + rel_to.path,
+                display=unicode(value),
                 data = root + rel_to.path + 'data/%s/' % value.pk)
     elif DATA_MAPPING.has_key(fieldmeta['type']):
         return DATA_MAPPING[fieldmeta['type']](
@@ -36,20 +35,3 @@ def to_json_data(model, instance, fieldname, fieldmeta):
             return None
         else:
             return unicode(value)
-
-
-def from_json_data(base_url, json):
-    """Convert a JSON representation of some data to the right types within
-    the client.
-    """
-    if json['kind'] == 'object':
-        if json['data'] is None:
-            return None
-        else:
-            # It's a remote object
-            from slumber.connector import InstanceConnector
-            return InstanceConnector(
-                urljoin(base_url, json['data']['data']),
-                json['data']['display'])
-    else:
-        return json['data']
