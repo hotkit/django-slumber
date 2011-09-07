@@ -7,7 +7,9 @@ from django.conf.urls.defaults import *
 urlpatterns = patterns('',
     (r'^slumber/', include('slumber.urls')),
 
-    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
+    (r'^$', 'slumber_test.views.ok_text'),
+
+    # Uncomment the admin/doc line below and add 'django.contrib.admindocs'
     # to INSTALLED_APPS to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

@@ -1,5 +1,6 @@
 from simplejson import loads
 
+from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 
 from slumber_test.models import Pizza, PizzaPrice
@@ -86,6 +87,21 @@ class TestBasicViews(ViewTests):
         self.assertEquals(json['fields']['pizza']['type'],
             '/slumber/slumber_test/Pizza/')
 
+    def test_model_metadata_user(self):
+        response, json = self.do_get('/slumber/django/contrib/auth/User/')
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(json['operations'].has_key('authenticate'), json['operations'])
+        self.assertEquals(json['operations']['authenticate'],
+            '/slumber/django/contrib/auth/User/authenticate/')
+
+    def test_instance_metadata_user(self):
+        user = User(username='test-user')
+        user.save()
+        response, json = self.do_get('/slumber/django/contrib/auth/User/data/%s/' %
+            user.pk)
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(json['operations'].has_key('has-permission'), json['operations'])
+
 
     def test_instance_puttable(self):
         response, json = self.do_get('/slumber/slumber_test/Pizza/')
@@ -170,11 +186,12 @@ class TestBasicViews(ViewTests):
         self.maxDiff = None
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
+            identity='/slumber/slumber_test/Pizza/data/1/',
+            display='S1',
             operations=dict(
                 data='/slumber/slumber_test/Pizza/data/1/',
                 delete='/slumber/slumber_test/Pizza/delete/1/',
                 update='/slumber/slumber_test/Pizza/update/1/'),
-            display='S1',
             fields=dict(
                 id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),
                 for_sale=dict(data=s.for_sale, kind='value', type='django.db.models.fields.BooleanField'),
@@ -192,14 +209,17 @@ class TestBasicViews(ViewTests):
         response, json = self.do_get('/slumber/slumber_test/PizzaPrice/data/%s/' % p.pk)
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
+            identity='/slumber/slumber_test/PizzaPrice/data/1/',
+            display="PizzaPrice object",
             operations=dict(
                 data='/slumber/slumber_test/PizzaPrice/data/1/',
                 delete='/slumber/slumber_test/PizzaPrice/delete/1/',
                 update='/slumber/slumber_test/PizzaPrice/update/1/'),
-            display="PizzaPrice object",
             fields=dict(
                 id={'data': 1, 'kind': 'value', 'type': 'django.db.models.fields.AutoField'},
-                pizza={'data': {'display':'p1', 'data': '/slumber/slumber_test/Pizza/data/1/'},
+                pizza={'data': {
+                        'type': '/slumber/slumber_test/Pizza/', 'display':'p1',
+                        'data': '/slumber/slumber_test/Pizza/data/1/'},
                     'kind': 'object', 'type': '/slumber/slumber_test/Pizza/'},
                 date={'data': '2010-01-01', 'kind': 'value', 'type': 'django.db.models.fields.DateField'},
             ),
@@ -221,15 +241,10 @@ class TestBasicViews(ViewTests):
             {'start_after': '6'})
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 5)
-        self.assertEquals(json['page'][0],
-            {'pk': 5, 'data': '/slumber/slumber_test/PizzaPrice/data/5/', 'display': 'PizzaPrice object'})
-        self.assertEquals(json['next_page'],
-            '/slumber/slumber_test/Pizza/data/1/prices/?start_after=1')
-        response, json = self.do_get('/slumber/slumber_test/Pizza/data/1/prices/',
-            {'start_after': '1'})
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(len(json['page']), 0)
-        self.assertFalse(json.has_key('next_page'))
+        self.assertEquals(json['page'][0], {
+            'type': '/slumber/slumber_test/PizzaPrice/',
+            'pk': 5, 'data': '/slumber/slumber_test/PizzaPrice/data/5/', 'display': 'PizzaPrice object'})
+        self.assertFalse(json.has_key('next_page'), json.keys())
 
 
     def test_delete_instance(self):
@@ -242,3 +257,55 @@ class TestBasicViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         with self.assertRaises(Pizza.DoesNotExist):
             Pizza.objects.get(pk=s.pk)
+
+
+class TestUserViews(ViewTests):
+    authn = '/slumber/django/contrib/auth/User/authenticate/'
+    perm = '/slumber/django/contrib/auth/User/has-permission/%s/%s/'
+
+    def setUp(self):
+        self.user = User(username='test-user')
+        self.user.set_password('password')
+        self.user.save()
+
+    def test_user_not_found(self):
+        response, json = self.do_post(self.authn, dict(username='not-a-user', password=''))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['authenticated'], False, json)
+        self.assertIsNone(json['user'], json)
+
+    def test_user_wrong_password(self):
+        response, json = self.do_post(self.authn,
+            dict(username=self.user.username, password='wrong'))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['authenticated'], False, json)
+        self.assertIsNone(json['user'], json)
+
+    def test_user_authenticates(self):
+        response, json = self.do_post(self.authn,
+            dict(username=self.user.username, password='password'))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['authenticated'], True, json)
+        self.assertEquals(json['user'], {'pk': self.user.pk})
+
+    def test_user_permission_no_permission(self):
+        response, json = self.do_get(self.perm % (self.user.pk, 'foo.example'))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['is-allowed'], False, json)
+
+    def test_user_permission_is_allowed(self):
+        permission = Permission(content_type_id=1, name='Can something',
+            codename='can_something')
+        permission.save()
+        self.user.user_permissions.add(permission)
+        response, json = self.do_get(self.perm % (self.user.pk, 'auth.can_something'))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['is-allowed'], True, json)
+
+    def test_user_permission_not_allowed(self):
+        permission = Permission(content_type_id=1, name='Can something',
+            codename='can_something')
+        permission.save()
+        response, json = self.do_get(self.perm % (self.user.pk, 'auth.can_something'))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['is-allowed'], False, json)

@@ -3,9 +3,9 @@
 """
 from django.core.urlresolvers import reverse
 
-from slumber._caches import MODEL_CACHE
-from slumber.json import to_json_data
+from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.operations import InstanceOperation
+from slumber.server.json import to_json_data
 
 
 class InstanceData(InstanceOperation):
@@ -16,6 +16,8 @@ class InstanceData(InstanceOperation):
         """
         root = reverse('slumber.server.views.get_applications')
         instance = self.model.model.objects.get(pk=pk)
+        response['identity'] = root + self.model.path + \
+            '%s/%s/' % (self.name, instance.pk)
         response['display'] = unicode(instance)
         response['operations'] = dict(
             [(op.name, root + op.path + '%s/' % instance.pk)
@@ -28,8 +30,7 @@ class InstanceData(InstanceOperation):
         response['data_arrays'] = {}
         for field in self.model.data_arrays:
             response['data_arrays'][field] = \
-                root + self.model.path + '%s/%s/%s/' % \
-                    (self.name, str(pk), field)
+                response['identity'] + '%s/' % field
 
 
 class InstanceDataArray(InstanceOperation):
@@ -56,11 +57,15 @@ class InstanceDataArray(InstanceOperation):
         if request.GET.has_key('start_after'):
             query = query.filter(pk__lt=request.GET['start_after'])
 
-        response['page'] = [
-                dict(pk=o.pk, display=unicode(o),
-                    data=root + MODEL_CACHE[type(o)].path + 'data/%s/' % o.pk)
-            for o in query[:10]]
-        if len(response['page']) > 0:
+        response['page'] = []
+        for obj in query[:10]:
+            model = DJANGO_MODEL_TO_SLUMBER_MODEL[type(obj)]
+            response['page'].append(dict(
+                    type=root + model.path,
+                    pk=obj.pk, display=unicode(obj),
+                    data=root + model.path + 'data/%s/' % obj.pk))
+
+        if query.count() > len(response['page']):
             response['next_page'] = root + self.model.path + \
                 '%s/%s/%s/?start_after=%s' % (
                     self.name, instance.pk, self.field,

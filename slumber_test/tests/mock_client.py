@@ -1,13 +1,18 @@
 from decimal import Decimal
 
-from unittest2 import TestCase
+import django.test
+import mock
+import unittest2
+
+from django.http import HttpResponse
 
 from slumber import client
 from slumber.test import mock_client
 
 
-class TestSlumberMock(TestCase):
+class TestSlumberMock(unittest2.TestCase):
     margarita = dict(pk=1, name='Margarita', for_sale=True)
+
 
     @mock_client(app__contrib__auth__Model=[], app__Pizza=[])
     def test_basic_app_data(self):
@@ -19,6 +24,7 @@ class TestSlumberMock(TestCase):
         self.assertTrue(hasattr(client.app.contrib.auth, 'Model'))
         self.assertTrue(hasattr(client.app, 'Pizza'))
         self.assertFalse(hasattr(client, 'slumber'))
+
 
     @mock_client(
         slumber__Pizza=[
@@ -50,3 +56,45 @@ class TestSlumberMock(TestCase):
         pp1 = client.slumber.PizzaPrice.get(pk=1)
         self.assertEquals(pp1.pk, 1)
         self.assertEquals(pp1.pizza.name, 'Margarita')
+
+
+    @mock_client(django__contrib__auth__User=[])
+    def test_not_found_asserts(self):
+        with self.assertRaises(AssertionError):
+            client.django.contrib.auth.User.get(pk=1)
+
+
+    @mock_client(app__Model=[
+        dict(pk=1)
+    ])
+    def test_aliase_writes_are_visible(self):
+        m1 = client.app.Model.get(pk=1)
+        m2 = client.app.Model.get(pk=1)
+        self.assertEqual(m1.pk, m2.pk)
+        with self.assertRaises(AttributeError):
+            m1.attr
+        with self.assertRaises(AttributeError):
+            m2.attr
+        m1.attr = 'attribute data'
+        self.assertEqual(m1.attr, 'attribute data')
+        self.assertEqual(m1.attr, m2.attr)
+
+
+class TestViews(django.test.TestCase):
+    @mock_client()
+    def test_view(self):
+        """Make sure that a simple view works with the mocked client.
+        """
+        self.client.get('/')
+
+    @mock_client()
+    @mock.patch('slumber_test.views.ok_text')
+    def test_mocked_then_patched(self, ok_text_patch):
+        ok_text_patch.return_value = HttpResponse('patched')
+        self.client.get('/')
+
+    @mock.patch('slumber_test.views.ok_text')
+    @mock_client()
+    def test_patched_then_mocked(self, ok_text_patch):
+        ok_text_patch.return_value = HttpResponse('patched')
+        self.client.get('/')
