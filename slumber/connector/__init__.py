@@ -70,9 +70,7 @@ class AppConnector(DictObject):
         models = json['models']
         for model_name, url in models.items():
             model_url = urljoin(self._url, url)
-            model = MODEL_URL_TO_SLUMBER_MODEL.get(model_url, None)
-            if not model:
-                model = ModelConnector(model_url)
+            model = ModelConnector(model_url)
             setattr(self, model_name, model)
         if name in models.keys():
             return getattr(self, name)
