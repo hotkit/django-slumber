@@ -28,7 +28,6 @@ class Client(object):
         """Flush the (global) instance cache.
         """
         CLIENT_INSTANCE_CACHE.clear()
-        CLIENT_INSTANCE_CACHE.enabled = True
 
     def __getattr__(self, attr_name):
         """Fetch the application list from the Slumber directory on request.
