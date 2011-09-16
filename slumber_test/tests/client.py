@@ -145,7 +145,7 @@ class TestsWithPizza(TestCase):
             p2 = client.slumber_test.Pizza.get(pk=2)
 
 
-    def test_aliase_writes_are_visible(self):
+    def test_alias_writes_are_visible(self):
         m1 = client.slumber_test.Pizza.get(pk=1)
         m2 = client.slumber_test.Pizza.get(pk=1)
         self.assertEqual(m1.id, m2.id)
