@@ -13,12 +13,12 @@ class Cache(object):
     # Django defines this as a method
     # pylint: disable=R0201
     def process_request(self, _request):
-        """Flush the queue before any other processing is done.
+        """Turn the cache on.
         """
         CLIENT_INSTANCE_CACHE.enabled = True
 
     def process_response(self, _request, response):
-        """Turn the cache off again at the end of the request.
+        """Turn the cache off again at the end of the request and flush it.
         """
         CLIENT_INSTANCE_CACHE.enabled = False
         # We're inside Slumber so the private access is ok.

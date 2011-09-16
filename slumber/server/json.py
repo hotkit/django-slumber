@@ -9,8 +9,6 @@ from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 DATA_MAPPING = {
         'django.db.models.fields.AutoField': lambda m, i, fm, v: v,
         'django.db.models.fields.BooleanField': lambda m, i, fm, v: v,
-        'django.db.models.fields.related.ForeignKey':
-            lambda m, i, fm, v: v.pk if v else None,
     }
 
 
