@@ -136,6 +136,14 @@ INSTALLED_APPS = (
 # Needed to get the Django nose test runner working
 TEST_RUNNER='django_nose.NoseTestSuiteRunner'
 
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-erase',
+    '--cover-branches',
+    '--cover-package=slumber,slumber_test',
+    '--cover-html', '--cover-html-dir=../../coverage',
+]
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error.

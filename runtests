@@ -12,9 +12,7 @@ function check_worked {
 
 workon slumber1-3
 cd test-projects/django1_3
-check_worked python manage.py test slumber_test \
-        --with-coverage --cover-erase \
-        --cover-package=slumber --cover-package=slumber_test
+check_worked python manage.py test slumber_test
 
 workon slumber1-0
 cd ../django1_0
