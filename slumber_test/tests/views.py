@@ -111,6 +111,14 @@ class BasicViews(ViewTests):
         self.assertFalse(len(json['models']))
 
 
+    def test_nested_application(self):
+        response, json = self.do_get('/slumber_test/nested1/')
+        self.assertEquals(response.status_code, 200, 'slumber_test.nested1')
+    def test_doubly_nested_application(self):
+        response, json = self.do_get('/slumber_test/nested1/nested2/')
+        self.assertEquals(response.status_code, 200, 'slumber_test.nested1.nested2')
+
+
     def test_instance_metadata_pizza(self):
         response, json = self.do_get('/slumber_test/Pizza/')
         self.assertEquals(response.status_code, 200)

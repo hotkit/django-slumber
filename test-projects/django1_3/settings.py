@@ -129,7 +129,9 @@ INSTALLED_APPS = (
 
     # Slumber test applications
     'slumber_test',
-    'slumber_test.no_models'
+    'slumber_test.nested1',
+    'slumber_test.nested1.nested2',
+    'slumber_test.no_models',
 )
 
 # Needed to get the Django nose test runner working
