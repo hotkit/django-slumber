@@ -20,25 +20,25 @@ def service_root(request, response):
     else:
         # Find the app with the longest matching path
         apps = [a for a in applications() if path.startswith(a.path)]
-        app = None
-        for a in apps:
-            if not app or len(a.path) > len(app.path):
-                app = a
-        remaining_path = path[len(app.path)+1:]
+        application = None
+        for app in apps:
+            if not application or len(app.path) > len(application.path):
+                application = app
+        remaining_path = path[len(application.path)+1:]
         if not remaining_path:
-            return get_models(request, response, app.path)
+            return get_models(request, response, application.path)
 
         models = remaining_path.split('/')
         # Find the model instance and possibly return its details
-        model = app.models.get(models.pop(0), None)
+        model = application.models.get(models.pop(0), None)
         if not model:
             return HttpResponseNotFound()
         if len(models) == 0:
-            return get_model(request, response, app.path, model.name)
+            return get_model(request, response, application.path, model.name)
 
         operation = model.operation_by_name(models.pop(0))
         return operation.operation(request, response,
-            app.path, model.name, *models)
+            application.path, model.name, *models)
 
 
 def get_applications(request, response):
