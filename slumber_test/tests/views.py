@@ -1,12 +1,10 @@
 from simplejson import loads
 
+from django.conf import settings
 from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 
 from slumber_test.models import Pizza, PizzaPrice
-
-# We can't use django.conf.settings as we can't patch that in Django 1.0
-import settings
 
 
 def _perform(client, method, url, data):
@@ -41,7 +39,7 @@ class PlainTests(object):
 class ServiceTests(object):
     """Used to get service based view tests.
     """
-    PREFIX  = '/slumber'
+    PREFIX  = '/slumber/pizzas'
     def setUp(self):
         setattr(settings, 'SLUMBER_SERVICE', 'pizzas')
     def tearDown(self):
