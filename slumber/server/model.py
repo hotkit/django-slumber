@@ -93,6 +93,6 @@ class DjangoModel(object):
         """
         ops = [o for o in self.operations() if o.name == name]
         if len(ops) != 1:
-            raise Exception("Operation not found")
+            raise Exception("Operation %s not found (options %s)" % (name, ops))
         else:
             return ops[0]

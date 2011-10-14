@@ -27,6 +27,9 @@ class ModelOperation(object):
         else:
             _forbidden(request, response)
 
+    def __repr__(self):
+        return self.model.app.name + '.' + self.model.name + '.' + self.name
+
 
 class InstanceOperation(ModelOperation):
     """Base class for operations on instances.
