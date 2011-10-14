@@ -3,8 +3,6 @@
 """
 
 
-# Stores the namespace hierarchy as served by this Slumber server
-HIERARCHY = {}
 # Stores the applications via their application names
 APP_FROM_APPNAME = {}
 

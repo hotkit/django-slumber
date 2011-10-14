@@ -10,8 +10,10 @@ from slumber.server.application import DjangoApp
 def applications():
     """Return the Django application wrappers for all installed apps.
     """
-    return [get_application(app) for app in settings.INSTALLED_APPS]
-
+    if APP_FROM_APPNAME:
+        return APP_FROM_APPNAME.values()
+    else:
+        return [get_application(app) for app in settings.INSTALLED_APPS]
 
 def get_application(app_name):
     """Build a Django application wrapper around an application given
