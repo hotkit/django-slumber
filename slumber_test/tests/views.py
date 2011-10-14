@@ -178,7 +178,7 @@ class BasicViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 10)
         self.assertEquals(json['next_page'],
-            '/slumber/slumber_test/Pizza/instances/?start_after=3')
+            self.url('/slumber_test/Pizza/instances/?start_after=3'))
         response, json = self.do_get('/slumber_test/Pizza/instances/',
             {'start_after': '3'})
         self.assertEquals(response.status_code, 200)

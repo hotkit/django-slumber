@@ -11,6 +11,6 @@ def get_slumber_root():
     root = reverse('slumber.server.views.service_root')
     service = getattr(settings, 'SLUMBER_SERVICE', None)
     if service:
-        return '%s/%s' % (root, service)
+        return '%s%s/' % (root, service)
     else:
         return root
