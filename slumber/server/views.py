@@ -8,6 +8,22 @@ from slumber.server.http import view_handler
 from slumber.server.meta import applications, get_application
 
 
+def service_root(request):
+    """Request routing for Slumber.
+    """
+    if not request.path.endswith('/'):
+        return HttpResponseRedirect(request.path + '/')
+    parts = request.path[len(get_slumber_root()):-1].split('/')
+    print parts
+    if len(parts) == 0:
+        return get_applications(request)
+    elif len(parts) == 1:
+        return get_modules(request, parts[0])
+    elif len(parts) == 2:
+        return get_model(request, parts[0], parts[1])
+    return HttpResponseNotFound()
+
+
 @view_handler
 def get_applications(request, response):
     """Return the list of applications and the dataconnection URLs for them.
