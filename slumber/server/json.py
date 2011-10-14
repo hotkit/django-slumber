@@ -1,9 +1,8 @@
 """
     Implements the JSON formatting for both the server.
 """
-from django.core.urlresolvers import reverse
-
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
+from slumber.server import get_slumber_root
 
 
 DATA_MAPPING = {
@@ -21,7 +20,7 @@ def to_json_data(model, instance, fieldname, fieldmeta):
             return None
         else:
             rel_to = DJANGO_MODEL_TO_SLUMBER_MODEL[type(value)]
-            root = reverse('slumber.server.views.get_applications')
+            root = get_slumber_root()
             return dict(type=root + rel_to.path,
                 display=unicode(value),
                 data = root + rel_to.path + 'data/%s/' % value.pk)
