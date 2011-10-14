@@ -5,6 +5,9 @@ from django.test import TestCase
 
 from slumber_test.models import Pizza, PizzaPrice
 
+# We can't use django.conf.settings as we can't patch that in Django 1.0
+import settings
+
 
 def _perform(client, method, url, data):
     response = getattr(client, method)(url, data,
@@ -31,6 +34,17 @@ class PlainTests(object):
     def url(self, path):
         return '/slumber%s' % path
 
+class ServiceTests(object):
+    """Used to get service based view tests.
+    """
+    def setUp(self):
+        setattr(settings, 'SLUMBER_SERVICE', 'pizzas')
+    def tearDown(self):
+        delattr(settings, 'SLUMBER_SERVICE')
+
+    def url(self, path):
+        return '/slumber/pizzas%s' % path
+
 
 class ViewErrors(ViewTests):
 
@@ -44,6 +58,8 @@ class ViewErrors(ViewTests):
         self.assertEquals(response.status_code, 403, response.content)
 
 class ViewErrorsPlain(ViewErrors, PlainTests, TestCase):
+    pass
+class ViewErrorsService(ViewErrors, ServiceTests, TestCase):
     pass
 
 
@@ -270,6 +286,8 @@ class BasicViews(ViewTests):
 
 class BasicViewsPlain(BasicViews, PlainTests, TestCase):
     pass
+class BasicViewsService(BasicViews, ServiceTests, TestCase):
+    pass
 
 
 class UserViews(ViewTests):
@@ -280,6 +298,7 @@ class UserViews(ViewTests):
         self.user = User(username='test-user')
         self.user.set_password('password')
         self.user.save()
+        super(UserViews, self).setUp()
 
     def test_user_not_found(self):
         response, json = self.do_post(self.authn, dict(username='not-a-user', password=''))
@@ -324,5 +343,7 @@ class UserViews(ViewTests):
         self.assertEquals(json['is-allowed'], False, json)
 
 class UserViewsPlain(UserViews, PlainTests, TestCase):
+    pass
+class UserViewsService(UserViews, ServiceTests, TestCase):
     pass
 
