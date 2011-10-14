@@ -87,3 +87,12 @@ class DjangoModel(object):
             extra_operations.append(AuthenticateUser(self, 'authenticate'))
             extra_operations.append(PermissionCheck(self, 'has-permission'))
         return base_operations + extra_operations
+
+    def operation_by_name(self, name):
+        """Return a given operation by name, or throw an exception.
+        """
+        ops = [o for o in self.operations() if o.name == name]
+        if len(ops) != 1:
+            raise Exception("Operation not found")
+        else:
+            return ops[0]
