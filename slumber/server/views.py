@@ -19,9 +19,7 @@ def service_root(request, response):
         return get_applications(request, response)
     else:
         # Find the app with the longest matching path
-        print path
         apps = [a for a in applications() if path.startswith(a.path)]
-        print apps
         app = None
         for a in apps:
             if not app or len(a.path) > len(app.path):
@@ -31,7 +29,6 @@ def service_root(request, response):
             return get_models(request, response, app.path)
 
         models = remaining_path.split('/')
-        print app, models
         # Find the model instance and possibly return its details
         model = app.models.get(models.pop(0), None)
         if not model:
