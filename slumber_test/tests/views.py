@@ -65,6 +65,10 @@ class ViewErrors(ViewTests):
         self.assertTrue(response['location'].endswith('/slumber_test/'),
             response['location'])
 
+    def test_invalid_model(self):
+        response, json = self.do_get('/slumber_test/not-a-model/')
+        self.assertEquals(response.status_code, 404)
+
 class ViewErrorsPlain(ViewErrors, PlainTests, TestCase):
     pass
 class ViewErrorsService(ViewErrors, ServiceTests, TestCase):
