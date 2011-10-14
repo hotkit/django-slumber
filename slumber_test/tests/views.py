@@ -1,3 +1,4 @@
+from mock import patch
 from simplejson import loads
 
 from django.conf import settings
@@ -41,9 +42,14 @@ class ServiceTests(object):
     """
     PREFIX  = '/slumber/pizzas'
     def setUp(self):
-        setattr(settings, 'SLUMBER_SERVICE', 'pizzas')
+        self._patch = lambda: 'pizzas'
+        self._patchers = [
+            patch('slumber.server.views.get_slumber_service', self._patch),
+            patch('slumber.server.get_slumber_service', self._patch),
+        ]
+        [p.start() for p in self._patchers]
     def tearDown(self):
-        delattr(settings, 'SLUMBER_SERVICE')
+        [p.stop() for p in self._patchers]
 
 
 class ViewErrors(ViewTests):

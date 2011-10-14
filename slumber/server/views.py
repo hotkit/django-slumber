@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, \
     HttpResponsePermanentRedirect, HttpResponseNotFound
 
-from slumber.server import get_slumber_root
+from slumber.server import get_slumber_service, get_slumber_root
 from slumber.server.http import view_handler
 from slumber.server.meta import applications
 from slumber.server.model import NotAnOperation
@@ -19,7 +19,7 @@ def service_root(request, response):
     if not request.path.endswith('/'):
         return HttpResponsePermanentRedirect(request.path + '/')
     path = request.path[len(reverse('slumber.server.views.service_root')):-1]
-    service = getattr(settings, 'SLUMBER_SERVICE', None)
+    service = get_slumber_service()
     if service:
         if not path.startswith(service + '/') and path != service:
             return HttpResponseNotFound()
