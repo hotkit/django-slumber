@@ -77,7 +77,10 @@ class ViewErrors(ViewTests):
 class ViewErrorsPlain(ViewErrors, PlainTests, TestCase):
     pass
 class ViewErrorsService(ViewErrors, ServiceTests, TestCase):
-    pass
+    def test_invalid_service(self):
+        response = self.client.get('/slumber/not-a-service/',
+            HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+        self.assertEquals(response.status_code, 404, response.content)
 
 
 class BasicViews(ViewTests):
