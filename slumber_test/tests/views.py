@@ -26,7 +26,6 @@ class ViewTests(object):
         return _perform(self.client, 'post', self.url(url), body)
 
     def url(self, path):
-        print path, self.PREFIX
         if not path.startswith(self.PREFIX + '/'):
             return self.PREFIX + path
         else:
@@ -55,7 +54,6 @@ class ViewErrors(ViewTests):
 
     def test_invalid_method(self):
         url = self.url('/slumber_test/Pizza/instances/')
-        print url
         response = self.client.get(url, REQUEST_METHOD='PURGE',
             HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
         self.assertEquals(response.status_code, 403, response.content)

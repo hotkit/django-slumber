@@ -21,13 +21,10 @@ def service_root(request, response):
     path = request.path[len(reverse('slumber.server.views.service_root')):-1]
     service = getattr(settings, 'SLUMBER_SERVICE', None)
     if service:
-        print path, service
         if not path.startswith(service + '/') and path != service:
             return HttpResponseNotFound()
-        print (path, service, path[len(service) + 1:])
         path = path[len(service) + 1:]
-    else:
-        print "No SLUMBER_SERVICE"
+
     if not path:
         return get_applications(request, response)
     else:
