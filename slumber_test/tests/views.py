@@ -42,10 +42,10 @@ class ServiceTests(object):
     """
     PREFIX  = '/slumber/pizzas'
     def setUp(self):
-        self._patch = lambda: 'pizzas'
+        pizzas = lambda: 'pizzas'
         self._patchers = [
-            patch('slumber.server.views.get_slumber_service', self._patch),
-            patch('slumber.server.get_slumber_service', self._patch),
+            patch('slumber.server.views.get_slumber_service', pizzas),
+            patch('slumber.server.get_slumber_service', pizzas),
         ]
         [p.start() for p in self._patchers]
     def tearDown(self):
