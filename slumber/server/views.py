@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, \
 from slumber.server import get_slumber_root
 from slumber.server.http import view_handler
 from slumber.server.meta import applications, get_application
+from slumber.server.model import NotAnOperation
 
 
 @view_handler
@@ -37,9 +38,13 @@ def service_root(request, response):
         if len(models) == 0:
             return get_model(request, response, application.path, model.name)
 
-        operation = model.operation_by_name(models.pop(0))
-        return operation.operation(request, response,
-            application.path, model.name, *models)
+        try:
+            # Execute the operation (if it can be found)
+            operation = model.operation_by_name(models.pop(0))
+            return operation.operation(request, response,
+                application.path, model.name, *models)
+        except NotAnOperation:
+            return HttpResponseNotFound()
 
 
 def get_applications(request, response):

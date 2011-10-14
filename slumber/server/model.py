@@ -16,6 +16,12 @@ from slumber.operations.update import UpdateInstance
 from slumber.server import get_slumber_root
 
 
+class NotAnOperation(Exception):
+    """Thrown when an operation is looked for by name, but doesn't exist.
+    """
+    pass
+
+
 class DjangoModel(object):
     """Describes a Django model.
     """
@@ -92,6 +98,7 @@ class DjangoModel(object):
         """
         ops = [o for o in self.operations() if o.name == name]
         if len(ops) != 1:
-            raise Exception("Operation %s not found (options %s)" % (name, ops))
+            raise NotAnOperation("Operation %s not found (options %s)" %
+                (name, ops))
         else:
             return ops[0]
