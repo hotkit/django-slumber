@@ -1,7 +1,8 @@
 """
     Some basic server views.
 """
-from django.http import HttpResponseRedirect, HttpResponseNotFound
+from django.http import HttpResponseRedirect, \
+    HttpResponsePermanentRedirect, HttpResponseNotFound
 
 from slumber.server import get_slumber_root
 from slumber.server.http import view_handler
@@ -13,7 +14,7 @@ def service_root(request, response):
     """Request routing for Slumber.
     """
     if not request.path.endswith('/'):
-        return HttpResponseRedirect(request.path + '/')
+        return HttpResponsePermanentRedirect(request.path + '/')
     path = request.path[len(get_slumber_root()):-1]
     if not path:
         return get_applications(request, response)
@@ -42,7 +43,7 @@ def service_root(request, response):
 
 
 def get_applications(request, response):
-    """Return the list of applications and the dataconnection URLs for them.
+    """Return the list of applications and the data connection URLs for them.
     """
     root = get_slumber_root()
     if request.GET.has_key('model'):

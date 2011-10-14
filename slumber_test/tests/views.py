@@ -59,6 +59,12 @@ class ViewErrors(ViewTests):
             REQUEST_METHOD='PURGE', HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
         self.assertEquals(response.status_code, 403, response.content)
 
+    def test_missing_slash(self):
+        response, json = self.do_get('/slumber_test')
+        self.assertEquals(response.status_code, 301)
+        self.assertTrue(response['location'].endswith('/slumber_test/'),
+            response['location'])
+
 class ViewErrorsPlain(ViewErrors, PlainTests, TestCase):
     pass
 class ViewErrorsService(ViewErrors, ServiceTests, TestCase):
