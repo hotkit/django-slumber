@@ -15,13 +15,18 @@ def service_root(request):
         return HttpResponseRedirect(request.path + '/')
     parts = request.path[len(get_slumber_root()):-1].split('/')
     print parts
-    if len(parts) == 0:
-        return get_applications(request)
-    elif len(parts) == 1:
-        return get_modules(request, parts[0])
+    if len(parts) == 1:
+        if parts[0]:
+            return get_models(request, parts[0])
+        else:
+            return get_applications(request)
     elif len(parts) == 2:
         return get_model(request, parts[0], parts[1])
-    return HttpResponseNotFound()
+    else:
+        app = get_application(parts[0])
+        model = app.models[parts[1]]
+        op = model.operation_by_name(parts[2])
+        return view_handler(op.operation)(request, parts[0], parts[1], *parts[3:])
 
 
 @view_handler
