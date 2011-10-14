@@ -1,8 +1,6 @@
 """
     Implements the server side for the instance operators.
 """
-from django.core.urlresolvers import reverse
-
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.operations import InstanceOperation
 from slumber.server import get_slumber_root
