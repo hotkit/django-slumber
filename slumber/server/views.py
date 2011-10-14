@@ -8,14 +8,15 @@ from slumber.server.http import view_handler
 from slumber.server.meta import applications, get_application
 
 
-def service_root(request):
+@view_handler
+def service_root(request, response):
     """Request routing for Slumber.
     """
     if not request.path.endswith('/'):
         return HttpResponseRedirect(request.path + '/')
     path = request.path[len(get_slumber_root()):-1]
     if not path:
-        return get_applications(request)
+        return get_applications(request, response)
     else:
         # Find the app with the longest matching path
         print path
@@ -27,7 +28,7 @@ def service_root(request):
                 app = a
         remaining_path = path[len(app.path)+1:]
         if not remaining_path:
-            return get_models(request, app.path)
+            return get_models(request, response, app.path)
 
         models = remaining_path.split('/')
         print app, models
@@ -36,14 +37,13 @@ def service_root(request):
         if not model:
             return HttpResponseNotFound()
         if len(models) == 0:
-            return get_model(request, app.path, model.name)
+            return get_model(request, response, app.path, model.name)
 
         operation = model.operation_by_name(models.pop(0))
-        return view_handler(operation.operation)(
-            request, app.path, model.name, *models)
+        return operation.operation(request, response,
+            app.path, model.name, *models)
 
 
-@view_handler
 def get_applications(request, response):
     """Return the list of applications and the dataconnection URLs for them.
     """
@@ -57,7 +57,7 @@ def get_applications(request, response):
     response['apps'] = dict([(app.name, root + app.path + '/')
         for app in applications()])
 
-@view_handler
+
 def get_models(_, response, appname):
     """Return the models that comprise an application.
     """
@@ -67,7 +67,6 @@ def get_models(_, response, appname):
         for n, m in app.models.items()])
 
 
-@view_handler
 def get_model(_, response, appname, modelname):
     """Return meta data about the model.
     """
