@@ -2,6 +2,7 @@
     Some basic server views.
 """
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, \
     HttpResponsePermanentRedirect, HttpResponseNotFound
 
@@ -17,9 +18,10 @@ def service_root(request, response):
     """
     if not request.path.endswith('/'):
         return HttpResponsePermanentRedirect(request.path + '/')
-    path = request.path[len(get_slumber_root()):-1]
+    path = request.path[len(reverse('slumber.server.views.service_root')):-1]
     service = getattr(settings, 'SLUMBER_SERVICE', None)
     if service:
+        print path, service
         if not path.startswith(service + '/') and path != service:
             return HttpResponseNotFound()
         print (path, service, path[len(service) + 1:])

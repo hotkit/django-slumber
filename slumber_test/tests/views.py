@@ -26,6 +26,7 @@ class ViewTests(object):
         return _perform(self.client, 'post', self.url(url), body)
 
     def url(self, path):
+        print path, self.PREFIX
         if not path.startswith(self.PREFIX + '/'):
             return self.PREFIX + path
         else:
@@ -53,8 +54,10 @@ class ViewErrors(ViewTests):
         self.assertEquals(response.status_code, 403)
 
     def test_invalid_method(self):
-        response = self.client.get(self.url('/slumber_test/Pizza/instances/'),
-            REQUEST_METHOD='PURGE', HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+        url = self.url('/slumber_test/Pizza/instances/')
+        print url
+        response = self.client.get(url, REQUEST_METHOD='PURGE',
+            HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
         self.assertEquals(response.status_code, 403, response.content)
 
     def test_missing_slash(self):
