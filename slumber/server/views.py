@@ -20,9 +20,9 @@ def service_root(request, response):
     path = request.path[len(get_slumber_root()):-1]
     service = getattr(settings, 'SLUMBER_SERVICE', None)
     if service:
-        print (path, service, path[len(service) + 1:])
         if not path.startswith(service + '/') and path != service:
             return HttpResponseNotFound()
+        print (path, service, path[len(service) + 1:])
         path = path[len(service) + 1:]
     else:
         print "No SLUMBER_SERVICE"
@@ -81,6 +81,7 @@ def get_model(_, response, model):
     """
     if not model:
         return HttpResponseNotFound()
+    root = get_slumber_root()
     response['name'] = model.name
     response['module'] = model.app.name
     response['fields'] = model.fields
@@ -91,6 +92,6 @@ def get_model(_, response, model):
         list(model.model._meta.unique_together)
     response['data_arrays'] = model.data_arrays
     response['operations'] = dict(
-        [(op.name, get_slumber_root() + op.path)
+        [(op.name, root + op.path)
             for op in model.operations() if op.model_operation])
 
