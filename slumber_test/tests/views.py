@@ -15,7 +15,7 @@ def _perform(client, method, url, data):
         return response, {}
 
 
-class ViewTests(TestCase):
+class ViewTests(object):
     """Base class for view tests that give us some user agent functionality.
     """
     def do_get(self, url, query = {}):
@@ -25,7 +25,7 @@ class ViewTests(TestCase):
         return _perform(self.client, 'post', url, body)
 
 
-class TestViewErrors(ViewTests):
+class ViewErrors(ViewTests):
 
     def test_method_error(self):
         response, json = self.do_post('/slumber/slumber_test/Pizza/instances/', {})
@@ -37,7 +37,7 @@ class TestViewErrors(ViewTests):
         self.assertEquals(response.status_code, 403, response.content)
 
 
-class TestBasicViews(ViewTests):
+class BasicViews(ViewTests):
 
     def test_applications(self):
         response, json = self.do_get('/slumber/')
@@ -259,7 +259,7 @@ class TestBasicViews(ViewTests):
             Pizza.objects.get(pk=s.pk)
 
 
-class TestUserViews(ViewTests):
+class UserViews(ViewTests):
     authn = '/slumber/django/contrib/auth/User/authenticate/'
     perm = '/slumber/django/contrib/auth/User/has-permission/%s/%s/'
 
