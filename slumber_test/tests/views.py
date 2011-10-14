@@ -43,13 +43,13 @@ class ServiceTests(object):
     PREFIX  = '/slumber/pizzas'
     def setUp(self):
         pizzas = lambda: 'pizzas'
-        self._patchers = [
+        self.__patchers = [
             patch('slumber.server.views.get_slumber_service', pizzas),
             patch('slumber.server.get_slumber_service', pizzas),
         ]
-        [p.start() for p in self._patchers]
+        [p.start() for p in self.__patchers]
     def tearDown(self):
-        [p.stop() for p in self._patchers]
+        [p.stop() for p in self.__patchers]
 
 
 class ViewErrors(ViewTests):
