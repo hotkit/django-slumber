@@ -10,15 +10,15 @@ from slumber.server.json import to_json_data
 class InstanceData(InstanceOperation):
     """Return the instance data.
     """
-    def get(self, request, response, appname, modelname, pk, dataset = None):
+    def get(self, request, response, _appname, _modelname, pk, dataset = None):
         """Implement the fetching of attribute data for an instance.
         """
         if dataset:
-            self._get_dataset(request, response, appname, modelname, pk, dataset)
+            self._get_dataset(request, response, pk, dataset)
         else:
-            self._get_instance_data(request, response, appname, modelname, pk)
+            self._get_instance_data(response, pk)
 
-    def _get_instance_data(self, _request, response, _appname, _modelname, pk):
+    def _get_instance_data(self, response, pk):
         """Return the base field data for the instance.
         """
         root = get_slumber_root()
@@ -39,7 +39,7 @@ class InstanceData(InstanceOperation):
             response['data_arrays'][field] = \
                 response['identity'] + '%s/' % field
 
-    def _get_dataset(self, request, response, _appname, _modelname, pk, dataset):
+    def _get_dataset(self, request, response, pk, dataset):
         """Return one page of the array data.
         """
         root = get_slumber_root()
