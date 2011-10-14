@@ -33,10 +33,8 @@ def service_root(request, response):
         models = remaining_path.split('/')
         # Find the model instance and possibly return its details
         model = application.models.get(models.pop(0), None)
-        if not model:
-            return HttpResponseNotFound()
         if len(models) == 0:
-            return get_model(request, response, application.path, model.name)
+            return get_model(request, response, model)
 
         try:
             # Execute the operation (if it can be found)
@@ -70,11 +68,11 @@ def get_models(_, response, appname):
         for n, m in app.models.items()])
 
 
-def get_model(_, response, appname, modelname):
+def get_model(_, response, model):
     """Return meta data about the model.
     """
-    app = get_application(appname)
-    model = app.models[modelname]
+    if not model:
+        return HttpResponseNotFound()
     response['name'] = model.name
     response['module'] = model.app.name
     response['fields'] = model.fields
