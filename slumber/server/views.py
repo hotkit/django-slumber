@@ -13,20 +13,27 @@ def service_root(request):
     """
     if not request.path.endswith('/'):
         return HttpResponseRedirect(request.path + '/')
-    parts = request.path[len(get_slumber_root()):-1].split('/')
-    print parts
-    if len(parts) == 1:
-        if parts[0]:
-            return get_models(request, parts[0])
-        else:
-            return get_applications(request)
-    elif len(parts) == 2:
-        return get_model(request, parts[0], parts[1])
+    path = request.path[len(get_slumber_root()):-1]
+    if not path:
+        return get_applications(request)
     else:
-        app = get_application(parts[0])
-        model = app.models[parts[1]]
-        op = model.operation_by_name(parts[2])
-        return view_handler(op.operation)(request, parts[0], parts[1], *parts[3:])
+        print path
+        apps = [a for a in applications() if path.startswith(a.path)]
+        print apps
+        app = None
+        for a in apps:
+            if not app or len(a.path) > len(app.path):
+                app = a
+        models = path[len(app.path)+1:].split('/')
+        print app, models
+        if len(models) == 0:
+            return get_models(request, app.path)
+        model = app.models[models.pop(0)]
+        if len(models) == 0:
+            return get_model(request, app.path, model.name)
+        operation = model.operation_by_name(models.pop(0))
+        return view_handler(operation.operation)(
+            request, app.path, model.name, *models)
 
 
 @view_handler
