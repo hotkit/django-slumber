@@ -9,7 +9,7 @@ from slumber.operations.authenticate import AuthenticateUser
 from slumber.operations.authorization import PermissionCheck
 from slumber.operations.create import CreateInstance
 from slumber.operations.delete import DeleteInstance
-from slumber.operations.instancedata import InstanceData, InstanceDataArray
+from slumber.operations.instancedata import InstanceData
 from slumber.operations.instancelist import InstanceList
 from slumber.operations.search import DereferenceInstance
 from slumber.operations.update import UpdateInstance
@@ -80,8 +80,7 @@ class DjangoModel(object):
                 InstanceData(self, 'data'),
                 DeleteInstance(self, 'delete'),
                 DereferenceInstance(self, 'get'),
-                UpdateInstance(self, 'update')] + \
-            [InstanceDataArray(self, 'data', f) for f in self.data_arrays]
+                UpdateInstance(self, 'update')]
         extra_operations = []
         if self.path == 'django/contrib/auth/User/':
             extra_operations.append(AuthenticateUser(self, 'authenticate'))
