@@ -90,8 +90,8 @@ class BasicViews(ViewTests):
     def test_model_search_success(self):
         response, json = self.do_get('/', {'model': 'slumber_test.Pizza'})
         self.assertEquals(response.status_code, 302)
-        self.assertEquals(response['location'],
-            'http://localhost/slumber/slumber_test/Pizza/')
+        self.assertEquals(response['location'].endswith(
+            '/slumber_test/Pizza/', response['location']))
 
     def test_model_search_invalid(self):
         response, json = self.do_get('/', {'model': 'nota.model'})
