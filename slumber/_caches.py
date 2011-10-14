@@ -3,6 +3,11 @@
 """
 
 
+# Stores the namespace hierarchy as served by this Slumber server
+HIERARCHY = {}
+# Stores the applications via their application names
+APP_FROM_APPNAME = {}
+
 # Stores the server model for a given Django model in the server
 DJANGO_MODEL_TO_SLUMBER_MODEL = {}
 # Stores the slumber models for given model URLs
