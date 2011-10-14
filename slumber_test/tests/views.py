@@ -22,38 +22,40 @@ class ViewTests(object):
     """Base class for view tests that give us some user agent functionality.
     """
     def do_get(self, url, query = {}):
-        return _perform(self.client, 'get', url, query)
+        return _perform(self.client, 'get', self.url(url), query)
 
     def do_post(self, url, body):
-        return _perform(self.client, 'post', url, body)
+        return _perform(self.client, 'post', self.url(url), body)
 
+    def url(self, path):
+        if not path.startswith(self.PREFIX + '/'):
+            return self.PREFIX + path
+        else:
+            return path
 
 class PlainTests(object):
     """Used to get non-service based view tests.
     """
-    def url(self, path):
-        return '/slumber%s' % path
+    PREFIX = '/slumber'
 
 class ServiceTests(object):
     """Used to get service based view tests.
     """
+    PREFIX  = '/slumber'
     def setUp(self):
         setattr(settings, 'SLUMBER_SERVICE', 'pizzas')
     def tearDown(self):
         delattr(settings, 'SLUMBER_SERVICE')
 
-    def url(self, path):
-        return '/slumber/pizzas%s' % path
-
 
 class ViewErrors(ViewTests):
 
     def test_method_error(self):
-        response, json = self.do_post('/slumber/slumber_test/Pizza/instances/', {})
+        response, json = self.do_post('/slumber_test/Pizza/instances/', {})
         self.assertEquals(response.status_code, 403)
 
     def test_invalid_method(self):
-        response = self.client.get('/slumber/slumber_test/Pizza/instances/',
+        response = self.client.get(self.url('/slumber_test/Pizza/instances/'),
             REQUEST_METHOD='PURGE', HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
         self.assertEquals(response.status_code, 403, response.content)
 
@@ -66,23 +68,23 @@ class ViewErrorsService(ViewErrors, ServiceTests, TestCase):
 class BasicViews(ViewTests):
 
     def test_applications(self):
-        response, json = self.do_get('/slumber/')
+        response, json = self.do_get('/')
         apps = json['apps']
         self.assertEquals(apps['slumber_test'], '/slumber/slumber_test/')
 
     def test_model_search_success(self):
-        response, json = self.do_get('/slumber/', {'model': 'slumber_test.Pizza'})
+        response, json = self.do_get('/', {'model': 'slumber_test.Pizza'})
         self.assertEquals(response.status_code, 302)
         self.assertEquals(response['Location'],
             'http://localhost/slumber/slumber_test/Pizza/')
 
     def test_model_search_invalid(self):
-        response, json = self.do_get('/slumber/', {'model': 'nota.model'})
+        response, json = self.do_get('/', {'model': 'nota.model'})
         self.assertEquals(response.status_code, 404)
 
 
     def test_application_with_models(self):
-        response, json = self.do_get('/slumber/slumber_test/')
+        response, json = self.do_get('/slumber_test/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue(len(json['models']))
         self.assertEquals(json['models']['Pizza'],
@@ -90,13 +92,13 @@ class BasicViews(ViewTests):
 
 
     def test_application_without_models(self):
-        response, json = self.do_get('/slumber/slumber_test/no_models/')
+        response, json = self.do_get('/slumber_test/no_models/')
         self.assertEquals(response.status_code, 200)
         self.assertFalse(len(json['models']))
 
 
     def test_instance_metadata_pizza(self):
-        response, json = self.do_get('/slumber/slumber_test/Pizza/')
+        response, json = self.do_get('/slumber_test/Pizza/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue(json['fields'].has_key('for_sale'))
         self.assertEquals(json['fields']['for_sale']['type'],
@@ -107,14 +109,14 @@ class BasicViews(ViewTests):
         self.assertTrue(json['operations'].has_key('get'), json['operations'])
 
     def test_instance_metadata_pizzaprice(self):
-        response, json = self.do_get('/slumber/slumber_test/PizzaPrice/')
+        response, json = self.do_get('/slumber_test/PizzaPrice/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue(json['fields'].has_key('pizza'))
         self.assertEquals(json['fields']['pizza']['type'],
             '/slumber/slumber_test/Pizza/')
 
     def test_model_metadata_user(self):
-        response, json = self.do_get('/slumber/django/contrib/auth/User/')
+        response, json = self.do_get('/django/contrib/auth/User/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue(json['operations'].has_key('authenticate'), json['operations'])
         self.assertEquals(json['operations']['authenticate'],
@@ -123,44 +125,44 @@ class BasicViews(ViewTests):
     def test_instance_metadata_user(self):
         user = User(username='test-user')
         user.save()
-        response, json = self.do_get('/slumber/django/contrib/auth/User/data/%s/' %
+        response, json = self.do_get('/django/contrib/auth/User/data/%s/' %
             user.pk)
         self.assertEquals(response.status_code, 200)
         self.assertTrue(json['operations'].has_key('has-permission'), json['operations'])
 
 
     def test_instance_puttable(self):
-        response, json = self.do_get('/slumber/slumber_test/Pizza/')
+        response, json = self.do_get('/slumber_test/Pizza/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(json['puttable'], [['id'], ['name']])
 
 
     def test_model_operation_instances_no_instances(self):
-        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/')
+        response, json = self.do_get('/slumber_test/Pizza/instances/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 0)
 
     def test_model_operation_instances_one_instance(self):
         Pizza(name='S1', for_sale=True).save()
-        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/')
+        response, json = self.do_get('/slumber_test/Pizza/instances/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 1)
 
     def test_model_operation_instances_twelve_instances(self):
         for i in range(12):
             Pizza(name='S%s' % i, for_sale=True).save()
-        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/')
+        response, json = self.do_get('/slumber_test/Pizza/instances/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 10)
         self.assertEquals(json['next_page'],
             '/slumber/slumber_test/Pizza/instances/?start_after=3')
-        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/',
+        response, json = self.do_get('/slumber_test/Pizza/instances/',
             {'start_after': '3'})
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 2)
         self.assertEquals(json['next_page'],
             '/slumber/slumber_test/Pizza/instances/?start_after=1')
-        response, json = self.do_get('/slumber/slumber_test/Pizza/instances/',
+        response, json = self.do_get('/slumber_test/Pizza/instances/',
             {'start_after': '1'})
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 0)
@@ -168,11 +170,11 @@ class BasicViews(ViewTests):
 
 
     def test_instance_creation_get(self):
-        response, json = self.do_get('/slumber/slumber_test/Pizza/create/')
+        response, json = self.do_get('/slumber_test/Pizza/create/')
         self.assertEquals(response.status_code, 403, response.content)
 
     def test_instance_creation_post(self):
-        response, json = self.do_post('/slumber/slumber_test/Pizza/create/',
+        response, json = self.do_post('/slumber_test/Pizza/create/',
             {'name': 'Test Pizza', 'for_sale': ''})
         self.assertTrue(json['created'])
         self.assertEquals(Pizza.objects.count(), 1)
@@ -183,7 +185,7 @@ class BasicViews(ViewTests):
     def test_update_instance(self):
         s = Pizza(name='S1', for_sale=True)
         s.save()
-        response, json = self.do_post('/slumber/slumber_test/Pizza/update/1/', {
+        response, json = self.do_post('/slumber_test/Pizza/update/1/', {
             'name': 'New pizza'})
         self.assertEquals(response.status_code, 302)
         n = Pizza.objects.get(pk=1)
@@ -193,9 +195,9 @@ class BasicViews(ViewTests):
     def test_get_instance(self):
         s = Pizza(name='S1', for_sale=True)
         s.save()
-        response, json = self.do_get('/slumber/slumber_test/Pizza/')
+        response, json = self.do_get('/slumber_test/Pizza/')
         get_url = json['operations']['get']
-        self.assertEquals(get_url, '/slumber/slumber_test/Pizza/get/')
+        self.assertEquals(get_url, self.url('/slumber_test/Pizza/get/'))
         def check_query(query):
             response, json = self.do_get(get_url, query)
             self.assertEquals(response.status_code, 302, response)
@@ -208,7 +210,7 @@ class BasicViews(ViewTests):
     def test_instance_data_pizza(self):
         s = Pizza(name='S1', for_sale=True)
         s.save()
-        response, json = self.do_get('/slumber/slumber_test/Pizza/data/%s/' % s.pk)
+        response, json = self.do_get('/slumber_test/Pizza/data/%s/' % s.pk)
         self.maxDiff = None
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
@@ -232,7 +234,7 @@ class BasicViews(ViewTests):
         s.save()
         p = PizzaPrice(pizza=s, date='2010-01-01')
         p.save()
-        response, json = self.do_get('/slumber/slumber_test/PizzaPrice/data/%s/' % p.pk)
+        response, json = self.do_get('/slumber_test/PizzaPrice/data/%s/' % p.pk)
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
             identity='/slumber/slumber_test/PizzaPrice/data/1/',
@@ -256,14 +258,14 @@ class BasicViews(ViewTests):
         s.save()
         for p in range(15):
             PizzaPrice(pizza=s, date='2011-04-%s' % (p+1)).save()
-        response, json = self.do_get('/slumber/slumber_test/Pizza/data/%s/prices/' % s.pk)
+        response, json = self.do_get('/slumber_test/Pizza/data/%s/prices/' % s.pk)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 10, json)
         self.assertTrue(json.has_key('next_page'), json)
         self.assertEquals(json['next_page'],
             '/slumber/slumber_test/Pizza/data/1/prices/?start_after=6',
             json['next_page'])
-        response, json = self.do_get('/slumber/slumber_test/Pizza/data/1/prices/',
+        response, json = self.do_get('/slumber_test/Pizza/data/1/prices/',
             {'start_after': '6'})
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(json['page']), 5)
@@ -276,7 +278,7 @@ class BasicViews(ViewTests):
     def test_delete_instance(self):
         s = Pizza(name='P')
         s.save()
-        response, json = self.do_get('/slumber/slumber_test/Pizza/data/%s/' % s.pk)
+        response, json = self.do_get('/slumber_test/Pizza/data/%s/' % s.pk)
         self.assertEquals(response.status_code, 200)
         self.assertTrue(json['operations'].has_key('delete'), json['operations'])
         response, json = self.do_post(json['operations']['delete'], {})
@@ -291,8 +293,8 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
 
 
 class UserViews(ViewTests):
-    authn = '/slumber/django/contrib/auth/User/authenticate/'
-    perm = '/slumber/django/contrib/auth/User/has-permission/%s/%s/'
+    authn = '/django/contrib/auth/User/authenticate/'
+    perm = '/django/contrib/auth/User/has-permission/%s/%s/'
 
     def setUp(self):
         self.user = User(username='test-user')
