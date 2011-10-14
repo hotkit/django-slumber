@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect, \
 
 from slumber.server import get_slumber_root
 from slumber.server.http import view_handler
-from slumber.server.meta import applications, get_application
+from slumber.server.meta import applications
 from slumber.server.model import NotAnOperation
 
 
@@ -28,7 +28,7 @@ def service_root(request, response):
                 application = app
         remaining_path = path[len(application.path)+1:]
         if not remaining_path:
-            return get_models(request, response, application.path)
+            return get_models(request, response, application)
 
         models = remaining_path.split('/')
         # Find the model instance and possibly return its details
@@ -59,11 +59,10 @@ def get_applications(request, response):
         for app in applications()])
 
 
-def get_models(_, response, appname):
+def get_models(_, response, app):
     """Return the models that comprise an application.
     """
     root = get_slumber_root()
-    app = get_application(appname)
     response['models'] = dict([(n, root + m.path)
         for n, m in app.models.items()])
 
