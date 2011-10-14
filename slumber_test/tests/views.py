@@ -25,6 +25,13 @@ class ViewTests(object):
         return _perform(self.client, 'post', url, body)
 
 
+class PlainTests(object):
+    """Used to get non-service based view tests.
+    """
+    def url(self, path):
+        return '/slumber%s' % path
+
+
 class ViewErrors(ViewTests):
 
     def test_method_error(self):
@@ -35,6 +42,9 @@ class ViewErrors(ViewTests):
         response = self.client.get('/slumber/slumber_test/Pizza/instances/',
             REQUEST_METHOD='PURGE', HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
         self.assertEquals(response.status_code, 403, response.content)
+
+class ViewErrorsPlain(ViewErrors, PlainTests, TestCase):
+    pass
 
 
 class BasicViews(ViewTests):
@@ -258,6 +268,9 @@ class BasicViews(ViewTests):
         with self.assertRaises(Pizza.DoesNotExist):
             Pizza.objects.get(pk=s.pk)
 
+class BasicViewsPlain(BasicViews, PlainTests, TestCase):
+    pass
+
 
 class UserViews(ViewTests):
     authn = '/slumber/django/contrib/auth/User/authenticate/'
@@ -309,3 +322,7 @@ class UserViews(ViewTests):
         response, json = self.do_get(self.perm % (self.user.pk, 'auth.can_something'))
         self.assertEquals(response.status_code, 200)
         self.assertEquals(json['is-allowed'], False, json)
+
+class UserViewsPlain(UserViews, PlainTests, TestCase):
+    pass
+
