@@ -5,7 +5,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, \
     HttpResponsePermanentRedirect, HttpResponseNotFound
 
-from slumber.server import get_slumber_service, get_slumber_root
+from slumber.server import get_slumber_service, get_slumber_root, \
+    get_slumber_services
 from slumber.server.http import view_handler
 from slumber.server.meta import applications
 from slumber.server.model import NotAnOperation
@@ -20,7 +21,9 @@ def service_root(request, response):
     path = request.path[len(reverse('slumber.server.views.service_root')):-1]
     service = get_slumber_service()
     if service:
-        if not path.startswith(service + '/') and path != service:
+        if not path:
+            return get_service_directory(request, response, service)
+        elif not path.startswith(service + '/') and path != service:
             return HttpResponseNotFound()
         path = path[len(service) + 1:]
 
@@ -50,6 +53,18 @@ def service_root(request, response):
                 application.path, model.name, *models)
         except NotAnOperation:
             return HttpResponseNotFound()
+
+
+def get_service_directory(_request, response, service):
+    """Return the services.
+    """
+    directory = get_slumber_services()
+    if directory:
+        for k, v in directory.items():
+            response[k] = v
+    else:
+        root = get_slumber_root()
+        response[service] = root + service + '/'
 
 
 def get_applications(request, response):

@@ -46,6 +46,9 @@ class ServiceTests(object):
         self.__patchers = [
             patch('slumber.server.views.get_slumber_service', pizzas),
             patch('slumber.server.get_slumber_service', pizzas),
+            patch('slumber.server.get_slumber_directory', lambda: {
+                'pizzas': '/slumber/pizzas/',
+                'takeaway': 'http://localhost:8002:/slumber/'}),
         ]
         [p.start() for p in self.__patchers]
     def tearDown(self):
