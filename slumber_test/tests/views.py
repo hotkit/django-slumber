@@ -46,9 +46,6 @@ class ServiceTests(object):
         self.__patchers = [
             patch('slumber.server.views.get_slumber_service', pizzas),
             patch('slumber.server.get_slumber_service', pizzas),
-            patch('slumber.server.get_slumber_directory', lambda: {
-                'pizzas': '/slumber/pizzas/',
-                'takeaway': 'http://localhost:8002:/slumber/'}),
         ]
         [p.start() for p in self.__patchers]
     def tearDown(self):
@@ -322,11 +319,25 @@ class BasicViews(ViewTests):
 class BasicViewsPlain(BasicViews, PlainTests, TestCase):
     pass
 class BasicViewsService(BasicViews, ServiceTests, TestCase):
-    def test_services(self):
+    def test_services_with_directory(self):
+        with patch('slumber.server.get_slumber_directory', lambda: {
+                'pizzas': '/slumber/pizzas/',
+                'takeaway': 'http://localhost:8002:/slumber/'}):
+            response = self.client.get('/slumber/',
+                HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+        json = loads(response.content)
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(json['services'].get('pizzas', None),
+            '/slumber/pizzas/', json)
+        self.assertEqual(json['services'].get('takeaway', None),
+            'http://localhost:8002:/slumber/', json)
+
+    def test_services_without_directory(self):
         response = self.client.get('/slumber/',
             HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
-        self.assertEquals(response.status_code, 200, response.content)
-
+        json = loads(response.content)
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(json['services'].get('pizzas', None), '/slumber/pizzas/', json)
 
 
 class UserViews(ViewTests):

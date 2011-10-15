@@ -60,11 +60,10 @@ def get_service_directory(_request, response, service):
     """
     directory = get_slumber_services()
     if directory:
-        for k, v in directory.items():
-            response[k] = v
+        response['services'] = directory
     else:
-        root = get_slumber_root()
-        response[service] = root + service + '/'
+        response['services'] = {}
+        response['services'][service] = get_slumber_root()
 
 
 def get_applications(request, response):
