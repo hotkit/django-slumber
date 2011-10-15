@@ -47,11 +47,11 @@ This will create a takeaway service that all of the models can be found within. 
 At least one of the projects must now be designated a Slumber directory and it is configured with the locations of all of the services (i.e. the `takeaway` service running within the same project and the `pizzas` service running on another port on the same development machine):
 
     SLUMBER_DIRECTORY = {
-        'takeaway': 'http://localhost:8000/slumber/takeaway/',
+        'takeaway': '/slumber/takeaway/',
         'pizzas': 'http://localhost:8001/slumber/pizza/',
     }
 
-Note that the directory must list itself!
+Note that the directory must list itself, but it's done using a relative URL!
 
 On the `pizza` service we can now either repeat the exact same directory configuration, or have it point to the directory on the `takeaway` service. I.e. one of the following configurations can be used:
 
