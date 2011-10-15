@@ -319,7 +319,11 @@ class BasicViews(ViewTests):
 class BasicViewsPlain(BasicViews, PlainTests, TestCase):
     pass
 class BasicViewsService(BasicViews, ServiceTests, TestCase):
-    pass
+    def test_services(self):
+        response = self.client.get('/slumber/',
+            HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+        self.assertEquals(response.status_code, 200, response.content)
+
 
 
 class UserViews(ViewTests):
