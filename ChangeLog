@@ -1,3 +1,6 @@
+2011-10-16  Kirit Saelensminde  <kirit@felspar.com>
+ Added in the ability to handle multiple services spread across multiple Django projects.
+
 2011-09-06  Kirit Saelensminde  <kirit@felspar.com>
  Added a User operation that allows permissions to be checked.
 
