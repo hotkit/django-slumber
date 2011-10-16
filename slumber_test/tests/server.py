@@ -54,3 +54,10 @@ class InternalAPIs(TestCase):
             self.assertEqual(get_slumber_local_url_prefix(),
                 'https://example.com/')
 
+    def test_slumber_local_url_with_services(self):
+        with patch('slumber.server.get_slumber_directory', lambda: {
+                'pizzas': 'http://localhost:8000:/slumber/pizzas/',
+                'takeaway': 'http://localhost:8002:/slumber/'}):
+            with patch('slumber.server.get_slumber_service', lambda: 'pizzas'):
+                self.assertEqual(get_slumber_local_url_prefix(),
+                'http://localhost:8000:/')

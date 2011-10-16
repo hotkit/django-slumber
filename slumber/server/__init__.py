@@ -31,7 +31,7 @@ def get_slumber_local_url_prefix():
     """
     directory = get_slumber_directory()
     if hasattr(directory, 'items'):
-        assert False, "Not implemented"
+        directory = directory[get_slumber_service()]
     parsed = urlparse(directory)
     return '%s://%s/' % (parsed[0], parsed[1])
 
