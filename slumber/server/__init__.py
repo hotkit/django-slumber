@@ -28,14 +28,18 @@ def get_slumber_service():
     return getattr(settings, 'SLUMBER_SERVICE', None)
 
 
+def _get_slumber_directory():
+    """Implementation for get_slumber_directory which allows a single patching point.
+    """
+    return getattr(settings, 'SLUMBER_DIRECTORY',
+        'http://localhost:8000/slumber/')
 def get_slumber_directory():
     """Returns the directory setting.
 
     This allows us to control the setting value in tests more easily for
     early versions of Django.
     """
-    return getattr(settings, 'SLUMBER_DIRECTORY',
-        'http://localhost:8000/slumber/')
+    return _get_slumber_directory()
 
 
 def get_slumber_local_url_prefix():
