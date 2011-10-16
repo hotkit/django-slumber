@@ -2,7 +2,7 @@ from datetime import date
 from mock import patch
 from unittest2 import TestCase
 
-from slumber.server import get_slumber_services
+from slumber.server import get_slumber_services, get_slumber_local_url_prefix
 from slumber.server.http import view_handler
 from slumber.server.meta import get_application
 
@@ -35,4 +35,22 @@ class InternalAPIs(TestCase):
                 'takeaway': 'http://localhost:8002:/slumber/'}):
             directory = get_slumber_services()
             self.assertIsNotNone(directory)
+
+    def test_slumber_local_url(self):
+        with patch('slumber.server.get_slumber_directory',
+                lambda: 'http://example.com/somewhere/slumber/'):
+            self.assertEqual(get_slumber_local_url_prefix(),
+                'http://example.com/')
+
+    def test_slumber_local_url_dev_server(self):
+        with patch('slumber.server.get_slumber_directory',
+                lambda: 'http://localhost:8008/somewhere/slumber/'):
+            self.assertEqual(get_slumber_local_url_prefix(),
+                'http://localhost:8008/')
+
+    def test_slumber_local_url_https(self):
+        with patch('slumber.server.get_slumber_directory',
+                lambda: 'https://example.com/somewhere/slumber/'):
+            self.assertEqual(get_slumber_local_url_prefix(),
+                'https://example.com/')
 

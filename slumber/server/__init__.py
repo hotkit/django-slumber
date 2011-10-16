@@ -1,6 +1,8 @@
 """
     The standard Slumber server implementation.
 """
+from urlparse import urlparse
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
@@ -22,6 +24,16 @@ def get_slumber_directory():
     """
     return getattr(settings, 'SLUMBER_DIRECTORY',
         'http://localhost:8000/slumber/')
+
+
+def get_slumber_local_url_prefix():
+    """Returns the local URL prefix for Slumber access.
+    """
+    directory = get_slumber_directory()
+    if hasattr(directory, 'items'):
+        assert False, "Not implemented"
+    parsed = urlparse(directory)
+    return '%s://%s/' % (parsed[0], parsed[1])
 
 
 def get_slumber_services():
