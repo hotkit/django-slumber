@@ -62,7 +62,8 @@ On the `pizza` service we can now either repeat the exact same directory configu
 
 or
 
-    SLUMBER_LOCAL='http://localhost:8000/'
+    SLUMBER_DIRECTORY = 'http://localhost:8000/slumber/'
+
 
 ### Using a non Slumber Django project for the directory ###
 
