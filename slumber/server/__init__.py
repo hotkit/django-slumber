@@ -7,6 +7,13 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 
+class NoServiceSpecified(Exception):
+    """Thrown when the service option for SLUMBER_DIRECTORY is used
+    but no SLUMBER_SERVICE has been given.
+    """
+    pass
+
+
 def get_slumber_service():
     """Returns the current Slumber service name.
 
@@ -31,7 +38,11 @@ def get_slumber_local_url_prefix():
     """
     directory = get_slumber_directory()
     if hasattr(directory, 'items'):
-        directory = directory[get_slumber_service()]
+        try:
+            directory = directory[get_slumber_service()]
+        except KeyError:
+            raise NoServiceSpecified("If you have a Slumber directory "
+                "specifying services you must also set SLUMBER_SERVICE")
     parsed = urlparse(directory)
     return '%s://%s/' % (parsed[0], parsed[1])
 
