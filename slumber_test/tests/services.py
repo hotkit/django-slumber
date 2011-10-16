@@ -8,7 +8,7 @@ from slumber.connector import Client
 class TestServices(TestCase):
     def setUp(self):
         self.service = lambda: 'pizzas'
-        self.services = lambda _: {
+        self.services = lambda _ = None: {
             self.service(): 'http://localhost:8000:/slumber/pizzas/',
             'takeaway': 'http://localhost:8002:/slumber/'}
         self.__patchers = [
@@ -31,6 +31,11 @@ class TestServices(TestCase):
         self.assertTrue(hasattr(self.client, 'pizzas'))
         self.assertTrue(hasattr(self.client, 'takeaway'))
         self.assertFalse(hasattr(self.client, 'not-a-service'))
+
+
+    def test_service_has_correct_directory_url(self):
+        self.assertEqual(self.client.pizzas._directory,
+            'http://localhost:8000:/slumber/pizzas/')
 
 
     def test_service_applications_appear(self):
