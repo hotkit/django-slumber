@@ -16,6 +16,13 @@ class TestDirectoryURLs(TestCase):
     def test_get_default_url_with_default_client(self):
         self.assertEqual('http://localhost:8000/slumber/', client._directory)
 
+    def test_get_default_url_with_services(self):
+        with patch('slumber.server.get_slumber_directory', lambda: {
+                'pizzas': '/slumber/pizzas/',
+                'takeaway': 'http://localhost:8002:/slumber/'}):
+            client = Client()
+        self.assertEqual('http://localhost:8000/slumber/', client._directory)
+
 
 class TestLoads(TestCase):
 

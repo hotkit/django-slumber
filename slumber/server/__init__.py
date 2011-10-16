@@ -21,7 +21,7 @@ def get_slumber_directory():
     early versions of Django.
     """
     return getattr(settings, 'SLUMBER_DIRECTORY',
-        'http://localhost:8000/')
+        'http://localhost:8000/slumber/')
 
 
 def get_slumber_services():
