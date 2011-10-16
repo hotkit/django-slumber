@@ -30,3 +30,5 @@ class TestServices(TestCase):
     def test_services_appear(self):
         self.assertTrue(hasattr(self.client, 'pizzas'))
         self.assertTrue(hasattr(self.client, 'takeaway'))
+        self.assertFalse(hasattr(self.client, 'not-a-service'))
+
