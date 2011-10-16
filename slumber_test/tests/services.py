@@ -8,12 +8,16 @@ from slumber.connector import Client
 class TestServices(TestCase):
     def setUp(self):
         self.service = lambda: 'pizzas'
+        self.services = lambda: {
+            self.service: 'http://localhost:8000:/slumber/pizzas/',
+            'takeaway': 'http://localhost:8002:/slumber/'}
         self.__patchers = [
+            patch('slumber.connector.get_slumber_service', self.service),
+            patch('slumber.connector.get_slumber_directory', self.services),
+            patch('slumber.connector.get_slumber_services', self.service),
             patch('slumber.server.views.get_slumber_service', self.service),
             patch('slumber.server.get_slumber_service', self.service),
-            patch('slumber.server.get_slumber_directory', lambda: {
-                self.service: 'http://localhost:8000:/slumber/pizzas/',
-                'takeaway': 'http://localhost:8002:/slumber/'}),
+            patch('slumber.server.get_slumber_directory', self.services),
         ]
         [p.start() for p in self.__patchers]
         self.client = Client() # We need a client set up after we patch the directory
