@@ -7,6 +7,11 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 
+class AbsoluteURIRequired(Exception):
+    """Thrown when the local service is configured with a relative URL.
+    """
+    pass
+
 class NoServiceSpecified(Exception):
     """Thrown when the service option for SLUMBER_DIRECTORY is used
     but no SLUMBER_SERVICE has been given.
@@ -44,6 +49,11 @@ def get_slumber_local_url_prefix():
             raise NoServiceSpecified("If you have a Slumber directory "
                 "specifying services you must also set SLUMBER_SERVICE")
     parsed = urlparse(directory)
+    scheme, netloc = parsed[0], parsed[1]
+    if not scheme or not netloc:
+        raise AbsoluteURIRequired("The URL for the local service must be "
+        "specified as absolute: %s is currently %s" %
+            (get_slumber_service(), directory))
     return '%s://%s/' % (parsed[0], parsed[1])
 
 

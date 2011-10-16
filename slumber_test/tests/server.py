@@ -3,7 +3,7 @@ from mock import patch
 from unittest2 import TestCase
 
 from slumber.server import get_slumber_services, get_slumber_local_url_prefix, \
-    NoServiceSpecified
+    NoServiceSpecified, AbsoluteURIRequired
 from slumber.server.http import view_handler
 from slumber.server.meta import get_application
 
@@ -70,3 +70,12 @@ class InternalAPIs(TestCase):
             with self.assertRaises(NoServiceSpecified):
                 self.assertEqual(get_slumber_local_url_prefix(),
                 'http://localhost:8000:/')
+
+    def test_slumber_local_url_with_services_but_relative_self_service_url(self):
+        with patch('slumber.server.get_slumber_directory', lambda: {
+                'pizzas': '/slumber/pizzas/',
+                'takeaway': 'http://localhost:8002:/slumber/'}):
+            with patch('slumber.server.get_slumber_service', lambda: 'pizzas'):
+                with self.assertRaises(AbsoluteURIRequired):
+                    self.assertEqual(get_slumber_local_url_prefix(),
+                    'http://localhost:8000:/')
