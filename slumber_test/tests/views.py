@@ -321,14 +321,14 @@ class BasicViewsPlain(BasicViews, PlainTests, TestCase):
 class BasicViewsService(BasicViews, ServiceTests, TestCase):
     def test_services_with_directory(self):
         with patch('slumber.server.get_slumber_directory', lambda: {
-                'pizzas': '/slumber/pizzas/',
+                'pizzas': 'http://localhost:8000:/slumber/pizzas/',
                 'takeaway': 'http://localhost:8002:/slumber/'}):
             response = self.client.get('/slumber/',
                 HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
         json = loads(response.content)
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(json['services'].get('pizzas', None),
-            '/slumber/pizzas/', json)
+            'http://localhost:8000:/slumber/pizzas/', json)
         self.assertEqual(json['services'].get('takeaway', None),
             'http://localhost:8002:/slumber/', json)
 
