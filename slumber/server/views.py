@@ -16,6 +16,9 @@ from slumber.server.model import NotAnOperation
 def service_root(request, response):
     """Request routing for Slumber.
     """
+    # We have many return statements, but there's no point in artificially
+    # breaking the function up to reduce them
+    # pylint: disable = R0911
     if not request.path.endswith('/'):
         return HttpResponsePermanentRedirect(request.path + '/')
     path = request.path[len(reverse('slumber.server.views.service_root')):-1]
