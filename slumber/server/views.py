@@ -1,16 +1,76 @@
 """
     Some basic server views.
 """
-from django.http import HttpResponseRedirect, HttpResponseNotFound
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect, \
+    HttpResponsePermanentRedirect, HttpResponseNotFound
 
-from slumber.server import get_slumber_root
+from slumber.server import get_slumber_service, get_slumber_root, \
+    get_slumber_services
 from slumber.server.http import view_handler
-from slumber.server.meta import applications, get_application
+from slumber.server.meta import applications
+from slumber.server.model import NotAnOperation
 
 
 @view_handler
+def service_root(request, response):
+    """Request routing for Slumber.
+    """
+    # We have many return statements, but there's no point in artificially
+    # breaking the function up to reduce them
+    # pylint: disable = R0911
+    if not request.path.endswith('/'):
+        return HttpResponsePermanentRedirect(request.path + '/')
+    path = request.path[len(reverse('slumber.server.views.service_root')):-1]
+    service = get_slumber_service()
+    if service:
+        if not path:
+            return get_service_directory(request, response, service)
+        elif not path.startswith(service + '/') and path != service:
+            return HttpResponseNotFound()
+        path = path[len(service) + 1:]
+
+    if not path:
+        return get_applications(request, response)
+    else:
+        # Find the app with the longest matching path
+        apps = [a for a in applications() if path.startswith(a.path)]
+        application = None
+        for app in apps:
+            if not application or len(app.path) > len(application.path):
+                application = app
+        remaining_path = path[len(application.path)+1:]
+        if not remaining_path:
+            return get_models(request, response, application)
+
+        models = remaining_path.split('/')
+        # Find the model instance and possibly return its details
+        model = application.models.get(models.pop(0), None)
+        if len(models) == 0:
+            return get_model(request, response, model)
+
+        try:
+            # Execute the operation (if it can be found)
+            operation = model.operation_by_name(models.pop(0))
+            return operation.operation(request, response,
+                application.path, model.name, *models)
+        except NotAnOperation:
+            return HttpResponseNotFound()
+
+
+def get_service_directory(_request, response, service):
+    """Return the services.
+    """
+    directory = get_slumber_services()
+    if directory:
+        response['services'] = directory
+    else:
+        response['services'] = {}
+        response['services'][service] = get_slumber_root()
+
+
 def get_applications(request, response):
-    """Return the list of applications and the dataconnection URLs for them.
+    """Return the list of applications and the data connection URLs for them.
     """
     root = get_slumber_root()
     if request.GET.has_key('model'):
@@ -22,22 +82,21 @@ def get_applications(request, response):
     response['apps'] = dict([(app.name, root + app.path + '/')
         for app in applications()])
 
-@view_handler
-def get_models(_, response, appname):
+
+def get_models(_, response, app):
     """Return the models that comprise an application.
     """
     root = get_slumber_root()
-    app = get_application(appname)
     response['models'] = dict([(n, root + m.path)
         for n, m in app.models.items()])
 
 
-@view_handler
-def get_model(_, response, appname, modelname):
+def get_model(_, response, model):
     """Return meta data about the model.
     """
-    app = get_application(appname)
-    model = app.models[modelname]
+    if not model:
+        return HttpResponseNotFound()
+    root = get_slumber_root()
     response['name'] = model.name
     response['module'] = model.app.name
     response['fields'] = model.fields
@@ -48,6 +107,6 @@ def get_model(_, response, appname, modelname):
         list(model.model._meta.unique_together)
     response['data_arrays'] = model.data_arrays
     response['operations'] = dict(
-        [(op.name, get_slumber_root() + op.path)
+        [(op.name, root + op.path)
             for op in model.operations() if op.model_operation])
 

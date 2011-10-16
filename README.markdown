@@ -32,6 +32,49 @@ In order to fetch objects from the remote end you should import the client and m
         pizza = client.slumber_test.Pizza.get(pk=1)
         assert pizza
 
+## Slumber services ##
+
+Services are used when there are multiple RESTful services that all need to communicate together in order to provide a full system. Services are known by name and a single Slumber client can talk to multiple services through the directory server.
+
+All models in a particular Django project can be put into the same service through the use of the SLUMBER_SERVICE setting:
+
+    SLUMBER_SERVICE = 'takeaway'
+
+This will create a takeaway service that all of the models can be found within. Now to access a model from the client the service name also needs to be used:
+
+    shopping_cart = slumber.client.takeaway.order.Cart.get(pk=1)
+
+At least one of the projects must now be designated a Slumber directory and it is configured with the locations of all of the services (i.e. the `takeaway` service running within the same project and the `pizzas` service running on another port on the same development machine):
+
+    SLUMBER_DIRECTORY = {
+        'takeaway': 'http://localhost:8000/slumber/takeaway/',
+        'pizzas': 'http://localhost:8001/slumber/pizza/',
+    }
+
+Note that the directory must list itself. Even more important is that this is an absolute URL!
+
+On the `pizza` service we can now either repeat the exact same directory configuration, or have it point to the directory on the `takeaway` service. I.e. one of the following configurations can be used:
+
+    SLUMBER_DIRECTORY = {
+        'takeaway': 'http://localhost:8000/slumber/takeaway/',
+        'pizzas': 'http://localhost:8001/slumber/pizza/',
+    }
+
+or
+
+    SLUMBER_LOCAL='http://localhost:8000/'
+
+### Using a non Slumber Django project for the directory ###
+
+The Slumber directory doesn't even need to be Django. All that is needed is that the url that the directory points at returns JSON that describes where to find the services. The JSON returned for the above example should look like:
+
+    {
+        "services": {
+            "takeaway": "http://localhost:8000/slumber/takeaway/",
+            "pizzas": "http://localhost:8001/slumber/pizza/"
+        }
+    }
+
 
 # Doing development #
 

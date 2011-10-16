@@ -12,26 +12,21 @@ from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
 from slumber.connector.model import ModelConnector
 from slumber.connector.ua import get
+from slumber.server import get_slumber_service, get_slumber_directory, \
+    get_slumber_services
 
 
-class Client(object):
-    """The first level of the Slumber client connector.
+class ServiceConnector(object):
+    """Connects to a service.
     """
-    def __init__(self, directory=None):
-        if not directory:
-            directory = getattr(settings, 'SLUMBER_DIRECTORY',
-                'http://localhost:8000/slumber/')
+    def __init__(self, directory):
         self._directory = directory
-
-    @classmethod
-    def _flush_client_instance_cache(cls):
-        """Flush the (global) instance cache.
-        """
-        CLIENT_INSTANCE_CACHE.clear()
 
     def __getattr__(self, attr_name):
         """Fetch the application list from the Slumber directory on request.
         """
+        if not self._directory:
+            raise AttributeError(attr_name)
         _, json = get(self._directory)
         apps = {}
         for app in json['apps'].keys():
@@ -56,6 +51,27 @@ class Client(object):
             return getattr(self, attr_name)
         else:
             raise AttributeError(attr_name)
+
+
+class Client(ServiceConnector):
+    """The first level of the Slumber client connector.
+    """
+    def __init__(self, directory=None):
+        services = get_slumber_services(directory)
+        if not services:
+            if not directory:
+                directory = get_slumber_directory()
+            super(Client, self).__init__(directory)
+        else:
+            for k, v in services.items():
+                setattr(self, k, ServiceConnector(v))
+            super(Client, self).__init__(None)
+
+    @classmethod
+    def _flush_client_instance_cache(cls):
+        """Flush the (global) instance cache.
+        """
+        CLIENT_INSTANCE_CACHE.clear()
 
 
 class AppConnector(DictObject):
