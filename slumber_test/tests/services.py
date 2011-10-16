@@ -1,3 +1,5 @@
+from mock import patch
+
 from django.test import TestCase
 
 from slumber.connector import Client
@@ -5,10 +7,13 @@ from slumber.connector import Client
 
 class TestServices(TestCase):
     def setUp(self):
-        pizzas = lambda: 'pizzas'
+        self.service = lambda: 'pizzas'
         self.__patchers = [
-            patch('slumber.server.views.get_slumber_service', pizzas),
-            patch('slumber.server.get_slumber_service', pizzas),
+            patch('slumber.server.views.get_slumber_service', self.service),
+            patch('slumber.server.get_slumber_service', self.service),
+            patch('slumber.server.get_slumber_directory', lambda: {
+                self.service: 'http://localhost:8000:/slumber/pizzas/',
+                'takeaway': 'http://localhost:8002:/slumber/'}),
         ]
         [p.start() for p in self.__patchers]
         self.client = Client() # We need a client set up after we patch the directory
@@ -17,3 +22,7 @@ class TestServices(TestCase):
     def tearDown(self):
         [p.stop() for p in self.__patchers]
 
+
+    def test_services_appear(self):
+        self.assertTrue(hasattr(self.client, 'pizzas'))
+        self.assertTrue(hasattr(self.client, 'takeaway'))
