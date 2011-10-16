@@ -15,4 +15,4 @@ class PermissionCheck(InstanceOperation):
         """Implements the permission lookup.
         """
         user = self.model.model.objects.get(pk=pk)
-        response['is-allowed'] = user.has_perm(permission.replace('-', '.'))
+        response['is-allowed'] = user.has_perm(permission)
