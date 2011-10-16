@@ -29,7 +29,8 @@ def get_slumber_service():
 
 
 def _get_slumber_directory():
-    """Implementation for get_slumber_directory which allows a single patching point.
+    """Implementation for get_slumber_directory which allows a single
+    patching point.
     """
     return getattr(settings, 'SLUMBER_DIRECTORY',
         'http://localhost:8000/slumber/')
