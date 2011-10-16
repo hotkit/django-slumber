@@ -15,20 +15,9 @@ from slumber.connector.ua import get
 from slumber.server import get_slumber_service, get_slumber_directory
 
 
-class Client(object):
-    """The first level of the Slumber client connector.
+class ServiceConnector(object):
+    """Connects to a service.
     """
-    def __init__(self, directory=None):
-        if not directory:
-            directory = get_slumber_directory()
-        self._directory = directory
-
-    @classmethod
-    def _flush_client_instance_cache(cls):
-        """Flush the (global) instance cache.
-        """
-        CLIENT_INSTANCE_CACHE.clear()
-
     def __getattr__(self, attr_name):
         """Fetch the application list from the Slumber directory on request.
         """
@@ -56,6 +45,21 @@ class Client(object):
             return getattr(self, attr_name)
         else:
             raise AttributeError(attr_name)
+
+
+class Client(ServiceConnector):
+    """The first level of the Slumber client connector.
+    """
+    def __init__(self, directory=None):
+        if not directory:
+            directory = get_slumber_directory()
+        self._directory = directory
+
+    @classmethod
+    def _flush_client_instance_cache(cls):
+        """Flush the (global) instance cache.
+        """
+        CLIENT_INSTANCE_CACHE.clear()
 
 
 class AppConnector(DictObject):
