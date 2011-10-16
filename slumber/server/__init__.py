@@ -57,10 +57,11 @@ def get_slumber_local_url_prefix():
     return '%s://%s/' % (parsed[0], parsed[1])
 
 
-def get_slumber_services():
+def get_slumber_services(directory = None):
     """Returns the slumber services from the directory (if specified)
     """
-    directory = get_slumber_directory()
+    if not directory:
+        directory = get_slumber_directory()
     if hasattr(directory, 'items'): # Feels like a dict
         return directory
     else:
