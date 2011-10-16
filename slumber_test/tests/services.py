@@ -9,7 +9,7 @@ class TestServices(TestCase):
     def setUp(self):
         self.service = lambda: 'pizzas'
         self.services = lambda _: {
-            self.service: 'http://localhost:8000:/slumber/pizzas/',
+            self.service(): 'http://localhost:8000:/slumber/pizzas/',
             'takeaway': 'http://localhost:8002:/slumber/'}
         self.__patchers = [
             patch('slumber.connector.get_slumber_service', self.service),
