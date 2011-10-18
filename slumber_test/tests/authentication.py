@@ -1,11 +1,13 @@
 from mock import patch
+from unittest2 import TestCase
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from django.test import TestCase
+from django.test import TestCase as DjangoTestCase
 
-from slumber.connector.authentication import ImproperlyConfigured
+from slumber.connector.authentication import Backend, \
+    ImproperlyConfigured
 from slumber.test import mock_client
 
 
@@ -28,7 +30,22 @@ class ConfigureAuthn(object):
             'slumber.connector.middleware.Authentication')
 
 
-class AuthenticationTests(ConfigureAuthn, TestCase):
+class TestBackend(ConfigureAuthn, TestCase):
+    def setUp(self):
+        super(TestBackend, self).setUp()
+        self.backend = Backend()
+
+    @mock_client(
+        auth__django__contrib__auth__User = [
+            dict(username='user', is_active=True, is_staff=True)])
+    def test_get_user(self):
+        user = self.backend.get_user('user')
+        self.assertEqual(user.username, 'user')
+        self.assertTrue(user.is_active)
+        self.assertTrue(user.is_staff)
+
+
+class AuthenticationTests(ConfigureAuthn, DjangoTestCase):
     def save_user(self, request):
         self.user = request.user
         return HttpResponse('ok')
