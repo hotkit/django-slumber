@@ -1,6 +1,8 @@
 """
     Middleware to help manage the Slumber client.
 """
+from django.contrib.auth import authenticate
+
 from slumber import client
 from slumber._caches import CLIENT_INSTANCE_CACHE
 
@@ -30,8 +32,16 @@ class Cache(object):
 class Authentication(object):
     """Used when authentication is delegated from a remote host.
     """
+
+    # Django defines this as a method
+    # pylint: disable=R0201
     def process_request(self, request):
         """Looks for the X_FOST_User header, and if found authenticates that
         user.
         """
-        pass
+        user_header = request.META.get('HTTP_X_FOST_USER', None)
+        if user_header:
+            user = authenticate(user_header=user_header)
+            if user:
+                request.user = user
+
