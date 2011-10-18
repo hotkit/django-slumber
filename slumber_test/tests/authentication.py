@@ -46,3 +46,4 @@ class AuthenticationTests(ConfigureAuthn, TestCase):
             self.client.get('/', HTTP_X_FOST_USER=admin.username)
         self.assertTrue(self.user.is_authenticated())
         self.assertEqual(admin, self.user)
+
