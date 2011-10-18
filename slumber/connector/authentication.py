@@ -4,6 +4,8 @@
 """
 from django.contrib.auth.models import User
 
+from slumber import client
+
 
 class Backend(object):
     """An authentication backend which delegates user permissions to another
@@ -16,11 +18,15 @@ class Backend(object):
         """Authenticate the user when the middleware passes it in.
         """
         user, created = User.objects.get_or_create(username=username)
-        print user, created
         if created:
-            user.is_active = True
-            user.is_staff = True
-            user.save()
+            try:
+                remote_user = client.django.contrib.auth.User.get(
+                    username=username)
+                for attr in ['is_active', 'is_staff']:
+                    setattr(user, attr, getattr(remote_user, attr))
+                user.save()
+            except AssertionError:
+                return None
         return user
 
     #def get_user(self, user_id):
