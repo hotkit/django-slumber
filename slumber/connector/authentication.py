@@ -2,10 +2,12 @@
     Authentication backend that sends all of the permissions checks
     to a remote service.
 """
+from django.contrib.auth.models import User
+
 
 class Backend(object):
-    def authenticate(self, auto=False):
-        user, created = User.objects.get_or_create(username='admin')
+    def authenticate(self, username=None):
+        user, created = User.objects.get_or_create(username=username)
         print user, created
         if created:
             user.is_active = True

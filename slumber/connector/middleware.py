@@ -41,7 +41,7 @@ class Authentication(object):
         """
         user_header = request.META.get('HTTP_X_FOST_USER', None)
         if user_header:
-            user = authenticate(user_header=user_header)
+            user = authenticate(username=user_header)
             if user:
                 request.user = user
 
