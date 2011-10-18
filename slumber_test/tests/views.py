@@ -343,7 +343,7 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
 class UserViews(ViewTests):
     authn = '/django/contrib/auth/User/authenticate/'
     perm = '/django/contrib/auth/User/has-permission/%s/%s/'
-    group_perms = '/django/contrib/auth/User/get_group_permissions/%s/'
+    perms = '/django/contrib/auth/User/get-permissions/%s/'
 
     def setUp(self):
         self.user = User(username='test-user')
@@ -394,8 +394,9 @@ class UserViews(ViewTests):
         self.assertEquals(json['is-allowed'], False, json)
 
     def test_get_group_permissions(self):
-        response, json = self.do_get(self.group_perms % self.user.pk)
+        response, json = self.do_get(self.perms % self.user.pk)
         self.assertEquals(response.status_code, 200)
+        self.assertItemsEqual(json['group_permissions'], [])
 
 class UserViewsPlain(UserViews, PlainTests, TestCase):
     pass
