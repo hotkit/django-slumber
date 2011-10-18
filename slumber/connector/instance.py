@@ -21,6 +21,8 @@ def get_instance(model, instance_url, display_name, **fields):
     """
     bases = [_InstanceProxy]
     for type_url, proxy in INSTANCE_PROXIES.items():
+        # We're going to allow ourselves access to _url within the library
+        # pylint: disable = W0212
         if model._url.endswith(type_url):
             bases.append(proxy)
     instance_type = type(model.module + '.' + model.name, tuple(bases), {})
