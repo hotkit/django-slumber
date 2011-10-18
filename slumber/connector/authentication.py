@@ -7,6 +7,23 @@ from django.contrib.auth.models import User
 from slumber import client
 
 
+class ImproperlyConfigured(Exception):
+    """Raised if the authentication is not configured as it should be.
+    """
+    pass
+
+
+def _assert_properly_configured():
+    """Make sure that the authentication backend is properly configured.
+    """
+    if not hasattr(client, 'auth'):
+        raise ImproperlyConfigured("If using the Slumber client's "
+            "authentication backend then you must also use the full "
+            "service based Slumber confiuration and include a service "
+            "called 'auth' which points to the service which will "
+            "handle all authentication and authorization.")
+
+
 class Backend(object):
     """An authentication backend which delegates user permissions to another
     Slumber service.
@@ -17,21 +34,23 @@ class Backend(object):
     def authenticate(self, username=None):
         """Authenticate the user when the middleware passes it in.
         """
-        user, created = User.objects.get_or_create(username=username)
+        return self.get_user(username)
+
+    def get_user(self, user_id):
+        """Return the user associated with the user_id specified.
+        """
+        _assert_properly_configured()
+        user, created = User.objects.get_or_create(username=user_id)
         if created:
             try:
-                remote_user = client.django.contrib.auth.User.get(
-                    username=username)
+                remote_user = client.auth.django.contrib.auth.User.get(
+                    username=user_id)
                 for attr in ['is_active', 'is_staff']:
                     setattr(user, attr, getattr(remote_user, attr))
                 user.save()
             except AssertionError:
                 return None
         return user
-
-    #def get_user(self, user_id):
-        #print "Getting user"
-        #return User.objects.get(pk=user_id)
 
     #def get_group_permissions(self, user_obj, obj=None):
         #print "get_group_permissions"

@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.test import TestCase
 
+from slumber.connector.authentication import ImproperlyConfigured
 from slumber.test import mock_client
 
 
@@ -39,7 +40,14 @@ class AuthenticationTests(ConfigureAuthn, TestCase):
         self.assertFalse(self.user.is_authenticated())
 
     @mock_client(
-        django__contrib__auth__User = [
+        django__contrib__auth__User = [],
+    )
+    def test_improperly_configured(self):
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get('/', HTTP_X_FOST_USER='testuser')
+
+    @mock_client(
+        auth__django__contrib__auth__User = [
             dict(username='testuser', is_active=True, is_staff=True)],
     )
     def test_is_authenticated(self):
@@ -48,7 +56,7 @@ class AuthenticationTests(ConfigureAuthn, TestCase):
         self.assertTrue(self.user.is_authenticated())
 
     @mock_client(
-        django__contrib__auth__User = [
+        auth__django__contrib__auth__User = [
             dict(username='admin', is_active=True, is_staff=True)],
     )
     def test_admin_is_authenticated(self):
@@ -60,7 +68,7 @@ class AuthenticationTests(ConfigureAuthn, TestCase):
         self.assertEqual(admin, self.user)
 
     @mock_client(
-        django__contrib__auth__User = []
+        auth__django__contrib__auth__User = []
     )
     def test_remote_user_not_found(self):
         with patch('slumber_test.views._ok_text', self.save_user):
