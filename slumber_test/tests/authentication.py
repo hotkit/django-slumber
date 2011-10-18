@@ -1,6 +1,7 @@
 from mock import patch
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.test import TestCase
 
@@ -18,19 +19,23 @@ class ConfigureAuthn(object):
 
 
 class AuthenticationTests(ConfigureAuthn, TestCase):
-    def setUp(self):
-        self.called = []
-        super(AuthenticationTests, self).setUp()
+    def save_user(self, request):
+        self.user = request.user
+        return HttpResponse('ok')
 
-    def check_authentication(self, request):
-            self.called.append(request.user.is_authenticated())
-            return HttpResponse('ok')
-
-    def test_not_authenticated(self):
-        with patch('slumber_test.views.ok_text', self.check_authentication):
+    def test_isnt_authenticated(self):
+        with patch('slumber_test.views._ok_text', self.save_user):
             self.client.get('/')
-        self.assertTrue(bool(len(self.called)))
-        self.assertEqual(self.called, [False])
+        self.assertFalse(self.user.is_authenticated())
 
     def test_is_authenticated(self):
-        pass
+        with patch('slumber_test.views._ok_text', self.save_user):
+            self.client.get('/', HTTP_X_FOST_USER='testuser')
+        self.assertFalse(self.user.is_authenticated())
+
+    def test_admin_is_authenticated(self):
+        admin = User(username='admin')
+        admin.save()
+        with patch('slumber_test.views._ok_text', self.save_user):
+            self.client.get('/', HTTP_X_FOST_USER=admin.username)
+        self.assertFalse(self.user.is_authenticated())
