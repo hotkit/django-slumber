@@ -25,3 +25,13 @@ class Cache(object):
         # pylint: disable=W0212
         client._flush_client_instance_cache()
         return response
+
+
+class Authentication(object):
+    """Used when authentication is delegated from a remote host.
+    """
+    def process_request(self, request):
+        """Looks for the X_FOST_User header, and if found authenticates that
+        user.
+        """
+        pass
