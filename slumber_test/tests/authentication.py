@@ -18,11 +18,19 @@ class ConfigureAuthn(object):
 
 
 class AuthenticationTests(ConfigureAuthn, TestCase):
-    def test_no_middleware_error(self):
-        called = []
-        def view(request):
-            called.append(True)
+    def setUp(self):
+        self.called = []
+        super(AuthenticationTests, self).setUp()
+
+    def check_authentication(self, request):
+            self.called.append(request.user.is_authenticated())
             return HttpResponse('ok')
-        with patch('slumber_test.views.ok_text', view):
+
+    def test_not_authenticated(self):
+        with patch('slumber_test.views.ok_text', self.check_authentication):
             self.client.get('/')
-        self.assertEqual(called, [True])
+        self.assertTrue(bool(len(self.called)))
+        self.assertEqual(self.called, [False])
+
+    def test_is_authenticated(self):
+        pass
