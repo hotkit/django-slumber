@@ -1,8 +1,8 @@
 from mock import patch
-from unittest2 import TestCase
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.test import TestCase
 
 from slumber.connector import Client
 from slumber.connector.proxies import UserProxy
@@ -35,3 +35,9 @@ class UserProxyTests(ConfigureSlumber, TestCase):
     def test_user_proxy_is_used(self):
         user = self.client.auth.django.contrib.auth.User.get(username='test')
         self.assertIn(UserProxy, type(user).__mro__)
+
+    def test_user_get_group_permissions(self):
+        user = self.client.auth.django.contrib.auth.User.get(username='test')
+        perms = user.get_group_permissions()
+        self.assertEqual(self.user.get_group_permissions(), perms)
+

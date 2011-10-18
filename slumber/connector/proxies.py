@@ -1,6 +1,7 @@
 """
     Proxies are used as base types for instances so that new APIs can be added.
 """
+from slumber.connector.ua import get
 
 
 class UserProxy(object):
@@ -10,5 +11,8 @@ class UserProxy(object):
     def get_group_permissions(self):
         """Forward the group permissions.
         """
-        assert False, "UserProxy.get_group_permissions Not implemented"
+        # We're accessing attributes that are providec by the  other types
+        # pylint: disable = E1101
+        _, json = get(self._operations['get-permissions'])
+        return set(json['group_permissions'])
 

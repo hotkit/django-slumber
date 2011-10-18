@@ -10,7 +10,7 @@ from slumber._caches import CLIENT_INSTANCE_CACHE, \
     MODEL_URL_TO_SLUMBER_MODEL
 from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
-from slumber.connector.model import ModelConnector
+from slumber.connector.model import get_model
 from slumber.connector.ua import get
 from slumber.server import get_slumber_service, get_slumber_directory, \
     get_slumber_services
@@ -85,7 +85,7 @@ class AppConnector(DictObject):
         models = json['models']
         for model_name, url in models.items():
             model_url = urljoin(self._url, url)
-            model = ModelConnector(model_url)
+            model = get_model(model_url)
             setattr(self, model_name, model)
         if name in models.keys():
             return getattr(self, name)

@@ -103,8 +103,17 @@ class _InstanceConnector(DictObject):
 
     def __getattr__(self, name):
         _, json = get(self._url)
+        # We need to set this outside of __init__ for it to work correctly
+        # pylint: disable = W0201
+        self._operations = dict([(o, urljoin(self._url, u))
+            for o, u in json['operations'].items()])
         for k, v in json['fields'].items():
             setattr(self, k, from_json_data(self._url, v))
         if name in json['fields'].keys():
             return getattr(self, name)
-        return _return_data_array(self._url, json['data_arrays'], self, name)
+        elif name == '_operations':
+            return self._operations
+        else:
+            return _return_data_array(
+                self._url, json['data_arrays'], self, name)
+
