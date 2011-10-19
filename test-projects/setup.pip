@@ -1,6 +1,7 @@
 # Required by Slumber
 simplejson
 httplib2
+git+git://github.com/Felspar/django-fost-authn.git
 
 # Used for testing
 coverage
