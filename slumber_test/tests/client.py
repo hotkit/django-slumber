@@ -44,10 +44,6 @@ class TestLoads(TestCase):
                 pass
 
     def test_applications_with_dots_in_name(self):
-        """
-        dots (.) will be replaced with underscores (_) for some apps that may have dots in its name
-        (i.e. django.contrib.sites)
-        """
         client = Client()
         self.assertTrue(hasattr(client, 'django'), client.__dict__.keys())
         self.assertTrue(hasattr(client.django, 'contrib'), client.django.__dict__.keys())
