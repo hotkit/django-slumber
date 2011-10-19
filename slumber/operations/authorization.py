@@ -7,9 +7,6 @@ from slumber.operations import InstanceOperation
 class PermissionCheck(InstanceOperation):
     """Allows for checking if a given user has a specific permission.
     """
-    def __init__(self, *args, **kwargs):
-        super(PermissionCheck, self).__init__(*args, **kwargs)
-        self.regex = '([^/]+)/([^/]+)/'
 
     def get(self, _request, response, _appname, _modelname, pk, permission):
         """Implements the permission lookup.
