@@ -36,6 +36,10 @@ class UserProxyTests(ConfigureSlumber, TestCase):
         user = self.client.auth.django.contrib.auth.User.get(username='test')
         self.assertIn(UserProxy, type(user).__mro__)
 
+    def test_user_has_module_permission(self):
+        user = self.client.auth.django.contrib.auth.User.get(username='test')
+        self.assertFalse(user.has_module_perms('slumber_test'))
+
     def test_user_get_group_permissions(self):
         user = self.client.auth.django.contrib.auth.User.get(username='test')
         perms = user.get_group_permissions()
