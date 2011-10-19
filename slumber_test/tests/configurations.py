@@ -46,7 +46,9 @@ class PatchForAuthnService(object):
             patch('slumber.server.get_slumber_directory', directory),
         ]
         [p.start() for p in self.__patchers]
-        self.slumber_client = Client()
+        client_patch = patch('slumber._client', Client())
+        client_patch.start()
+        self.__patchers.append(client_patch)
         super(PatchForAuthnService, self).setUp()
     def tearDown(self):
         super(PatchForAuthnService, self).tearDown()

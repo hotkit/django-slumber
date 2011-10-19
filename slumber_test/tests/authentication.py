@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.test import TestCase
 
-from slumber.connector import Client
+from slumber import client
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
 from slumber.test import mock_client
@@ -19,19 +19,17 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.backend = Backend()
 
     def test_get_user(self):
-        with patch('slumber._client', self.slumber_client): # We have to patch this late
-            user = self.backend.get_user(self.user.username)
-            self.assertEqual(user.username, self.user.username)
-            self.assertTrue(user.is_active)
-            self.assertTrue(user.is_staff)
-            self.assertTrue(hasattr(user, 'remote_user'))
-            self.assertEqual(user.username, user.remote_user.username)
+        user = self.backend.get_user(self.user.username)
+        self.assertEqual(user.username, self.user.username)
+        self.assertTrue(user.is_active)
+        self.assertTrue(user.is_staff)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertEqual(user.username, user.remote_user.username)
 
     def test_group_permissions(self):
-        with patch('slumber._client', self.slumber_client): # We have to patch this late
-            user = self.backend.get_user(self.user.username)
-            self.assertTrue(hasattr(user, 'remote_user'))
-            perms = self.backend.get_group_permissions(user)
+        user = self.backend.get_user(self.user.username)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        perms = self.backend.get_group_permissions(user)
 
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):
