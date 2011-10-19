@@ -40,21 +40,23 @@ class Backend(object):
         """Return the user associated with the user_id specified.
         """
         _assert_properly_configured()
+        try:
+            remote_user = client.auth.django.contrib.auth.User.get(
+                username=user_id)
+        except AssertionError:
+            return None
         user, created = User.objects.get_or_create(username=user_id)
         if created:
-            try:
-                remote_user = client.auth.django.contrib.auth.User.get(
-                    username=user_id)
-                for attr in ['is_active', 'is_staff']:
-                    setattr(user, attr, getattr(remote_user, attr))
-                user.save()
-            except AssertionError:
-                return None
+            for attr in ['is_active', 'is_staff']:
+                setattr(user, attr, getattr(remote_user, attr))
+            user.save()
+        user.remote_user = remote_user
         return user
 
-    #def get_group_permissions(self, user_obj, obj=None):
-        #print "get_group_permissions"
-        #return []
+    def get_group_permissions(self, user_obj, _obj=None):
+        """Returns all of the permissions the user has through their groups.
+        """
+        return user_obj.remote_user.get_group_permissions()
 
     #def get_all_permissions(self, user_obj, obj=None):
         #print "get_all_permissions"
