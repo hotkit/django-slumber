@@ -35,4 +35,5 @@ class GetPermissions(InstanceOperation):
         """
         user = self.model.model.objects.get(pk=pk)
         response['group_permissions'] = list(user.get_group_permissions())
+        response['all_permissions'] = list(user.get_all_permissions())
 

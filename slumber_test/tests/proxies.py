@@ -45,3 +45,8 @@ class UserProxyTests(ConfigureSlumber, TestCase):
         perms = user.get_group_permissions()
         self.assertEqual(self.user.get_group_permissions(), perms)
 
+    def test_user_get_all_permissions(self):
+        user = self.client.auth.django.contrib.auth.User.get(username='test')
+        perms = user.get_all_permissions()
+        self.assertEqual(self.user.get_all_permissions(), perms)
+

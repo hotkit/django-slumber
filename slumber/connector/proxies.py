@@ -26,3 +26,10 @@ class UserProxy(object):
         _, json = get(self._operations['get-permissions'])
         return set(json['group_permissions'])
 
+    def get_all_permissions(self):
+        """Forward access to all of the permissions.
+        """
+        # We're accessing attributes that are providec by the  other types
+        # pylint: disable = E1101
+        _, json = get(self._operations['get-permissions'])
+        return set(json['all_permissions'])
