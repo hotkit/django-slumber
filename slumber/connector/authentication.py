@@ -27,6 +27,8 @@ def _assert_properly_configured():
 class Backend(object):
     """An authentication backend which delegates user permissions to another
     Slumber service.
+
+    Currently this backend does not support object permissions.
     """
 
     # Django defines this as a method
@@ -58,14 +60,19 @@ class Backend(object):
         """
         return user_obj.remote_user.get_group_permissions()
 
-    #def get_all_permissions(self, user_obj, obj=None):
-        #print "get_all_permissions"
-        #return []
+    def get_all_permissions(self, user_obj, _obj=None):
+        """Return all of the permission names that this user has.
+        """
+        return user_obj.remote_user.get_all_permissions()
 
-    #def has_module_perms(self, user_obj, package_name):
-        #print "has_module_perms", package_name
-        #return True
+    def has_module_perms(self, user_obj, package_name):
+        """Return True if the user has any permission within the
+        module/application
+        """
+        return user_obj.remote_user.has_module_perms(package_name)
 
-    #def has_perm(self, user_obj, perm, obj=None):
-        #print "Retuning true for permission", perm
-        #return True
+    def has_perm(self, user_obj, perm, _obj=None):
+        """Return True if the user has the specified permission.
+        """
+        return user_obj.remote_user.has_perm(perm)
+

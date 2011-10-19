@@ -30,6 +30,23 @@ class TestBackend(PatchForAuthnService, TestCase):
         user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         perms = self.backend.get_group_permissions(user)
+        self.assertEqual(perms, self.user.get_group_permissions())
+
+    def test_all_permissions(self):
+        user = self.backend.get_user(self.user.username)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        perms = self.backend.get_all_permissions(user)
+        self.assertEqual(perms, self.user.get_all_permissions())
+
+    def test_module_perms(self):
+        user = self.backend.get_user(self.user.username)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertFalse(self.backend.has_module_perms(user, 'slumber_test'))
+
+    def test_permission(self):
+        user = self.backend.get_user(self.user.username)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertFalse(self.backend.has_perm(user, 'slumber_test.add_pizza'))
 
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):
