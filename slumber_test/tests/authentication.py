@@ -1,51 +1,40 @@
 from mock import patch
-from unittest2 import TestCase
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from django.test import TestCase as DjangoTestCase
+from django.test import TestCase
 
+from slumber.connector import Client
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
 from slumber.test import mock_client
+from slumber_test.tests.configurations import ConfigureAuthnBackend, \
+    PatchForAuthnService
 
 
-class ConfigureAuthn(object):
-    def setUp(self):
-        self.assertFalse(hasattr(settings, 'SLUMBER_DIRECTORY'))
-        self.__backends = settings.AUTHENTICATION_BACKENDS
-        settings.AUTHENTICATION_BACKENDS = (
-            'django.contrib.auth.backends.ModelBackend',
-            'slumber.connector.authentication.Backend',
-        )
-        settings.MIDDLEWARE_CLASSES.append(
-            'slumber.connector.middleware.Authentication')
-        super(ConfigureAuthn, self).setUp()
-
-    def tearDown(self):
-        super(ConfigureAuthn, self).tearDown()
-        settings.AUTHENTICATION_BACKENDS = self.__backends
-        settings.MIDDLEWARE_CLASSES.remove(
-            'slumber.connector.middleware.Authentication')
-
-
-class TestBackend(ConfigureAuthn, TestCase):
+class TestBackend(PatchForAuthnService, TestCase):
     def setUp(self):
         super(TestBackend, self).setUp()
         self.backend = Backend()
 
-    @mock_client(
-        auth__django__contrib__auth__User = [
-            dict(username='user', is_active=True, is_staff=True)])
     def test_get_user(self):
-        user = self.backend.get_user('user')
-        self.assertEqual(user.username, 'user')
-        self.assertTrue(user.is_active)
-        self.assertTrue(user.is_staff)
+        with patch('slumber._client', self.slumber_client): # We have to patch this late
+            user = self.backend.get_user(self.user.username)
+            self.assertEqual(user.username, self.user.username)
+            self.assertTrue(user.is_active)
+            self.assertTrue(user.is_staff)
+            self.assertTrue(hasattr(user, 'remote_user'))
+            self.assertEqual(user.username, user.remote_user.username)
+
+    def test_group_permissions(self):
+        with patch('slumber._client', self.slumber_client): # We have to patch this late
+            user = self.backend.get_user(self.user.username)
+            self.assertTrue(hasattr(user, 'remote_user'))
+            perms = self.backend.get_group_permissions(user)
 
 
-class AuthenticationTests(ConfigureAuthn, DjangoTestCase):
+class AuthenticationTests(ConfigureAuthnBackend, TestCase):
     def save_user(self, request):
         self.user = request.user
         return HttpResponse('ok')
@@ -91,3 +80,4 @@ class AuthenticationTests(ConfigureAuthn, DjangoTestCase):
         with patch('slumber_test.views._ok_text', self.save_user):
             self.client.get('/', HTTP_X_FOST_USER='testuser')
         self.assertFalse(self.user.is_authenticated())
+
