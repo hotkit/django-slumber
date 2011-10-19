@@ -10,6 +10,14 @@ class UserProxy(object):
     """Proxy that allows forwarding of the User API.
     """
 
+    def has_perm(self, permission):
+        """Forward the permission check.
+        """
+        # We're accessing attributes that are providec by the  other types
+        # pylint: disable = E1101
+        _, json = get(urljoin(self._operations['has-permission'], permission))
+        return json['is-allowed']
+
     def has_module_perms(self, module):
         """Forward the permission check.
         """
