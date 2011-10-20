@@ -2,7 +2,8 @@ from datetime import datetime
 from mock import patch
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.test import TestCase
 
@@ -54,10 +55,26 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_module_perms(user, 'slumber_test'))
 
-    def test_permission(self):
+    def test_existing_permission(self):
+        self.assertTrue(bool(ContentType.objects.all().count()))
+        content_type = ContentType.objects.get(
+            app_label='slumber_test', model='pizza')
+        permission = Permission.objects.get(
+            codename='add_pizza', content_type=content_type)
         user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_perm(user, 'slumber_test.add_pizza'))
+
+    def test_existing_permission(self):
+        self.assertTrue(bool(ContentType.objects.all().count()))
+        content_type = ContentType.objects.get(
+            app_label='slumber_test', model='pizza')
+        permission = Permission.objects.get(
+            codename='add_pizza', content_type=content_type)
+        self.user.user_permissions.add(permission)
+        user = self.backend.get_user(self.user.username)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertTrue(self.backend.has_perm(user, 'slumber_test.add_pizza'))
 
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):
