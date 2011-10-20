@@ -76,6 +76,34 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertTrue(self.backend.has_perm(user, 'slumber_test.add_pizza'))
 
+    def test_missing_permission(self):
+        user = self.backend.get_user(self.user.username)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertFalse(self.backend.has_perm(user, 'slumber_test.not-a-perm'))
+        perm = Permission.objects.get(codename='not-a-perm',
+            content_type__app_label='slumber_test')
+        self.assertEqual(perm.codename, 'not-a-perm')
+        self.assertEqual(perm.name, perm.codename)
+        self.assertEqual(perm.content_type.app_label, 'slumber_test')
+        self.assertEqual(perm.content_type.model, 'unknown')
+
+    def test_permission_with_new_app(self):
+        user = self.backend.get_user(self.user.username)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertFalse(self.backend.has_perm(user, 'not-an-app.not-a-perm'))
+        perm = Permission.objects.get(codename='not-a-perm',
+            content_type__app_label='not-an-app')
+        self.assertEqual(perm.codename, 'not-a-perm')
+        self.assertEqual(perm.name, perm.codename)
+        self.assertEqual(perm.content_type.app_label, 'not-an-app')
+        self.assertEqual(perm.content_type.model, 'unknown')
+
+    def test_permission_with_invalid_name(self):
+        user = self.backend.get_user(self.user.username)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertFalse(self.backend.has_perm(user, 'not-a-perm'))
+        self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))
+
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):
     def save_user(self, request):

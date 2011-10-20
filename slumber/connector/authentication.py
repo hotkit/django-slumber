@@ -2,7 +2,8 @@
     Authentication backend that sends all of the permissions checks
     to a remote service.
 """
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
 
 from slumber import client
 
@@ -76,5 +77,17 @@ class Backend(object):
     def has_perm(self, user_obj, perm, _obj=None):
         """Return True if the user has the specified permission.
         """
+        try:
+            app, code = perm.split('.')
+            # Pylint can't work out that objects exists on Permission
+            # pylint: disable = E1101
+            if Permission.objects.filter(codename=code,
+                    content_type__app_label=app).count() == 0:
+                content_type, _ = ContentType.objects.get_or_create(
+                    app_label=app, model='unknown')
+                Permission(codename=code, name=code,
+                    content_type=content_type).save()
+        except ValueError:
+            pass
         return user_obj.remote_user.has_perm(perm)
 
