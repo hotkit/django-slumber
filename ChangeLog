@@ -1,3 +1,6 @@
+2011-10-20  Kirit Saelensminde  <kirit@felspar.com>
+ Added a remote authentication capability that allows a remote authentication/authorization service to be used for local authentication.
+
 2011-10-16  Kirit Saelensminde  <kirit@felspar.com>
  Added in the ability to handle multiple services spread across multiple Django projects.
 
