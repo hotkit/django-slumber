@@ -31,8 +31,10 @@ class ConfigureAuthnBackend(object):
 
 class PatchForAuthnService(object):
     def setUp(self):
-        self.user = User(username='test', is_active=True, is_staff=True)
-        self.user.save()
+        user = User(username='test', is_active=True, is_staff=True,
+            is_superuser=False)
+        user.save()
+        self.user = User.objects.get(username=user.username)
 
         self.assertFalse(hasattr(settings, 'SLUMBER_DIRECTORY'))
         self.assertFalse(hasattr(settings, 'SLUMBER_SERVICE'))

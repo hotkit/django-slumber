@@ -49,8 +49,10 @@ class Backend(object):
             return None
         user, created = User.objects.get_or_create(username=user_id)
         if created:
-            for attr in ['is_active', 'is_staff']:
-                setattr(user, attr, getattr(remote_user, attr))
+            for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
+                    'first_name', 'last_name', 'email']:
+                v = getattr(remote_user, attr)
+                setattr(user, attr, v)
             user.save()
         user.remote_user = remote_user
         return user
