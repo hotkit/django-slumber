@@ -8,13 +8,24 @@ from slumber._caches import CLIENT_INSTANCE_CACHE, \
 from slumber.connector.dictobject import DictObject
 from slumber.connector.ua import get
 from slumber.connector.json import from_json_data
+from slumber.connector.proxies import UserProxy
+
+
+INSTANCE_PROXIES = {
+        'django/contrib/auth/User/': UserProxy,
+    }
 
 
 def get_instance(model, instance_url, display_name, **fields):
     """Return an instance of the specified model etc.
     """
-    instance_type = type(model.module + '.' + model.name,
-        (_InstanceProxy,), {})
+    bases = [_InstanceProxy]
+    for type_url, proxy in INSTANCE_PROXIES.items():
+        # We're going to allow ourselves access to _url within the library
+        # pylint: disable = W0212
+        if model._url.endswith(type_url):
+            bases.append(proxy)
+    instance_type = type(model.module + '.' + model.name, tuple(bases), {})
     return instance_type(instance_url, display_name, **fields)
 
 
@@ -92,8 +103,17 @@ class _InstanceConnector(DictObject):
 
     def __getattr__(self, name):
         _, json = get(self._url)
+        # We need to set this outside of __init__ for it to work correctly
+        # pylint: disable = W0201
+        self._operations = dict([(o, urljoin(self._url, u))
+            for o, u in json['operations'].items()])
         for k, v in json['fields'].items():
             setattr(self, k, from_json_data(self._url, v))
         if name in json['fields'].keys():
             return getattr(self, name)
-        return _return_data_array(self._url, json['data_arrays'], self, name)
+        elif name == '_operations':
+            return self._operations
+        else:
+            return _return_data_array(
+                self._url, json['data_arrays'], self, name)
+

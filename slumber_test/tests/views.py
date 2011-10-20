@@ -342,13 +342,21 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
 
 class UserViews(ViewTests):
     authn = '/django/contrib/auth/User/authenticate/'
+    data = '/django/contrib/auth/User/data/%s/'
     perm = '/django/contrib/auth/User/has-permission/%s/%s/'
+    perms = '/django/contrib/auth/User/get-permissions/%s/'
 
     def setUp(self):
         self.user = User(username='test-user')
         self.user.set_password('password')
         self.user.save()
         super(UserViews, self).setUp()
+
+    def test_user_data(self):
+        response, json = self.do_get(self.data % self.user.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('is_superuser', json['fields'].keys())
+        self.assertIn('date_joined', json['fields'].keys())
 
     def test_user_not_found(self):
         response, json = self.do_post(self.authn, dict(username='not-a-user', password=''))
@@ -391,6 +399,11 @@ class UserViews(ViewTests):
         response, json = self.do_get(self.perm % (self.user.pk, 'auth.can_something'))
         self.assertEquals(response.status_code, 200)
         self.assertEquals(json['is-allowed'], False, json)
+
+    def test_get_group_permissions(self):
+        response, json = self.do_get(self.perms % self.user.pk)
+        self.assertEquals(response.status_code, 200)
+        self.assertItemsEqual(json['group_permissions'], [])
 
 class UserViewsPlain(UserViews, PlainTests, TestCase):
     pass

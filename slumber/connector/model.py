@@ -18,10 +18,13 @@ def _ensure_absolute(url):
 
 
 def get_model(url):
-    """Return the client model connector for a gven URL.
+    """Return the client model connector for a given URL.
     """
     _ensure_absolute(url)
-    return MODEL_URL_TO_SLUMBER_MODEL[url]
+    if not MODEL_URL_TO_SLUMBER_MODEL.has_key(url):
+        return ModelConnector(url)
+    else:
+        return MODEL_URL_TO_SLUMBER_MODEL[url]
 
 
 class ModelConnector(DictObject):

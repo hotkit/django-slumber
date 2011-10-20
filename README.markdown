@@ -77,6 +77,31 @@ The Slumber directory doesn't even need to be Django. All that is needed is that
     }
 
 
+## Slumber remote authentication and authorization ##
+
+Slumber is also able to help you manage centralised authentication and authorization across RESTful services. This allows you to make use of `django.contrib.auth` on one service to handle permissions on another.
+
+Any server can be used as the central store, but to get Slumber to make use of it Slumber must be properly configured. Continuing our pizza example from earlier and assuming that we have a Slumber server exposed at `http://auth.example.com/slumber/` we would configure our pizza service as follows.
+
+    SLUMBER_SERVICE = 'pizzas'
+    SLUMBER_DIRECTORY = {
+        'auth': 'http://auth.example.com/slumber/',
+        'pizzas': 'http://localhost:8000/'
+    }
+
+Note that the service based configuration must be used and there must be an `auth` service. The `auth` service is allowed to be an alias onto another location. For example, if we had an `accounting` service that was to handle authentication and authorization then we could configure it using:
+
+    SLUMBER_SERVICE = 'accounting'
+
+To use this as the `auth` service from elsewhere we would now need to give the accounting URL as the `auth` location to other services. I.e.:
+
+    SLUMBER_DIRECTORY = {
+        'auth': 'http://accounting.example.com/slumber/accounting/',
+        'accounting': 'http://accounting.example.com/slumber/accounting/',
+        'pizzas': 'http://localhost:8000/'
+    }
+
+
 # Doing development #
 
 _This project uses git flow. Don't forget to do `git flow init`_ (use defaults for all options).

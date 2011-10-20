@@ -9,6 +9,23 @@ from slumber_test.tests.client import TestsWithPizza
 from mock import patch
 
 
+class _FailingMiddleware:
+    def process_request(self, request):
+        assert False, "This middleware is meant to fail."
+
+class TestAddMiddleware(TestCase):
+    def setUp(self):
+        settings.MIDDLEWARE_CLASSES.append(
+            'slumber_test.tests.middleware._FailingMiddleware')
+    def tearDown(self):
+        settings.MIDDLEWARE_CLASSES.remove(
+            'slumber_test.tests.middleware._FailingMiddleware')
+
+    def test_middleware_fails(self):
+        with self.assertRaises(AssertionError):
+            self.client.get('/')
+
+
 class TestMiddleware(TestsWithPizza):
     def setUp(self):
         self.middleware = Cache()
