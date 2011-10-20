@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
     name = "django_slumber",
-    version = "0.4.3.2",
+    version = "0.4.3.3",
     author = "Kirit Saelensminde",
     author_email = "kirit@felspar.com",
     description = ("RESTful data connector for Django"),
@@ -18,7 +18,7 @@ setup(
         'slumber_test', 'slumber_test.no_models', 'slumber_test.tests',
             'slumber_test.nested1', 'slumber_test.nested1.nested2'],
     long_description = read('README.markdown'),
-    install_requires = ['simplejson', 'httplib2', 'django-fost-authn'],
+    install_requires = ['simplejson', 'httplib2'],
     dependency_links = [
         'git://github.com/Felspar/django-fost-authn.git'],
     classifiers = [
