@@ -1,11 +1,12 @@
+from mock import patch
+
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from slumber import client
 from slumber._caches import CLIENT_INSTANCE_CACHE
 from slumber.connector import Client, DictObject
 from slumber_test.models import Pizza, PizzaPrice, PizzaSizePrice
-
-from mock import patch
 
 
 class TestDirectoryURLs(TestCase):
@@ -71,6 +72,18 @@ class TestLoads(TestCase):
             self.fail("This should have thrown an attribute error")
         except AttributeError:
             pass
+
+
+class TestAuth(TestCase):
+    def setUp(self):
+        self.u = User(username='user')
+        self.u.save()
+
+    def test_has_attributes(self):
+        user = client.django.contrib.auth.User.get(pk=self.u.pk)
+        for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
+                'first_name', 'last_name', 'email', 'username']:
+            self.assertTrue(hasattr(user, attr), user.__dict__.keys())
 
 
 class TestsWithPizza(TestCase):
