@@ -32,12 +32,15 @@ class Backend(object):
     Currently this backend does not support object permissions.
     """
 
-    # Django defines this as a method
-    # pylint: disable=R0201
     def authenticate(self, username=None):
         """Authenticate the user when the middleware passes it in.
         """
         return self.get_user(username)
+
+
+    # Django defines the following as methods
+    # pylint: disable=R0201
+
 
     def get_user(self, user_id):
         """Return the user associated with the user_id specified.
