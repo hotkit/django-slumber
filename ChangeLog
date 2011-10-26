@@ -1,3 +1,6 @@
+2011-10-26  Kirit Saelensminde  <kirit@felspar.com>
+ Allow an authentication request to be passed on to another auth service elsewhere.
+
 2011-10-20  Kirit Saelensminde  <kirit@felspar.com>
  Added a remote authentication capability that allows a remote authentication/authorization service to be used for local authentication.
 
