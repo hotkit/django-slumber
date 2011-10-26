@@ -10,6 +10,15 @@ class UserProxy(object):
     """Proxy that allows forwarding of the User API.
     """
 
+    @classmethod
+    def authenticate(cls, **kwargs):
+        """Allow a forwarded request for authentication.
+        """
+        _, json = post('/slumber/auth/django/contrib/auth/User/authenticate', kwargs)
+        if json['authenticated']:
+            return get_instance(json['user'])
+
+
     def has_perm(self, permission):
         """Forward the permission check.
         """
