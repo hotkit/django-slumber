@@ -50,8 +50,7 @@ class UserModelProxy(object):
     def authenticate(self, **kwargs):
         """Allow a forwarded request for authentication.
         """
-        _, json = post('/slumber/auth/django/contrib/auth/User/authenticate/',
-            kwargs)
+        _, json = post(self._operations['authenticate'], kwargs)
         if json['authenticated']:
             # Pylint can't see the __call__ implemented in another base class
             # pylint: disable = E1102
