@@ -22,6 +22,7 @@ class AuthenticateUser(ModelOperation):
             root = get_slumber_root()
             response['user'] = dict(
                 pk = user.pk,
+                display_name = unicode(user),
                 url = root + self.model.path + 'data/%s/' % user.pk)
         else:
             response['user'] = None

@@ -52,4 +52,4 @@ class UserModelProxy(object):
         """
         _, json = post('/slumber/auth/django/contrib/auth/User/authenticate/', kwargs)
         if json['authenticated']:
-            return get_instance(self, json['user'])
+            return self(json['user']['url'], json['user']['display_name'])
