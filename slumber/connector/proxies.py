@@ -56,4 +56,5 @@ class UserModelProxy(object):
         if json['authenticated']:
             # Pylint can't see the __call__ implemented in another base class
             # pylint: disable = E1102
-            return self(json['user']['url'], json['user']['display_name'])
+            return self(urljoin(self._url, json['user']['url']),
+                json['user']['display_name'])
