@@ -58,6 +58,8 @@ class ModelConnector(DictObject):
         attrs = ['name', 'module']
         if name in attrs + ['_operations']:
             _, json = get(self._url)
+            # We need to set this outside of __init__ for it to work correctly
+            # pylint: disable = W0201
             self._operations = dict([(o, urljoin(self._url, u))
                 for o, u in json['operations'].items()])
             for attr in attrs:
