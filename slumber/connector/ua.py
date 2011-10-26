@@ -26,15 +26,24 @@ def _parse_qs(url):
     else:
         return url, {}
 
+def _use_fake(url):
+    """Return the local URL fragment if the request should use the Fake
+    HTTP client as it is local, otherwise return None
+    """
+    slumber_local = get_slumber_local_url_prefix()
+    if url.startswith(slumber_local):
+        return url[len(slumber_local) - 1:]
+    elif url.startswith('/'):
+        return url
+
 
 def get(url):
     """Perform a GET request against a Slumber server.
     """
     # Pylint gets confused by the fake HTTP client
     # pylint: disable=E1103
-    slumber_local = get_slumber_local_url_prefix()
-    if url.startswith(slumber_local):
-        url_fragment = url[len(slumber_local) - 1:]
+    url_fragment = _use_fake(url)
+    if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
         response = _fake.get(file_spec, query,
             HTTP_HOST='localhost:8000')
@@ -45,4 +54,15 @@ def get(url):
     else:
         response, content = _http.request(url)
         assert response.status == 200, url
+    return response, loads(content)
+
+
+def post(url, data):
+    """Perform a POST request against a Slumber server.
+    """
+    url_fragment = _use_fake(url)
+    if url_fragment:
+        response = _fake.post(url, data, HTTP_HOST='localhost:8000')
+        assert response.status_code == 200, (url_fragment, response)
+        content = response.content
     return response, loads(content)
