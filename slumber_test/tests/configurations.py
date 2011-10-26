@@ -45,9 +45,8 @@ class PatchForAuthnService(object):
             'auth': 'http://localhost:8000/slumber/auth/',
         }
         self.__patchers = [
-            patch('slumber.server.views.get_slumber_service', service),
-            patch('slumber.server.get_slumber_service', service),
-            patch('slumber.server.get_slumber_directory', directory),
+            patch('slumber.server._get_slumber_service', service),
+            patch('slumber.server._get_slumber_directory', directory),
         ]
         [p.start() for p in self.__patchers]
         client_patch = patch('slumber._client', Client())
