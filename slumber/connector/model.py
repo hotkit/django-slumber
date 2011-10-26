@@ -49,6 +49,11 @@ class ModelConnector(DictObject):
         self._url = url
         super(ModelConnector, self).__init__(**kwargs)
 
+    def __call__(self, url, display_name):
+        """Construct an instance of this model.
+        """
+        return get_instance(self, url, display_name)
+
     def __getattr__(self, name):
         attrs = ['name', 'module']
         if name in attrs:
