@@ -8,6 +8,7 @@ from slumber._caches import MODEL_URL_TO_SLUMBER_MODEL
 from slumber.connector.dictobject import DictObject
 from slumber.connector.instance import get_instance
 from slumber.connector.json import from_json_data
+from slumber.connector.proxies import UserModelProxy
 from slumber.connector.ua import get
 
 
@@ -17,12 +18,22 @@ def _ensure_absolute(url):
     assert urlparse(url)[0], "The URL <> must be absolute" % url
 
 
+MODEL_PROXIES = {
+        'django/contrib/auth/User/': UserModelProxy,
+    }
+
+
 def get_model(url):
     """Return the client model connector for a given URL.
     """
     _ensure_absolute(url)
     if not MODEL_URL_TO_SLUMBER_MODEL.has_key(url):
-        return ModelConnector(url)
+        bases = [ModelConnector]
+        for type_url, proxy in MODEL_PROXIES.items():
+            if url.endswith(type_url):
+                bases.append(proxy)
+        model_type = type(url, tuple(bases), {})
+        return model_type(url)
     else:
         return MODEL_URL_TO_SLUMBER_MODEL[url]
 

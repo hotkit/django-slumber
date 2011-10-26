@@ -6,18 +6,9 @@ from urlparse import urljoin
 from slumber.connector.ua import get
 
 
-class UserProxy(object):
+class UserInstanceProxy(object):
     """Proxy that allows forwarding of the User API.
     """
-
-    @classmethod
-    def authenticate(cls, **kwargs):
-        """Allow a forwarded request for authentication.
-        """
-        _, json = post('/slumber/auth/django/contrib/auth/User/authenticate', kwargs)
-        if json['authenticated']:
-            return get_instance(json['user'])
-
 
     def has_perm(self, permission):
         """Forward the permission check.
@@ -50,3 +41,15 @@ class UserProxy(object):
         # pylint: disable = E1101
         _, json = get(self._operations['get-permissions'])
         return set(json['all_permissions'])
+
+
+class UserModelProxy(object):
+    """Contains the model methods that need to be exposed within the client.
+    """
+
+    def authenticate(self, **kwargs):
+        """Allow a forwarded request for authentication.
+        """
+        _, json = post('/slumber/auth/django/contrib/auth/User/authenticate', kwargs)
+        if json['authenticated']:
+            return get_instance(json['user'])
