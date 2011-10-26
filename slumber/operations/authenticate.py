@@ -4,6 +4,7 @@
 from django.contrib.auth import authenticate
 
 from slumber.operations import ModelOperation
+from slumber.server import get_slumber_root
 
 
 class AuthenticateUser(ModelOperation):
@@ -18,6 +19,9 @@ class AuthenticateUser(ModelOperation):
             for k, v in request.POST.items()]))
         response['authenticated'] = bool(user)
         if user:
-            response['user'] = dict(pk=user.pk)
+            root = get_slumber_root()
+            response['user'] = dict(
+                pk = user.pk,
+                url = root + self.model.path + 'data/%s/' % user.pk)
         else:
             response['user'] = None
