@@ -9,6 +9,7 @@ from slumber.connector import Client
 class ConfigureAuthnBackend(object):
     def setUp(self):
         self.user = User(username='user', is_active=True, is_staff=True)
+        self.user.set_password('pass')
         self.user.save()
 
         self.assertFalse(hasattr(settings, 'SLUMBER_DIRECTORY'))
@@ -33,6 +34,7 @@ class PatchForAuthnService(object):
     def setUp(self):
         user = User(username='test', is_active=True, is_staff=True,
             is_superuser=False)
+        user.set_password('pass')
         user.save()
         self.user = User.objects.get(username=user.username)
 
@@ -43,9 +45,8 @@ class PatchForAuthnService(object):
             'auth': 'http://localhost:8000/slumber/auth/',
         }
         self.__patchers = [
-            patch('slumber.server.views.get_slumber_service', service),
-            patch('slumber.server.get_slumber_service', service),
-            patch('slumber.server.get_slumber_directory', directory),
+            patch('slumber.server._get_slumber_service', service),
+            patch('slumber.server._get_slumber_directory', directory),
         ]
         [p.start() for p in self.__patchers]
         client_patch = patch('slumber._client', Client())

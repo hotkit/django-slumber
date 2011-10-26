@@ -376,7 +376,12 @@ class UserViews(ViewTests):
             dict(username=self.user.username, password='password'))
         self.assertEquals(response.status_code, 200)
         self.assertEquals(json['authenticated'], True, json)
-        self.assertEquals(json['user'], {'pk': self.user.pk})
+        self.assertDictContainsSubset(
+            {'pk': self.user.pk, 'display_name': 'test-user'},
+            json['user'])
+        self.assertTrue(
+            json['user']['url'].endswith('/django/contrib/auth/User/data/1/'),
+            json['user']['url'])
 
     def test_user_permission_no_permission(self):
         response, json = self.do_get(self.perm % (self.user.pk, 'foo.example'))

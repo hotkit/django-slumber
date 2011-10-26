@@ -8,11 +8,11 @@ from slumber._caches import CLIENT_INSTANCE_CACHE, \
 from slumber.connector.dictobject import DictObject
 from slumber.connector.ua import get
 from slumber.connector.json import from_json_data
-from slumber.connector.proxies import UserProxy
+from slumber.connector.proxies import UserInstanceProxy
 
 
 INSTANCE_PROXIES = {
-        'django/contrib/auth/User/': UserProxy,
+        'django/contrib/auth/User/': UserInstanceProxy,
     }
 
 

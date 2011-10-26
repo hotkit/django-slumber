@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from slumber import client
-from slumber.connector.proxies import UserProxy
+from slumber.connector.proxies import UserInstanceProxy
 from slumber_test.tests.configurations import PatchForAuthnService
 
 
@@ -11,7 +11,7 @@ class UserProxyTests(PatchForAuthnService, TestCase):
         self.proxy_user = client.auth.django.contrib.auth.User.get(username='test')
 
     def test_user_proxy_is_used(self):
-        self.assertIn(UserProxy, type(self.proxy_user).__mro__)
+        self.assertIn(UserInstanceProxy, type(self.proxy_user).__mro__)
 
     def test_has_perm(self):
         self.assertFalse(self.proxy_user.has_perm('slumber_test.not-a-permission'))

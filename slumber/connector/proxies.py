@@ -3,10 +3,10 @@
 """
 from urlparse import urljoin
 
-from slumber.connector.ua import get
+from slumber.connector.ua import get, post
 
 
-class UserProxy(object):
+class UserInstanceProxy(object):
     """Proxy that allows forwarding of the User API.
     """
 
@@ -41,3 +41,19 @@ class UserProxy(object):
         # pylint: disable = E1101
         _, json = get(self._operations['get-permissions'])
         return set(json['all_permissions'])
+
+
+class UserModelProxy(object):
+    """Contains the model methods that need to be exposed within the client.
+    """
+
+    def authenticate(self, **kwargs):
+        """Allow a forwarded request for authentication.
+        """
+        # We're accessing attributes that are providec by the  other types
+        # pylint: disable = E1101
+        _, json = post(self._operations['authenticate'], kwargs)
+        if json['authenticated']:
+            # Pylint can't see the __call__ implemented in another base class
+            # pylint: disable = E1102
+            return self(json['user']['url'], json['user']['display_name'])

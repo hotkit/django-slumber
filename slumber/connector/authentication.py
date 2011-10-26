@@ -32,10 +32,15 @@ class Backend(object):
     Currently this backend does not support object permissions.
     """
 
-    def authenticate(self, username=None):
+    def authenticate(self, x_fost_user=None, username=None, password=None):
         """Authenticate the user when the middleware passes it in.
         """
-        return self.get_user(username)
+        if x_fost_user:
+            return self.get_user(x_fost_user)
+        else:
+            _assert_properly_configured()
+            return client.auth.django.contrib.auth.User.authenticate(
+                username=username, password=password)
 
 
     # Django defines the following as methods

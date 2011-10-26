@@ -26,6 +26,18 @@ class TestBackend(PatchForAuthnService, TestCase):
                 'first_name', 'last_name', 'email', 'username']:
             self.assertTrue(hasattr(user, attr), user.__dict__.keys())
 
+    def test_delegated_login(self):
+        user = self.backend.authenticate(x_fost_user=self.user.username)
+        self.assertEqual(user.username, self.user.username)
+
+    def test_remote_login(self):
+        user = self.backend.authenticate(username=self.user.username, password='pass')
+        self.assertEqual(user.username, self.user.username)
+
+    def test_remote_login_with_wrong_password(self):
+        user = self.backend.authenticate(username=self.user.username, password='xxxx')
+        self.assertIsNone(user)
+
     def test_get_user(self):
         user = self.backend.get_user(self.user.username)
         self.assertEqual(user.username, self.user.username)
