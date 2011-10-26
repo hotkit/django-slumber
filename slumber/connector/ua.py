@@ -6,6 +6,7 @@ from django.test.client import Client as FakeClient
 
 from httplib2 import Http
 from simplejson import loads
+from urllib import urlencode
 from urlparse import parse_qs
 
 
@@ -65,4 +66,8 @@ def post(url, data):
         response = _fake.post(url, data, HTTP_HOST='localhost:8000')
         assert response.status_code == 200, (url_fragment, response)
         content = response.content
+    else:
+        body = urlencode(data)
+        response, content = _http.request(url, "POST", body=body)
+        assert response.status == 200, url
     return response, loads(content)
