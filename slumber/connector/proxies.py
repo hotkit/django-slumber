@@ -3,7 +3,7 @@
 """
 from urlparse import urljoin
 
-from slumber.connector.ua import get
+from slumber.connector.ua import get, post
 
 
 class UserInstanceProxy(object):
@@ -50,6 +50,6 @@ class UserModelProxy(object):
     def authenticate(self, **kwargs):
         """Allow a forwarded request for authentication.
         """
-        _, json = post('/slumber/auth/django/contrib/auth/User/authenticate', kwargs)
+        _, json = post('/slumber/auth/django/contrib/auth/User/authenticate/', kwargs)
         if json['authenticated']:
-            return get_instance(json['user'])
+            return get_instance(self, json['user'])
