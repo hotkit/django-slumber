@@ -63,8 +63,8 @@ def post(url, data):
     """
     url_fragment = _use_fake(url)
     if url_fragment:
-        response = _fake.post(url, data, HTTP_HOST='localhost:8000')
-        assert response.status_code == 200, (url_fragment, response)
+        response = _fake.post(url_fragment, data, HTTP_HOST='localhost:8000')
+        assert response.status_code == 200, (url_fragment, response, response.content)
         content = response.content
     else:
         body = urlencode(data)

@@ -38,6 +38,7 @@ class Backend(object):
         if x_fost_user:
             return self.get_user(x_fost_user)
         else:
+            _assert_properly_configured()
             return client.auth.django.contrib.auth.User.authenticate(
                 username=username, password=password)
 

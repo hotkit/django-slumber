@@ -51,7 +51,8 @@ def service_root(request, response):
 
         try:
             # Execute the operation (if it can be found)
-            operation = model.operation_by_name(models.pop(0))
+            operation_name = models.pop(0)
+            operation = model.operation_by_name(operation_name)
             return operation.operation(request, response,
                 application.path, model.name, *models)
         except NotAnOperation:
