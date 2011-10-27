@@ -2,10 +2,11 @@
     Authentication backend that sends all of the permissions checks
     to a remote service.
 """
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
 from slumber import client
+from slumber.connector.proxies import attach_to_local_user
 
 
 class ImproperlyConfigured(Exception):
@@ -56,15 +57,8 @@ class Backend(object):
                 username=user_id)
         except AssertionError:
             return None
-        user, created = User.objects.get_or_create(username=user_id)
-        if created:
-            for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
-                    'first_name', 'last_name', 'email']:
-                v = getattr(remote_user, attr)
-                setattr(user, attr, v)
-            user.save()
-        user.remote_user = remote_user
-        return user
+        return attach_to_local_user(remote_user)
+
 
     def get_group_permissions(self, user_obj, _obj=None):
         """Returns all of the permissions the user has through their groups.

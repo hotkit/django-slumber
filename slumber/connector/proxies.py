@@ -3,7 +3,24 @@
 """
 from urlparse import urljoin
 
+from django.contrib.auth.models import User
+
 from slumber.connector.ua import get, post
+
+
+def attach_to_local_user(remote_user):
+    """Return the local user with the remote user object attached to it.
+    """
+    user, created = User.objects.get_or_create(
+        username=remote_user.username)
+    if created:
+        for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
+                'first_name', 'last_name', 'email']:
+            v = getattr(remote_user, attr)
+            setattr(user, attr, v)
+        user.save()
+    user.remote_user = remote_user
+    return user
 
 
 class UserInstanceProxy(object):
@@ -56,5 +73,6 @@ class UserModelProxy(object):
         if json['authenticated']:
             # Pylint can't see the __call__ implemented in another base class
             # pylint: disable = E1102
-            return self(urljoin(self._url, json['user']['url']),
+            remote_user = self(urljoin(self._url, json['user']['url']),
                 json['user']['display_name'])
+            return attach_to_local_user(remote_user)
