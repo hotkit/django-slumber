@@ -39,7 +39,7 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertIsNone(user)
 
     def test_get_user(self):
-        user = self.backend.get_user(self.user.username)
+        user = self.backend.get_user(self.user.username, 'username')
         self.assertEqual(user.username, self.user.username)
         self.assertTrue(user.is_active)
         self.assertTrue(user.is_staff)
@@ -51,19 +51,19 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertEqual(user.is_superuser, user.remote_user.is_superuser)
 
     def test_group_permissions(self):
-        user = self.backend.get_user(self.user.username)
+        user = self.backend.get_user(self.user.username, 'username')
         self.assertTrue(hasattr(user, 'remote_user'))
         perms = self.backend.get_group_permissions(user)
         self.assertEqual(perms, self.user.get_group_permissions())
 
     def test_all_permissions(self):
-        user = self.backend.get_user(self.user.username)
+        user = self.backend.get_user(self.user.username, 'username')
         self.assertTrue(hasattr(user, 'remote_user'))
         perms = self.backend.get_all_permissions(user)
         self.assertEqual(perms, self.user.get_all_permissions())
 
     def test_module_perms(self):
-        user = self.backend.get_user(self.user.username)
+        user = self.backend.get_user(self.user.username, 'username')
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_module_perms(user, 'slumber_test'))
 
@@ -84,12 +84,12 @@ class TestBackend(PatchForAuthnService, TestCase):
         permission = Permission.objects.get(
             codename='add_pizza', content_type=content_type)
         self.user.user_permissions.add(permission)
-        user = self.backend.get_user(self.user.username)
+        user = self.backend.get_user(self.user.username, 'username')
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertTrue(self.backend.has_perm(user, 'slumber_test.add_pizza'))
 
     def test_missing_permission(self):
-        user = self.backend.get_user(self.user.username)
+        user = self.backend.get_user(self.user.username, 'username')
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_perm(user, 'slumber_test.not-a-perm'))
         perm = Permission.objects.get(codename='not-a-perm',
@@ -100,7 +100,7 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertEqual(perm.content_type.model, 'unknown')
 
     def test_permission_with_new_app(self):
-        user = self.backend.get_user(self.user.username)
+        user = self.backend.get_user(self.user.pk)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_perm(user, 'not-an-app.not-a-perm'))
         perm = Permission.objects.get(codename='not-a-perm',
@@ -111,7 +111,7 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertEqual(perm.content_type.model, 'unknown')
 
     def test_permission_with_invalid_name(self):
-        user = self.backend.get_user(self.user.username)
+        user = self.backend.get_user(self.user.pk)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_perm(user, 'not-a-perm'))
         self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))

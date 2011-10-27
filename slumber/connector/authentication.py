@@ -37,7 +37,7 @@ class Backend(object):
         """Authenticate the user when the middleware passes it in.
         """
         if x_fost_user:
-            return self.get_user(x_fost_user)
+            return self.get_user(x_fost_user, 'username')
         else:
             _assert_properly_configured()
             return client.auth.django.contrib.auth.User.authenticate(
@@ -48,13 +48,13 @@ class Backend(object):
     # pylint: disable=R0201
 
 
-    def get_user(self, user_id):
+    def get_user(self, user_id, key='id'):
         """Return the user associated with the user_id specified.
         """
         _assert_properly_configured()
         try:
-            remote_user = client.auth.django.contrib.auth.User.get(
-                username=user_id)
+            remote_user = \
+                client.auth.django.contrib.auth.User.get(**{key:user_id})
         except AssertionError:
             return None
         return attach_to_local_user(remote_user)
