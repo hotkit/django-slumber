@@ -1,3 +1,9 @@
+2011-11-02  Kirit Saelensminde  <kirit@felspar.com>
+ Fixed a bug where the Django session would result in the wrong user, or a failed log in when the remote and local users had different primary key values.
+
+2011-11-02  Chokchai Phatharamalai  <juacompe@proteus-tech.com>
+ Changed the way that Httplib2 is used so that the same Http object is no longer re-used. This should improve reliability, but will have a (hopefully minimal) impact on performance.
+
 2011-10-26  Kirit Saelensminde  <kirit@felspar.com>
  Allow an authentication request to be passed on to another auth service elsewhere.
 

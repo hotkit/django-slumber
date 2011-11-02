@@ -2,7 +2,7 @@
     Authentication backend that sends all of the permissions checks
     to a remote service.
 """
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
 
 from slumber import client
@@ -53,8 +53,14 @@ class Backend(object):
         """
         _assert_properly_configured()
         try:
-            remote_user = \
-                client.auth.django.contrib.auth.User.get(**{key:user_id})
+            if key == 'id':
+                local_user = User.objects.get(**{key:user_id})
+                remote_user = \
+                    client.auth.django.contrib.auth.User.get(
+                        username=local_user.username)
+            else:
+                remote_user = \
+                    client.auth.django.contrib.auth.User.get(**{key:user_id})
         except AssertionError:
             return None
         return attach_to_local_user(remote_user)
