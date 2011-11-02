@@ -53,7 +53,7 @@ def get(url):
         assert response.status_code == 200, (url_fragment, response)
         content = response.content
     else:
-        response, content = _http.request(url)
+        response, content = Http().request(url)
         assert response.status == 200, url
     return response, loads(content)
 
