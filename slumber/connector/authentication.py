@@ -25,6 +25,15 @@ def _assert_properly_configured():
             "called 'auth' which points to the service which will "
             "handle all authentication and authorization.")
 
+    
+def _get_user_profile(user):
+    """Return user profile of given user if exists, otherwise return None.
+    """
+    try:
+        return client.auth.auth_auth.UserProfile.get(**{'user__username':user.username})
+    except AssertionError:
+        return None;
+
 
 class Backend(object):
     """An authentication backend which delegates user permissions to another
@@ -32,6 +41,9 @@ class Backend(object):
 
     Currently this backend does not support object permissions.
     """
+
+
+    User.profile = property(lambda u: _get_user_profile(u))
 
     def authenticate(self, x_fost_user=None, username=None, password=None):
         """Authenticate the user when the middleware passes it in.

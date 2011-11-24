@@ -117,6 +117,25 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))
 
 
+    @mock_client(
+        auth__django__contrib__auth__User = [
+            dict(username='admin', is_active=True, is_staff=True)],
+        auth__auth_auth__UserProfile = [
+            dict(full_name='admin profile', user__username='admin')
+        ]
+    )
+    def test_user_profile(self):
+        admin = User(username='admin')
+        admin.save()
+
+        admin_profile = admin.profile
+        self.assertIsNotNone(admin_profile)
+
+        user_profile = self.user.profile
+        self.assertIsNone(user_profile)
+
+
+
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):
     def save_user(self, request):
         self.user = request.user
@@ -166,4 +185,3 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
         with patch('slumber_test.views._ok_text', self.save_user):
             self.client.get('/', HTTP_X_FOST_USER='testuser')
         self.assertFalse(self.user.is_authenticated())
-
