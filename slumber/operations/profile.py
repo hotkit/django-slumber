@@ -1,7 +1,9 @@
 """
     Implements profile forwarding for users.
 """
+from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.operations import InstanceOperation
+from slumber.operations.instancedata import instance_data
 
 
 class GetProfile(InstanceOperation):
@@ -12,3 +14,8 @@ class GetProfile(InstanceOperation):
         """Implements the profile lookup.
         """
         user = self.model.model.objects.get(pk=pk)
+        profile = user.get_profile()
+        instance_data(response,
+            DJANGO_MODEL_TO_SLUMBER_MODEL[type(profile)],
+            profile)
+
