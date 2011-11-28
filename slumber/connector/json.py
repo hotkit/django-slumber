@@ -13,8 +13,7 @@ def from_json_data(base_url, json):
             return None
         else:
             # It's a remote object
-            from slumber.connector.instance import get_instance
-            from slumber.connector.model import get_model
+            from slumber.connector.api import get_instance, get_model
             model_url = urljoin(base_url, json['data']['type'])
             data_url = urljoin(base_url, json['data']['data'])
             display = json['data']['display']

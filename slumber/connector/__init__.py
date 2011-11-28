@@ -8,9 +8,9 @@ from urlparse import urljoin
 
 from slumber._caches import CLIENT_INSTANCE_CACHE, \
     MODEL_URL_TO_SLUMBER_MODEL
+from slumber.connector.api import get_model
 from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
-from slumber.connector.model import get_model
 from slumber.connector.ua import get
 from slumber.server import get_slumber_service, get_slumber_directory, \
     get_slumber_services
