@@ -244,6 +244,7 @@ class BasicViews(ViewTests):
         self.maxDiff = None
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
+            type=self.url('/slumber_test/Pizza/'),
             identity=self.url('/slumber_test/Pizza/data/1/'),
             display='S1',
             operations=dict(
@@ -267,6 +268,7 @@ class BasicViews(ViewTests):
         response, json = self.do_get('/slumber_test/PizzaPrice/data/%s/' % p.pk)
         self.assertEquals(json, dict(
             _meta={'message': 'OK', 'status': 200},
+            type=self.url('/slumber_test/PizzaPrice/'),
             identity=self.url('/slumber_test/PizzaPrice/data/1/'),
             display="PizzaPrice object",
             operations=dict(

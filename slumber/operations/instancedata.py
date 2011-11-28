@@ -12,6 +12,7 @@ def instance_data(into, model, instance):
     specified model.
     """
     root = get_slumber_root()
+    into['type'] = root + model.path
     into['identity'] = root + model.path + \
         '%s/%s/' % ('data', instance.pk)
     into['display'] = unicode(instance)
