@@ -12,6 +12,7 @@ from slumber.operations.create import CreateInstance
 from slumber.operations.delete import DeleteInstance
 from slumber.operations.instancedata import InstanceData
 from slumber.operations.instancelist import InstanceList
+from slumber.operations.profile import GetProfile
 from slumber.operations.search import DereferenceInstance
 from slumber.operations.update import UpdateInstance
 from slumber.server import get_slumber_root
@@ -93,6 +94,7 @@ class DjangoModel(object):
             extra_operations.append(AuthenticateUser(self, 'authenticate'))
             extra_operations.append(PermissionCheck(self, 'has-permission'))
             extra_operations.append(GetPermissions(self, 'get-permissions'))
+            extra_operations.append(GetProfile(self, 'get-profile')),
             extra_operations.append(ModulePermissions(
                 self, 'module-permissions'))
         return base_operations + extra_operations

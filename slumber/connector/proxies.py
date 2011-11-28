@@ -65,7 +65,7 @@ class UserInstanceProxy(object):
         """
         # We're accessing attributes that are providec by the  other types
         # pylint: disable = E1101
-        _, json = get(self._operations['get_profile'])
+        _, json = get(self._operations['get-profile'])
         raise NotImplementedError()
 
 
