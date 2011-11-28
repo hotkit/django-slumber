@@ -5,6 +5,8 @@ from urlparse import urljoin
 
 from django.contrib.auth.models import User
 
+from slumber.connector.api import get_instance_from_data
+from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.connector.ua import get, post
 
 
@@ -20,6 +22,9 @@ def attach_to_local_user(remote_user):
             setattr(user, attr, v)
         user.save()
     user.remote_user = remote_user
+    # This lambda is necessary, but no idea why
+    # pylint: disable = W0108
+    user.get_profile = lambda: remote_user.get_profile()
     return user
 
 
@@ -30,7 +35,7 @@ class UserInstanceProxy(object):
     def has_perm(self, permission):
         """Forward the permission check.
         """
-        # We're accessing attributes that are providec by the  other types
+        # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
         _, json = get(urljoin(self._operations['has-permission'], permission))
         return json['is-allowed']
@@ -38,7 +43,7 @@ class UserInstanceProxy(object):
     def has_module_perms(self, module):
         """Forward the permission check.
         """
-        # We're accessing attributes that are providec by the  other types
+        # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
         _, json = get(urljoin(self._operations['module-permissions'], module))
         return json['has_module_perms']
@@ -46,7 +51,7 @@ class UserInstanceProxy(object):
     def get_group_permissions(self):
         """Forward the group permissions.
         """
-        # We're accessing attributes that are providec by the  other types
+        # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
         _, json = get(self._operations['get-permissions'])
         return set(json['group_permissions'])
@@ -54,10 +59,21 @@ class UserInstanceProxy(object):
     def get_all_permissions(self):
         """Forward access to all of the permissions.
         """
-        # We're accessing attributes that are providec by the  other types
+        # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
         _, json = get(self._operations['get-permissions'])
         return set(json['all_permissions'])
+
+    def get_profile(self):
+        """Forward access to the profile.
+        """
+        # We're accessing attributes that are provided by the  other types
+        # pylint: disable = E1101
+        base_url = self._operations['get-profile']
+        _, json = get(base_url)
+        return get_instance_from_data(base_url, json)
+
+INSTANCE_PROXIES['django/contrib/auth/User/'] = UserInstanceProxy
 
 
 class UserModelProxy(object):
@@ -76,3 +92,6 @@ class UserModelProxy(object):
             remote_user = self(urljoin(self._url, json['user']['url']),
                 json['user']['display_name'])
             return attach_to_local_user(remote_user)
+
+MODEL_PROXIES['django/contrib/auth/User/'] = UserModelProxy
+

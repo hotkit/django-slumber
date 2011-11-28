@@ -11,6 +11,7 @@ from slumber import client
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
 from slumber.test import mock_client
+from slumber_test.models import Profile
 from slumber_test.tests.configurations import ConfigureAuthnBackend, \
     PatchForAuthnService
 
@@ -116,24 +117,18 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertFalse(self.backend.has_perm(user, 'not-a-perm'))
         self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))
 
+    def test_user_profile_when_no_profile(self):
+        user = self.backend.get_user(self.user.pk)
+        with self.assertRaises(AssertionError):
+            profile = user.get_profile()
 
-    @mock_client(
-        auth__django__contrib__auth__User = [
-            dict(username='admin', is_active=True, is_staff=True)],
-        auth__auth_auth__UserProfile = [
-            dict(full_name='admin profile', user__username='admin')
-        ]
-    )
-    def test_user_profile(self):
-        admin = User(username='admin')
-        admin.save()
-
-        admin_profile = admin.profile
-        self.assertIsNotNone(admin_profile)
-
-        user_profile = self.user.profile
-        self.assertIsNone(user_profile)
-
+    def test_user_profile_when_there_is_a_profile(self):
+        profile = Profile(user=self.user)
+        profile.save()
+        user = self.backend.get_user(self.user.pk)
+        remote_profile = user.get_profile()
+        self.assertEqual(remote_profile.id, profile.id)
+        self.assertEqual(remote_profile.user.id, self.user.id)
 
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):

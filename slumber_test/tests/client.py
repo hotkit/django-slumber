@@ -150,7 +150,7 @@ class TestsWithPizza(TestCase):
         self.assertEqual(unicode(self.pizza), u"S1")
         # Make a 2nd alias to the same object
         fail = lambda *a, **f: self.fail("_InstanceConnector.__init__ called again %s, %s" % (a, f))
-        with patch('slumber.connector.instance._InstanceConnector.__init__', fail):
+        with patch('slumber.connector.api._InstanceConnector.__init__', fail):
             pizza2 = client.slumber_test.Pizza.get(pk=self.s.pk)
             self.assertEqual(unicode(pizza2), u"S1")
 
