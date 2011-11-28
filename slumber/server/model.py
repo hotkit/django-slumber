@@ -94,7 +94,7 @@ class DjangoModel(object):
             extra_operations.append(AuthenticateUser(self, 'authenticate'))
             extra_operations.append(PermissionCheck(self, 'has-permission'))
             extra_operations.append(GetPermissions(self, 'get-permissions'))
-            extra_operations.append(GetProfile(self, 'get-profile')),
+            extra_operations.append(GetProfile(self, 'get-profile'))
             extra_operations.append(ModulePermissions(
                 self, 'module-permissions'))
         return base_operations + extra_operations
