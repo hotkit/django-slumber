@@ -18,9 +18,10 @@ def _ensure_absolute(url):
     assert urlparse(url)[0], "The URL <%s> must be absolute" % url
 
 
-def get_instance(model, instance_url, display_name, **fields):
+def get_instance(model, instance_url, display_name, fields = None):
     """Return an instance of the specified model etc.
     """
+    fields = fields or {}
     bases = [_InstanceProxy]
     for type_url, proxy in INSTANCE_PROXIES.items():
         # We're going to allow ourselves access to _url within the library
@@ -28,7 +29,7 @@ def get_instance(model, instance_url, display_name, **fields):
         if model._url.endswith(type_url):
             bases.append(proxy)
     instance_type = type(model.module + '.' + model.name, tuple(bases), {})
-    return instance_type(instance_url, display_name, **fields)
+    return instance_type(instance_url, display_name, fields)
 
 
 def get_model(url):
@@ -51,7 +52,9 @@ def get_instance_from_data(base_url, json):
     """
     model = get_model(urljoin(base_url, json['type']))
     instance_url = urljoin(base_url, json['operations']['data'])
-    return get_instance(model, instance_url, json['display'])
+    return get_instance(model, instance_url, json['display'],
+        dict([(k, from_json_data(base_url, j))
+            for k, j in json['fields'].items()]))
 
 
 class ModelConnector(DictObject):
@@ -91,10 +94,7 @@ class ModelConnector(DictObject):
             "You must supply kwargs to filter on to fetch the instance"
         url = urljoin(self._url, 'get/')
         _, json = get(url + '?' + urlencode(kwargs))
-        return get_instance(self,
-            urljoin(self._url, json['identity']), json['display'],
-            **dict([(k, from_json_data(self._url, j))
-                for k, j in json['fields'].items()]))
+        return get_instance_from_data(self._url, json)
 
 
 class _InstanceProxy(object):
@@ -102,10 +102,10 @@ class _InstanceProxy(object):
     by the application code and the underlying object. This allows us to
     better handle the cache.
     """
-    def __init__(self, url, display, **fields):
+    def __init__(self, url, display, fields = None):
         self._url = url
         self._display = display
-        self._fields = fields
+        self._fields = fields or {}
 
     def _fetch_instance(self):
         """Fetch the underlying instance.
