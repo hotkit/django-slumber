@@ -65,8 +65,12 @@ class UserInstanceProxy(object):
         """
         # We're accessing attributes that are providec by the  other types
         # pylint: disable = E1101
-        _, json = get(self._operations['get-profile'])
-        raise NotImplementedError()
+        base_url = self._operations['get-profile']
+        _, json = get(base_url)
+        model_url = urljoin(base_url, json['type'])
+        model = MODEL_URL_TO_SLUMBER_MODEL[model_url]
+        instance_url = urljoin(base_url, obj['data'])
+        return get_instance(model, instance_url, obj['display'])
 
 
 class UserModelProxy(object):
