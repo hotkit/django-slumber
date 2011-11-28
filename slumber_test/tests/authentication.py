@@ -117,9 +117,9 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertFalse(self.backend.has_perm(user, 'not-a-perm'))
         self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))
 
-    def test_user_profile(self):
+    def test_user_profile_when_no_profile(self):
         user = self.backend.get_user(self.user.pk)
-        with self.assertRaises(Profile.DoesNotExist):
+        with self.assertRaises(AssertionError):
             profile = user.get_profile()
 
 
