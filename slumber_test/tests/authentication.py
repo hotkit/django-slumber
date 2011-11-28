@@ -122,6 +122,12 @@ class TestBackend(PatchForAuthnService, TestCase):
         with self.assertRaises(AssertionError):
             profile = user.get_profile()
 
+    def test_user_profile_when_there_is_a_profile(self):
+        profile = Profile(user=self.user)
+        profile.save()
+        user = self.backend.get_user(self.user.pk)
+        remote_profile = user.get_profile()
+
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):
     def save_user(self, request):
