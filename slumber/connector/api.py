@@ -187,5 +187,7 @@ class _InstanceConnector(DictObject):
 
 
 # This is at the end to ensure that the built in proxies are loaded up properly
+# We also don't care that the import is unused
+# pylint: disable = W0611
 import slumber.connector.proxies
 
