@@ -34,3 +34,9 @@ class PizzaSizePrice(models.Model):
 
     class Meta:
         unique_together=[('price', 'size')]
+
+
+class Profile(models.Model):
+    user = models.ForeignKey('auth.User',
+        null=False, blank=False)
+

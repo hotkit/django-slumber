@@ -134,6 +134,8 @@ INSTALLED_APPS = (
     'slumber_test.no_models',
 )
 
+AUTH_PROFILE_MODULE = 'slumber_test.Profile'
+
 # Needed to get the Django nose test runner working
 TEST_RUNNER='django_nose.NoseTestSuiteRunner'
 

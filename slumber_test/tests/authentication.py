@@ -11,6 +11,7 @@ from slumber import client
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
 from slumber.test import mock_client
+from slumber_test.models import Profile
 from slumber_test.tests.configurations import ConfigureAuthnBackend, \
     PatchForAuthnService
 
@@ -118,6 +119,8 @@ class TestBackend(PatchForAuthnService, TestCase):
 
     def test_user_profile(self):
         user = self.backend.get_user(self.user.pk)
+        with self.assertRaises(Profile.DoesNotExist):
+            profile = user.get_profile()
 
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):

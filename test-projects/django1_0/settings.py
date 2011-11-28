@@ -87,3 +87,5 @@ INSTALLED_APPS = (
     'slumber_test.nested1.nested2',
     'slumber_test.no_models',
 )
+
+AUTH_PROFILE_MODULE = 'slumber_test.Profile'
