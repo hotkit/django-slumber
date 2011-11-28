@@ -230,9 +230,9 @@ class BasicViews(ViewTests):
         self.assertEquals(get_url, self.url('/slumber_test/Pizza/get/'))
         def check_query(query):
             response, json = self.do_get(get_url, query)
-            self.assertEquals(response.status_code, 302, response)
-            self.assertTrue(response['location'].endswith(
-                '/slumber_test/Pizza/data/%s/' % s.pk), response['location'])
+            self.assertEquals(response.status_code, 200, response)
+            self.assertTrue(json['identity'].endswith(
+                '/slumber_test/Pizza/data/%s/' % s.pk), response)
         check_query({'pk': s.pk})
         check_query({'id': s.pk})
         check_query({'name': s.name})

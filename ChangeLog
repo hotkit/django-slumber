@@ -1,3 +1,6 @@
+2011-11-28  Kirit Saelensminde  <kirit@felspar.com>
+ Changed the model `get` operation so that it returns the data directly without doing a redirect first thus saving a HTTP request.
+
 2011-11-02  Kirit Saelensminde  <kirit@felspar.com>
  Fixed a bug where the Django session would result in the wrong user, or a failed log in when the remote and local users had different primary key values.
 
