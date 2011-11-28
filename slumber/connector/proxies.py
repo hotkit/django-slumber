@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 
 from slumber._caches import MODEL_URL_TO_SLUMBER_MODEL
 from slumber.connector.instance import get_instance, INSTANCE_PROXIES
+from slumber.connector.model import get_model, MODEL_PROXIES
 from slumber.connector.ua import get, post
 
 
@@ -69,8 +70,7 @@ class UserInstanceProxy(object):
         # pylint: disable = E1101
         base_url = self._operations['get-profile']
         _, json = get(base_url)
-        model_url = urljoin(base_url, json['type'])
-        model = MODEL_URL_TO_SLUMBER_MODEL[model_url]
+        model = get_model(model_url)
         instance_url = urljoin(base_url, json['data'])
         return get_instance(model, instance_url, json['display'])
 
@@ -93,3 +93,6 @@ class UserModelProxy(object):
             remote_user = self(urljoin(self._url, json['user']['url']),
                 json['user']['display_name'])
             return attach_to_local_user(remote_user)
+
+MODEL_PROXIES['django/contrib/auth/User/'] = UserModelProxy
+
