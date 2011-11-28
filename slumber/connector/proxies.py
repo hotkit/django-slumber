@@ -5,6 +5,8 @@ from urlparse import urljoin
 
 from django.contrib.auth.models import User
 
+from slumber._caches import MODEL_URL_TO_SLUMBER_MODEL
+from slumber.connector.instance import get_instance, INSTANCE_PROXIES
 from slumber.connector.ua import get, post
 
 
@@ -69,8 +71,10 @@ class UserInstanceProxy(object):
         _, json = get(base_url)
         model_url = urljoin(base_url, json['type'])
         model = MODEL_URL_TO_SLUMBER_MODEL[model_url]
-        instance_url = urljoin(base_url, obj['data'])
-        return get_instance(model, instance_url, obj['display'])
+        instance_url = urljoin(base_url, json['data'])
+        return get_instance(model, instance_url, json['display'])
+
+INSTANCE_PROXIES['django/contrib/auth/User/'] = UserInstanceProxy
 
 
 class UserModelProxy(object):

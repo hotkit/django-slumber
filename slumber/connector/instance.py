@@ -8,11 +8,9 @@ from slumber._caches import CLIENT_INSTANCE_CACHE, \
 from slumber.connector.dictobject import DictObject
 from slumber.connector.ua import get
 from slumber.connector.json import from_json_data
-from slumber.connector.proxies import UserInstanceProxy
 
 
 INSTANCE_PROXIES = {
-        'django/contrib/auth/User/': UserInstanceProxy,
     }
 
 
@@ -117,3 +115,5 @@ class _InstanceConnector(DictObject):
             return _return_data_array(
                 self._url, json['data_arrays'], self, name)
 
+
+import slumber.connector.proxies
