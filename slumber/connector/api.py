@@ -184,3 +184,8 @@ class _InstanceConnector(DictObject):
         else:
             return _return_data_array(
                 self._url, json['data_arrays'], self, name)
+
+
+# This is at the end to ensure that the built in proxies are loaded up properly
+import slumber.connector.proxies
+
