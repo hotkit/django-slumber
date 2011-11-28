@@ -116,24 +116,8 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertFalse(self.backend.has_perm(user, 'not-a-perm'))
         self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))
 
-
-    @mock_client(
-        auth__django__contrib__auth__User = [
-            dict(username='admin', is_active=True, is_staff=True)],
-        auth__auth_auth__UserProfile = [
-            dict(full_name='admin profile', user__username='admin')
-        ]
-    )
     def test_user_profile(self):
-        admin = User(username='admin')
-        admin.save()
-
-        admin_profile = admin.profile
-        self.assertIsNotNone(admin_profile)
-
-        user_profile = self.user.profile
-        self.assertIsNone(user_profile)
-
+        user = self.backend.get_user(self.user.pk)
 
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):
