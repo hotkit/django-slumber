@@ -59,6 +59,14 @@ class UserInstanceProxy(object):
         _, json = get(self._operations['get-permissions'])
         return set(json['all_permissions'])
 
+    def get_profile(self):
+        """Forward access to the profile.
+        """
+        # We're accessing attributes that are providec by the  other types
+        # pylint: disable = E1101
+        _, json = get(self._operations['get_profile'])
+        raise NotImplementedError()
+
 
 class UserModelProxy(object):
     """Contains the model methods that need to be exposed within the client.
