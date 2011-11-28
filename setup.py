@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
     name = "django_slumber",
-    version = "0.4.3.9",
+    version = "0.4.4",
     author = "Kirit Saelensminde",
     author_email = "kirit@felspar.com",
     description = ("RESTful data connector for Django"),
