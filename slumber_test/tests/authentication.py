@@ -127,6 +127,8 @@ class TestBackend(PatchForAuthnService, TestCase):
         profile.save()
         user = self.backend.get_user(self.user.pk)
         remote_profile = user.get_profile()
+        self.assertEqual(remote_profile.id, profile.id)
+        self.assertEqual(remote_profile.user.id, self.user.id)
 
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):
