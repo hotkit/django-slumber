@@ -2,12 +2,15 @@
     Implements the user agent used to communicate with the Slumber
     servers.
 """
-from django.conf import settings
 from django.test.client import Client as FakeClient
 
 from httplib2 import Http
 from simplejson import loads
+from urllib import urlencode
 from urlparse import parse_qs
+
+
+from slumber.server import get_slumber_local_url_prefix
 
 
 _fake = FakeClient()
@@ -24,15 +27,24 @@ def _parse_qs(url):
     else:
         return url, {}
 
+def _use_fake(url):
+    """Return the local URL fragment if the request should use the Fake
+    HTTP client as it is local, otherwise return None
+    """
+    slumber_local = get_slumber_local_url_prefix()
+    if url.startswith(slumber_local):
+        return url[len(slumber_local) - 1:]
+    elif url.startswith('/'):
+        return url
+
 
 def get(url):
     """Perform a GET request against a Slumber server.
     """
     # Pylint gets confused by the fake HTTP client
     # pylint: disable=E1103
-    slumber_local = getattr(settings, 'SLUMBER_LOCAL', 'http://localhost:8000/')
-    if url.startswith(slumber_local):
-        url_fragment = url[len(slumber_local) - 1:]
+    url_fragment = _use_fake(url)
+    if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
         response = _fake.get(file_spec, query,
             HTTP_HOST='localhost:8000')
@@ -41,6 +53,22 @@ def get(url):
         assert response.status_code == 200, (url_fragment, response)
         content = response.content
     else:
-        response, content = _http.request(url)
+        response, content = Http().request(url)
+        assert response.status == 200, url
+    return response, loads(content)
+
+
+def post(url, data):
+    """Perform a POST request against a Slumber server.
+    """
+    url_fragment = _use_fake(url)
+    if url_fragment:
+        response = _fake.post(url_fragment, data, HTTP_HOST='localhost:8000')
+        assert response.status_code == 200, \
+            (url_fragment, response, response.content)
+        content = response.content
+    else:
+        body = urlencode(data)
+        response, content = _http.request(url, "POST", body=body)
         assert response.status == 200, url
     return response, loads(content)

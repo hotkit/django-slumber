@@ -1,2 +1,6 @@
 *.pyc
+coverage
 /test-projects/django1_3/.coverage
+.idea
+.DS_Store
+

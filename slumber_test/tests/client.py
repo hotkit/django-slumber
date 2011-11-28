@@ -1,11 +1,12 @@
+from mock import patch
+
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from slumber import client
 from slumber._caches import CLIENT_INSTANCE_CACHE
 from slumber.connector import Client, DictObject
 from slumber_test.models import Pizza, PizzaPrice, PizzaSizePrice
-
-from mock import patch
 
 
 class TestDirectoryURLs(TestCase):
@@ -15,6 +16,13 @@ class TestDirectoryURLs(TestCase):
 
     def test_get_default_url_with_default_client(self):
         self.assertEqual('http://localhost:8000/slumber/', client._directory)
+
+    def test_get_default_url_with_services(self):
+        with patch('slumber.server._get_slumber_directory', lambda: {
+                'pizzas': 'http://localhost:8001/slumber/pizzas/',
+                'takeaway': 'http://localhost:8002/slumber/'}):
+            client = Client()
+        self.assertIsNone(client._directory)
 
 
 class TestLoads(TestCase):
@@ -37,10 +45,6 @@ class TestLoads(TestCase):
                 pass
 
     def test_applications_with_dots_in_name(self):
-        """
-        dots (.) will be replaced with underscores (_) for some apps that may have dots in its name
-        (i.e. django.contrib.sites)
-        """
         client = Client()
         self.assertTrue(hasattr(client, 'django'), client.__dict__.keys())
         self.assertTrue(hasattr(client.django, 'contrib'), client.django.__dict__.keys())
@@ -70,9 +74,20 @@ class TestLoads(TestCase):
             pass
 
 
+class TestAuth(TestCase):
+    def setUp(self):
+        self.u = User(username='user')
+        self.u.save()
+
+    def test_has_attributes(self):
+        user = client.django.contrib.auth.User.get(pk=self.u.pk)
+        for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
+                'first_name', 'last_name', 'email', 'username']:
+            self.assertTrue(hasattr(user, attr), user.__dict__.keys())
+
+
 class TestsWithPizza(TestCase):
     def setUp(self):
-        client._flush_client_instance_cache()
         self.s = Pizza(name='S1', for_sale=True)
         self.s.save()
         self.pizza = client.slumber_test.Pizza.get(pk=self.s.pk)
@@ -143,16 +158,3 @@ class TestsWithPizza(TestCase):
     def test_pizza_not_found(self):
         with self.assertRaises(AssertionError):
             p2 = client.slumber_test.Pizza.get(pk=2)
-
-
-    def test_aliase_writes_are_visible(self):
-        m1 = client.slumber_test.Pizza.get(pk=1)
-        m2 = client.slumber_test.Pizza.get(pk=1)
-        self.assertEqual(m1.id, m2.id)
-        with self.assertRaises(AttributeError):
-            m1.attr
-        with self.assertRaises(AttributeError):
-            m2.attr
-        m1.attr = 'attribute data'
-        self.assertEqual(m1.attr, 'attribute data')
-        self.assertEqual(m1.attr, m2.attr)

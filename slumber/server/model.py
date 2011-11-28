@@ -6,14 +6,21 @@ from django.db.models.fields import FieldDoesNotExist
 
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.operations.authenticate import AuthenticateUser
-from slumber.operations.authorization import PermissionCheck
+from slumber.operations.authorization import PermissionCheck, \
+    ModulePermissions, GetPermissions
 from slumber.operations.create import CreateInstance
 from slumber.operations.delete import DeleteInstance
-from slumber.operations.instancedata import InstanceData, InstanceDataArray
+from slumber.operations.instancedata import InstanceData
 from slumber.operations.instancelist import InstanceList
 from slumber.operations.search import DereferenceInstance
 from slumber.operations.update import UpdateInstance
 from slumber.server import get_slumber_root
+
+
+class NotAnOperation(Exception):
+    """Thrown when an operation is looked for by name, but doesn't exist.
+    """
+    pass
 
 
 class DjangoModel(object):
@@ -80,10 +87,22 @@ class DjangoModel(object):
                 InstanceData(self, 'data'),
                 DeleteInstance(self, 'delete'),
                 DereferenceInstance(self, 'get'),
-                UpdateInstance(self, 'update')] + \
-            [InstanceDataArray(self, 'data', f) for f in self.data_arrays]
+                UpdateInstance(self, 'update')]
         extra_operations = []
         if self.path == 'django/contrib/auth/User/':
             extra_operations.append(AuthenticateUser(self, 'authenticate'))
             extra_operations.append(PermissionCheck(self, 'has-permission'))
+            extra_operations.append(GetPermissions(self, 'get-permissions'))
+            extra_operations.append(ModulePermissions(
+                self, 'module-permissions'))
         return base_operations + extra_operations
+
+    def operation_by_name(self, name):
+        """Return a given operation by name, or throw an exception.
+        """
+        ops = [o for o in self.operations() if o.name == name]
+        if len(ops) != 1:
+            raise NotAnOperation("Operation %s not found (options %s)" %
+                (name, ops))
+        else:
+            return ops[0]

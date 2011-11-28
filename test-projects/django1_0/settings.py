@@ -60,12 +60,11 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.load_template_source',
 )
 
-MIDDLEWARE_CLASSES = (
-    'slumber.connector.middleware.Cache',
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-)
+]
 
 ROOT_URLCONF = 'django1_0.urls'
 
@@ -84,5 +83,7 @@ INSTALLED_APPS = (
 
     # Slumber tests
     'slumber_test',
+    'slumber_test.nested1',
+    'slumber_test.nested1.nested2',
     'slumber_test.no_models',
 )

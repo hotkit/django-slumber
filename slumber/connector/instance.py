@@ -8,13 +8,24 @@ from slumber._caches import CLIENT_INSTANCE_CACHE, \
 from slumber.connector.dictobject import DictObject
 from slumber.connector.ua import get
 from slumber.connector.json import from_json_data
+from slumber.connector.proxies import UserInstanceProxy
+
+
+INSTANCE_PROXIES = {
+        'django/contrib/auth/User/': UserInstanceProxy,
+    }
 
 
 def get_instance(model, instance_url, display_name, **fields):
     """Return an instance of the specified model etc.
     """
-    instance_type = type(model.module + '.' + model.name,
-        (_InstanceProxy,), {})
+    bases = [_InstanceProxy]
+    for type_url, proxy in INSTANCE_PROXIES.items():
+        # We're going to allow ourselves access to _url within the library
+        # pylint: disable = W0212
+        if model._url.endswith(type_url):
+            bases.append(proxy)
+    instance_type = type(model.module + '.' + model.name, tuple(bases), {})
     return instance_type(instance_url, display_name, **fields)
 
 
@@ -27,35 +38,30 @@ class _InstanceProxy(object):
         self._url = url
         self._display = display
         self._fields = fields
-        self._instance = None
 
     def _fetch_instance(self):
         """Fetch the underlying instance.
         """
-        if not self._instance:
-            # Try to find it in the cache
-            self._instance = CLIENT_INSTANCE_CACHE.get(self._url, None)
-        if not self._instance:
+        instance = CLIENT_INSTANCE_CACHE.get(self._url, None)
+        if not instance:
             # We now have a cache miss so construct a new connector
-            self._instance = _InstanceConnector(
-                self._url, **self._fields)
+            instance = _InstanceConnector(self._url, **self._fields)
             if CLIENT_INSTANCE_CACHE.enabled:
-                CLIENT_INSTANCE_CACHE[self._url] = self._instance
+                CLIENT_INSTANCE_CACHE[self._url] = instance
+        return instance
 
     def __getattr__(self, name):
         """Fetch the underlying instance from the cache if necessary and
         return the attribute value it has.
         """
-        self._fetch_instance()
-        return getattr(self._instance, name)
+        return getattr(self._fetch_instance(), name)
 
     def __setattr__(self, name, value):
         """Write the attribute through to the underlying instance.
         """
         if name.startswith('_'):
             return super(_InstanceProxy, self).__setattr__(name, value)
-        self._fetch_instance()
-        return setattr(self._instance, name, value)
+        return setattr(self._fetch_instance(), name, value)
 
     def __unicode__(self):
         """Allow us to take the unicode name of the instance
@@ -97,8 +103,17 @@ class _InstanceConnector(DictObject):
 
     def __getattr__(self, name):
         _, json = get(self._url)
+        # We need to set this outside of __init__ for it to work correctly
+        # pylint: disable = W0201
+        self._operations = dict([(o, urljoin(self._url, u))
+            for o, u in json['operations'].items()])
         for k, v in json['fields'].items():
             setattr(self, k, from_json_data(self._url, v))
         if name in json['fields'].keys():
             return getattr(self, name)
-        return _return_data_array(self._url, json['data_arrays'], self, name)
+        elif name == '_operations':
+            return self._operations
+        else:
+            return _return_data_array(
+                self._url, json['data_arrays'], self, name)
+
