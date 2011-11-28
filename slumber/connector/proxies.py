@@ -22,6 +22,8 @@ def attach_to_local_user(remote_user):
             setattr(user, attr, v)
         user.save()
     user.remote_user = remote_user
+    # This lambda is necessary, but no idea why
+    # pylint: disable = W0108
     user.get_profile = lambda: remote_user.get_profile()
     return user
 
