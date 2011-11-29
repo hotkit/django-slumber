@@ -1,5 +1,6 @@
 2011-11-29  Kirit Saelensminde  <kirit@felspar.com>
  Added HTTP caching that can be controlled on a per-model basis.
+ The POST method in the connector user agent now also creates a new Http object for each request.
 
 2011-11-28  Kirit Saelensminde  <kirit@felspar.com>
  Changed the model `get` operation so that it returns the data directly without doing a redirect first thus saving a HTTP request.

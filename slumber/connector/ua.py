@@ -15,7 +15,6 @@ from slumber.server import get_slumber_local_url_prefix
 
 
 _fake = FakeClient()
-_http = Http()
 
 
 def _parse_qs(url):
@@ -81,6 +80,7 @@ def post(url, data):
         content = response.content
     else:
         body = urlencode(data)
-        response, content = _http.request(url, "POST", body=body)
+        response, content = Http().request(url, "POST", body=body)
         assert response.status == 200, url
     return response, loads(content)
+
