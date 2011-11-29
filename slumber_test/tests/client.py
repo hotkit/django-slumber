@@ -102,7 +102,7 @@ class TestsWithPizza(TestCase):
 
 
     def test_cache_ttl(self):
-        self.assertEqual(self.pizza.cache_ttl, 0)
+        self.assertEqual(self.pizza._CACHE_TTL, 0)
 
 
     def test_instance_data(self):

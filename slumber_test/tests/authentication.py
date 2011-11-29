@@ -53,7 +53,7 @@ class TestBackend(PatchForAuthnService, TestCase):
 
     def test_cache_ttl(self):
         user = self.backend.get_user(self.user.username, 'username')
-        self.assertEqual(user.remote_user.cache_ttl, 120)
+        self.assertEqual(user.remote_user._CACHE_TTL, 120)
 
     def test_group_permissions(self):
         user = self.backend.get_user(self.user.username, 'username')
