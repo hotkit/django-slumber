@@ -51,6 +51,10 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertEqual(user.is_staff, user.remote_user.is_staff)
         self.assertEqual(user.is_superuser, user.remote_user.is_superuser)
 
+    def test_cache_ttl(self):
+        user = self.backend.get_user(self.user.username, 'username')
+        self.assertEqual(user.remote_user.cache_ttl, 120)
+
     def test_group_permissions(self):
         user = self.backend.get_user(self.user.username, 'username')
         self.assertTrue(hasattr(user, 'remote_user'))

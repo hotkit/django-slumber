@@ -101,6 +101,10 @@ class TestsWithPizza(TestCase):
             pizza_type)
 
 
+    def test_cache_ttl(self):
+        self.assertEqual(self.pizza.cache_ttl, 0)
+
+
     def test_instance_data(self):
         self.assertEqual('S1', self.pizza.name)
         prices = self.pizza.prices
