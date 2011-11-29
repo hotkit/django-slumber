@@ -60,6 +60,8 @@ def get_instance_from_data(base_url, json):
 class ModelConnector(DictObject):
     """Handles the connection to a Django model.
     """
+    _CACHE_TTL = 0
+
     def __init__(self, url, **kwargs):
         _ensure_absolute(url)
         assert not MODEL_URL_TO_SLUMBER_MODEL.has_key(url), \
@@ -76,7 +78,7 @@ class ModelConnector(DictObject):
     def __getattr__(self, name):
         attrs = ['name', 'module']
         if name in attrs + ['_operations']:
-            _, json = get(self._url)
+            _, json = get(self._url, self._CACHE_TTL)
             # We need to set this outside of __init__ for it to work correctly
             # pylint: disable = W0201
             self._operations = dict([(o, urljoin(self._url, u))
@@ -93,7 +95,7 @@ class ModelConnector(DictObject):
         assert len(kwargs), \
             "You must supply kwargs to filter on to fetch the instance"
         url = urljoin(self._url, 'get/')
-        _, json = get(url + '?' + urlencode(kwargs))
+        _, json = get(url + '?' + urlencode(kwargs), self._CACHE_TTL)
         return get_instance_from_data(self._url, json)
 
 
@@ -137,14 +139,14 @@ class _InstanceProxy(object):
         return self._display
 
 
-def _return_data_array(base_url, arrays, instance, name):
+def _return_data_array(base_url, arrays, instance, name, cache_ttl):
     """Implement the lazy fetching of the instance data.
     """
     # Pylint makes a bad type deduction
     # pylint: disable=E1103
     if name in arrays.keys():
         data_array = []
-        _, data = get(urljoin(base_url, arrays[name]))
+        _, data = get(urljoin(base_url, arrays[name]), cache_ttl)
         while True:
             for obj in data['page']:
                 model_url = urljoin(base_url, obj['type'])
@@ -153,7 +155,7 @@ def _return_data_array(base_url, arrays, instance, name):
                 data_array.append(
                     get_instance(model, instance_url, obj['display']))
             if data.has_key('next_page'):
-                _, data = get(urljoin(base_url, data['next_page']))
+                _, data = get(urljoin(base_url, data['next_page']), cache_ttl)
             else:
                 break
         setattr(instance, name, data_array)
@@ -165,12 +167,14 @@ def _return_data_array(base_url, arrays, instance, name):
 class _InstanceConnector(DictObject):
     """Connects to a remote instance.
     """
+    _CACHE_TTL = 0
+
     def __init__(self, url, **kwargs):
         self._url = url
         super(_InstanceConnector, self).__init__(**kwargs)
 
     def __getattr__(self, name):
-        _, json = get(self._url)
+        _, json = get(self._url, self._CACHE_TTL)
         # We need to set this outside of __init__ for it to work correctly
         # pylint: disable = W0201
         self._operations = dict([(o, urljoin(self._url, u))
@@ -183,7 +187,7 @@ class _InstanceConnector(DictObject):
             return self._operations
         else:
             return _return_data_array(
-                self._url, json['data_arrays'], self, name)
+                self._url, json['data_arrays'], self, name, self._CACHE_TTL)
 
 
 # This is at the end to ensure that the built in proxies are loaded up properly
