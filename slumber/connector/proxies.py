@@ -31,6 +31,7 @@ def attach_to_local_user(remote_user):
 class UserInstanceProxy(object):
     """Proxy that allows forwarding of the User API.
     """
+    cache_ttl = 120
 
     def has_perm(self, permission):
         """Forward the permission check.
@@ -38,7 +39,8 @@ class UserInstanceProxy(object):
         # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
         _, json = get(
-            urljoin(self._operations['has-permission'], permission), 120)
+            urljoin(self._operations['has-permission'], permission),
+            self.cache_ttl)
         return json['is-allowed']
 
     def has_module_perms(self, module):
@@ -47,7 +49,8 @@ class UserInstanceProxy(object):
         # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
         _, json = get(
-            urljoin(self._operations['module-permissions'], module), 120)
+            urljoin(self._operations['module-permissions'], module),
+            self.cache_ttl)
         return json['has_module_perms']
 
     def get_group_permissions(self):
@@ -55,7 +58,7 @@ class UserInstanceProxy(object):
         """
         # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
-        _, json = get(self._operations['get-permissions'], 120)
+        _, json = get(self._operations['get-permissions'], self.cache_ttl)
         return set(json['group_permissions'])
 
     def get_all_permissions(self):
@@ -63,7 +66,7 @@ class UserInstanceProxy(object):
         """
         # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
-        _, json = get(self._operations['get-permissions'], 120)
+        _, json = get(self._operations['get-permissions'], self.cache_ttl)
         return set(json['all_permissions'])
 
     def get_profile(self):
@@ -72,7 +75,7 @@ class UserInstanceProxy(object):
         # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
         base_url = self._operations['get-profile']
-        _, json = get(base_url, 120)
+        _, json = get(base_url, self.cache_ttl)
         return get_instance_from_data(base_url, json)
 
 INSTANCE_PROXIES['django/contrib/auth/User/'] = UserInstanceProxy
@@ -81,6 +84,7 @@ INSTANCE_PROXIES['django/contrib/auth/User/'] = UserInstanceProxy
 class UserModelProxy(object):
     """Contains the model methods that need to be exposed within the client.
     """
+    cache_ttl = 120
 
     def authenticate(self, **kwargs):
         """Allow a forwarded request for authentication.
