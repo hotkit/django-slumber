@@ -31,7 +31,9 @@ def attach_to_local_user(remote_user):
 class UserInstanceProxy(object):
     """Proxy that allows forwarding of the User API.
     """
-    _CACHE_TTL = 120
+    def __init__(self, *a, **kw):
+        super(UserInstanceProxy, self).__init__(*a, **kw)
+        self._CACHE_TTL = 120
 
     def has_perm(self, permission):
         """Forward the permission check.
@@ -84,7 +86,9 @@ INSTANCE_PROXIES['django/contrib/auth/User/'] = UserInstanceProxy
 class UserModelProxy(object):
     """Contains the model methods that need to be exposed within the client.
     """
-    _CACHE_TTL = 120
+    def __init__(self, *a, **kw):
+        super(UserModelProxy, self).__init__(*a, **kw)
+        self._CACHE_TTL = 120
 
     def authenticate(self, **kwargs):
         """Allow a forwarded request for authentication.

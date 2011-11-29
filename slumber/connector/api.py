@@ -105,6 +105,7 @@ class _InstanceProxy(object):
     better handle the cache.
     """
     def __init__(self, url, display, fields = None):
+        super(_InstanceProxy, self).__init__()
         self._url = url
         self._display = display
         self._fields = fields or {}
