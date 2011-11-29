@@ -66,6 +66,7 @@ def get(url, ttl = 0):
                 cache.set(cache_key, (response, content), ttl)
         else:
             response, content = cached
+            response.from_cache = True
     return response, loads(content)
 
 

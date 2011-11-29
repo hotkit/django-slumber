@@ -1,3 +1,4 @@
+from httplib2 import ServerNotFoundError
 from mock import Mock, patch
 from unittest2 import TestCase
 
@@ -112,3 +113,15 @@ class TestGet(TestCase):
             get(self.cache_url, 2)
         with patch('slumber.connector.ua.Http.request', self.fail):
             get(self.cache_url, 2)
+
+    def test_cache(self):
+        try:
+            r1, j1 = get('http://urquell-fn.appspot.com/?__=', 2)
+            r2, j2 = get('http://urquell-fn.appspot.com/?__=', 2)
+            self.assertFalse(hasattr(r1, 'from_cache'))
+            self.assertTrue(hasattr(r2, 'from_cache'))
+            self.assertTrue(r2.from_cache)
+        except ServerNotFoundError:
+            # If we get a server error then we presume that there is no good
+            # Internet connection and don't fail the test
+            pass
