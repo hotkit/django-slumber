@@ -37,7 +37,8 @@ class UserInstanceProxy(object):
         """
         # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
-        _, json = get(urljoin(self._operations['has-permission'], permission))
+        _, json = get(
+            urljoin(self._operations['has-permission'], permission), 120)
         return json['is-allowed']
 
     def has_module_perms(self, module):
@@ -45,7 +46,8 @@ class UserInstanceProxy(object):
         """
         # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
-        _, json = get(urljoin(self._operations['module-permissions'], module))
+        _, json = get(
+            urljoin(self._operations['module-permissions'], module), 120)
         return json['has_module_perms']
 
     def get_group_permissions(self):
@@ -53,7 +55,7 @@ class UserInstanceProxy(object):
         """
         # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
-        _, json = get(self._operations['get-permissions'])
+        _, json = get(self._operations['get-permissions'], 120)
         return set(json['group_permissions'])
 
     def get_all_permissions(self):
@@ -61,7 +63,7 @@ class UserInstanceProxy(object):
         """
         # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
-        _, json = get(self._operations['get-permissions'])
+        _, json = get(self._operations['get-permissions'], 120)
         return set(json['all_permissions'])
 
     def get_profile(self):
@@ -70,7 +72,7 @@ class UserInstanceProxy(object):
         # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
         base_url = self._operations['get-profile']
-        _, json = get(base_url)
+        _, json = get(base_url, 120)
         return get_instance_from_data(base_url, json)
 
 INSTANCE_PROXIES['django/contrib/auth/User/'] = UserInstanceProxy
