@@ -167,7 +167,26 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
 
     @mock_client(
         auth__django__contrib__auth__User = [
-            dict(username='admin', is_active=True, is_staff=True)],
+            dict(username='testuser', is_active=True, is_staff=False,
+                date_joined=datetime.now(), is_superuser=False,
+                    first_name='Test', last_name='User',
+                    email='test@example.com')],
+    )
+    def test_created_user_sees_changes(self):
+        self.client.get('/', HTTP_X_FOST_USER='testuser')
+        remote_user = client.auth.django.contrib.auth.User.get(
+            username='testuser')
+        remote_user.is_staff = True
+        with patch('slumber_test.views._ok_text', self.save_user):
+            self.client.get('/', HTTP_X_FOST_USER='testuser')
+        self.assertTrue(self.user.is_staff)
+
+    @mock_client(
+        auth__django__contrib__auth__User = [
+            dict(username='admin', is_active=True, is_staff=True,
+                date_joined=datetime.now(), is_superuser=False,
+                    first_name='Test', last_name='User',
+                    email='test@example.com')],
     )
     def test_admin_is_authenticated(self):
         admin = User(username='admin')

@@ -13,14 +13,12 @@ from slumber.connector.ua import get, post
 def attach_to_local_user(remote_user):
     """Return the local user with the remote user object attached to it.
     """
-    user, created = User.objects.get_or_create(
-        username=remote_user.username)
-    if created:
-        for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
-                'first_name', 'last_name', 'email']:
-            v = getattr(remote_user, attr)
-            setattr(user, attr, v)
-        user.save()
+    user, _ = User.objects.get_or_create(username=remote_user.username)
+    for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
+            'first_name', 'last_name', 'email']:
+        v = getattr(remote_user, attr)
+        setattr(user, attr, v)
+    user.save()
     user.remote_user = remote_user
     # This lambda is necessary, but no idea why
     # pylint: disable = W0108
