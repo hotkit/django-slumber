@@ -2,7 +2,12 @@ Slumber is a RESTful data connector that can be used to make proper RESTful data
 
 To install Slumber use:
 
+    pip install django_slumber
+
+To install the current development version use:
+
     pip install  git+git://github.com/KayEss/django-slumber.git
+
 
 # Using Slumber #
 

@@ -7,9 +7,10 @@ def read(fname):
 
 setup(
     name = "django_slumber",
-    version = "0.4.5",
+    version = "0.4.5.1",
     author = "Kirit Saelensminde",
     author_email = "kirit@felspar.com",
+    url='https://github.com/KayEss/django-slumber',
     description = ("RESTful data connector for Django"),
     license = "Boost Software License - Version 1.0 - August 17th, 2003",
     keywords = "django rest data server client",
@@ -19,8 +20,6 @@ setup(
             'slumber_test.nested1', 'slumber_test.nested1.nested2'],
     long_description = read('README.markdown'),
     install_requires = ['simplejson', 'httplib2'],
-    dependency_links = [
-        'git://github.com/Felspar/django-fost-authn.git'],
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Framework :: Django",
