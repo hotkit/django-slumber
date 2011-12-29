@@ -2,6 +2,7 @@
     Implements the user agent used to communicate with the Slumber
     servers.
 """
+from django.core.cache import cache
 from django.test.client import Client as FakeClient
 
 from httplib2 import Http
@@ -14,7 +15,6 @@ from slumber.server import get_slumber_local_url_prefix
 
 
 _fake = FakeClient()
-_http = Http()
 
 
 def _parse_qs(url):
@@ -38,7 +38,7 @@ def _use_fake(url):
         return url
 
 
-def get(url):
+def get(url, ttl = 0):
     """Perform a GET request against a Slumber server.
     """
     # Pylint gets confused by the fake HTTP client
@@ -53,8 +53,19 @@ def get(url):
         assert response.status_code == 200, (url_fragment, response)
         content = response.content
     else:
-        response, content = Http().request(url)
-        assert response.status == 200, url
+        cache_key = 'slumber.connector.ua.get.%s' % url
+        cached = cache.get(cache_key)
+        if not cached:
+            for _ in range(0, 3):
+                response, content = Http().request(url)
+                if response.status == 200:
+                    break
+            assert response.status == 200, url
+            if ttl:
+                cache.set(cache_key, (response, content), ttl)
+        else:
+            response, content = cached
+            response.from_cache = True
     return response, loads(content)
 
 
@@ -69,6 +80,7 @@ def post(url, data):
         content = response.content
     else:
         body = urlencode(data)
-        response, content = _http.request(url, "POST", body=body)
+        response, content = Http().request(url, "POST", body=body)
         assert response.status == 200, url
     return response, loads(content)
+

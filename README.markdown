@@ -102,6 +102,17 @@ To use this as the `auth` service from elsewhere we would now need to give the a
     }
 
 
+## Caching of requests ##
+
+Slumber includes some simple HTTP request caching within the client connector. By default this caching is turned off for all models. It can be enabled on a per model basis by adding proxies for the models and in the instances and including a `_CACHE_TTL` attribute. This will cache the GET responses for the number of seconds specified in the time-to-live.
+
+If you include your own GET requests to the user agent in a proxy then you should remember to pass the cache TTL value:
+
+    ua.get(url, self._CACHE_TTL)
+
+See the file `slumber/connector/proxies.py` for examples on the User object.
+
+
 # Doing development #
 
 _This project uses git flow. Don't forget to do `git flow init`_ (use defaults for all options).

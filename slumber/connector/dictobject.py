@@ -10,6 +10,7 @@ class DictObject(object):
     def __init__(self, **kwargs):
         """Load the specified key values.
         """
+        super(DictObject, self).__init__()
         proc = lambda value: DictObject(**value) \
             if hasattr(value, 'items') else value
         for key, value in kwargs.items():

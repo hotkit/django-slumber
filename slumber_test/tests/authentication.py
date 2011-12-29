@@ -11,6 +11,7 @@ from slumber import client
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
 from slumber.test import mock_client
+from slumber_test.models import Profile
 from slumber_test.tests.configurations import ConfigureAuthnBackend, \
     PatchForAuthnService
 
@@ -49,6 +50,10 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertEqual(user.is_active, user.remote_user.is_active)
         self.assertEqual(user.is_staff, user.remote_user.is_staff)
         self.assertEqual(user.is_superuser, user.remote_user.is_superuser)
+
+    def test_cache_ttl(self):
+        user = self.backend.get_user(self.user.username, 'username')
+        self.assertEqual(user.remote_user._CACHE_TTL, 120)
 
     def test_group_permissions(self):
         user = self.backend.get_user(self.user.username, 'username')
@@ -116,24 +121,18 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertFalse(self.backend.has_perm(user, 'not-a-perm'))
         self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))
 
+    def test_user_profile_when_no_profile(self):
+        user = self.backend.get_user(self.user.pk)
+        with self.assertRaises(AssertionError):
+            profile = user.get_profile()
 
-    @mock_client(
-        auth__django__contrib__auth__User = [
-            dict(username='admin', is_active=True, is_staff=True)],
-        auth__auth_auth__UserProfile = [
-            dict(full_name='admin profile', user__username='admin')
-        ]
-    )
-    def test_user_profile(self):
-        admin = User(username='admin')
-        admin.save()
-
-        admin_profile = admin.profile
-        self.assertIsNotNone(admin_profile)
-
-        user_profile = self.user.profile
-        self.assertIsNone(user_profile)
-
+    def test_user_profile_when_there_is_a_profile(self):
+        profile = Profile(user=self.user)
+        profile.save()
+        user = self.backend.get_user(self.user.pk)
+        remote_profile = user.get_profile()
+        self.assertEqual(remote_profile.id, profile.id)
+        self.assertEqual(remote_profile.user.id, self.user.id)
 
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):
@@ -168,7 +167,26 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
 
     @mock_client(
         auth__django__contrib__auth__User = [
-            dict(username='admin', is_active=True, is_staff=True)],
+            dict(username='testuser', is_active=True, is_staff=False,
+                date_joined=datetime.now(), is_superuser=False,
+                    first_name='Test', last_name='User',
+                    email='test@example.com')],
+    )
+    def test_created_user_sees_changes(self):
+        self.client.get('/', HTTP_X_FOST_USER='testuser')
+        remote_user = client.auth.django.contrib.auth.User.get(
+            username='testuser')
+        remote_user.is_staff = True
+        with patch('slumber_test.views._ok_text', self.save_user):
+            self.client.get('/', HTTP_X_FOST_USER='testuser')
+        self.assertTrue(self.user.is_staff)
+
+    @mock_client(
+        auth__django__contrib__auth__User = [
+            dict(username='admin', is_active=True, is_staff=True,
+                date_joined=datetime.now(), is_superuser=False,
+                    first_name='Test', last_name='User',
+                    email='test@example.com')],
     )
     def test_admin_is_authenticated(self):
         admin = User(username='admin')

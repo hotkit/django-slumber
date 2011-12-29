@@ -7,45 +7,52 @@ from slumber.server import get_slumber_root
 from slumber.server.json import to_json_data
 
 
+def instance_data(into, model, instance):
+    """Fill in the dict `into` with information about the instance of the
+    specified model.
+    """
+    root = get_slumber_root()
+    into['type'] = root + model.path
+    into['identity'] = root + model.path + \
+        '%s/%s/' % ('data', instance.pk)
+    into['display'] = unicode(instance)
+    into['operations'] = dict(
+        [(op.name, root + op.path + '%s/' % instance.pk)
+            for op in model.operations() if not op.model_operation])
+    into['fields'] = {}
+    for field, meta in model.fields.items():
+        into['fields'][field] = dict(
+            data=to_json_data(model, instance, field, meta),
+            kind=meta['kind'], type=meta['type'])
+    into['data_arrays'] = {}
+    for field in model.data_arrays:
+        into['data_arrays'][field] = \
+            into['identity'] + '%s/' % field
+
+
 class InstanceData(InstanceOperation):
     """Return the instance data.
     """
     def get(self, request, response, _appname, _modelname, pk, dataset = None):
         """Implement the fetching of attribute data for an instance.
         """
+        instance = self.model.model.objects.get(pk=pk)
         if dataset:
-            self._get_dataset(request, response, pk, dataset)
+            self._get_dataset(request, response, instance, dataset)
         else:
-            self._get_instance_data(response, pk)
+            self._get_instance_data(response, instance)
 
-    def _get_instance_data(self, response, pk):
+    def _get_instance_data(self, response, instance):
         """Return the base field data for the instance.
         """
-        root = get_slumber_root()
-        instance = self.model.model.objects.get(pk=pk)
-        response['identity'] = root + self.model.path + \
-            '%s/%s/' % (self.name, instance.pk)
-        response['display'] = unicode(instance)
-        response['operations'] = dict(
-            [(op.name, root + op.path + '%s/' % instance.pk)
-                for op in self.model.operations() if not op.model_operation])
-        response['fields'] = {}
-        for field, meta in self.model.fields.items():
-            response['fields'][field] = dict(
-                data=to_json_data(self.model, instance, field, meta),
-                kind=meta['kind'], type=meta['type'])
-        response['data_arrays'] = {}
-        for field in self.model.data_arrays:
-            response['data_arrays'][field] = \
-                response['identity'] + '%s/' % field
+        return instance_data(response, self.model, instance)
 
-    def _get_dataset(self, request, response, pk, dataset):
+    def _get_dataset(self, request, response, instance, dataset):
         """Return one page of the array data.
         """
         root = get_slumber_root()
-        instance = self.model.model.objects.get(pk=pk)
         response['instance'] = root + self.model.path + '%s/%s/%s/' % (
-            self.name, str(pk), dataset)
+            self.name, str(instance.pk), dataset)
 
         try:
             query = getattr(instance, dataset + '_set')

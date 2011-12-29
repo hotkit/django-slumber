@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
     name = "django_slumber",
-    version = "0.4.4",
+    version = "0.4.5",
     author = "Kirit Saelensminde",
     author_email = "kirit@felspar.com",
     description = ("RESTful data connector for Django"),
@@ -27,6 +27,6 @@ setup(
         "Intended Audience :: Developers",
         "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Python Modules",
-        "License :: OSI Approved :: Boost Software License - Version 1.0 - August 17th, 2003",
+        "License :: OSI Approved",
     ],
 )
