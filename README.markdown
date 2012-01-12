@@ -118,6 +118,19 @@ If you include your own GET requests to the user agent in a proxy then you shoul
 See the file `slumber/connector/proxies.py` for examples on the User object.
 
 
+## Customising Slumber data ##
+
+When Slumber loads the applications you have defined in your `settings.py` it will also try to load a module called `slumber` from the same place as your models. This can be used to customise how models appear on the Slumber server.
+
+    from models import Shop
+    from slumber import configure
+
+    configure(Shop,
+        properties_ro = ['web_site'])
+
+This will make a new read-only property `web_site` available in the data about instances populated from the `web_site` property on that model.
+
+
 # Doing development #
 
 _This project uses git flow. Don't forget to do `git flow init`_ (use defaults for all options).

@@ -13,7 +13,10 @@ def applications():
     if APP_FROM_APPNAME:
         return APP_FROM_APPNAME.values()
     else:
-        return [get_application(app) for app in settings.INSTALLED_APPS]
+        apps = [get_application(app) for app in settings.INSTALLED_APPS]
+        for app in apps:
+            __import__(app.name, globals(), locals(), ['slumber_config'])
+        return apps
 
 def get_application(app_name):
     """Build a Django application wrapper around an application given
