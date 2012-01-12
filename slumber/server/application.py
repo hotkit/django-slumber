@@ -10,8 +10,7 @@ class DjangoApp(object):
     def __init__(self, appname):
         self.name = appname
         self.path = appname.replace('.', '/')
-        self.module = __import__(appname, globals(), locals(),
-            ['models', 'slumber_config'])
+        self.module = __import__(appname, globals(), locals(), ['models'])
         self.models = {}
         if hasattr(self.module, 'models'):
             for name in self.module.models.__dict__.keys():
