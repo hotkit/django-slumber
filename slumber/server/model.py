@@ -74,7 +74,10 @@ class DjangoModel(object):
                     verbose_name=definition.verbose_name)
         for prop in self.properties['r']:
             fields[prop] = dict(
-                name=prop, kind='property', readonly=True)
+                name=prop,
+                kind='property',
+                type='.'.join([self.app.name, self.name, prop]),
+                readonly=True)
         return fields
 
     @property
