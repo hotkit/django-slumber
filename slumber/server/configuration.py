@@ -1,5 +1,5 @@
 """
-    Implements configuration of the Slumber models available on the server..
+    Implements configuration of the Slumber models available on the server.
 """
 
 
