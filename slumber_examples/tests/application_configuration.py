@@ -30,3 +30,6 @@ class TestSlumberConfiguration(TestCase):
             'http://www.example.com/test/')
         rshop = client.slumber_examples.Shop.get(pk=shop.pk)
         self.assertEquals(rshop.slug, 'test')
+        self.assertEquals(rshop.web_address,
+            'http://www.example.com/test/')
+
