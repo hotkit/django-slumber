@@ -132,7 +132,6 @@ INSTALLED_APPS = (
     'slumber_examples.nested1',
     'slumber_examples.nested1.nested2',
     'slumber_examples.no_models',
-    'shop',
 )
 
 AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
