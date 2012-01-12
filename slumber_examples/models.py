@@ -7,7 +7,7 @@ class Shop(models.Model):
 
     @property
     def web_address(self):
-        return 'http://www.example.com/%s' % self.slug
+        return 'http://www.example.com/%s/' % self.slug
 
 
 class Pizza(models.Model):
