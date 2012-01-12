@@ -128,14 +128,13 @@ INSTALLED_APPS = (
     'django_nose',
 
     # Slumber test applications
-    'slumber_test',
-    'slumber_test.nested1',
-    'slumber_test.nested1.nested2',
-    'slumber_test.no_models',
-    'shop',
+    'slumber_examples',
+    'slumber_examples.nested1',
+    'slumber_examples.nested1.nested2',
+    'slumber_examples.no_models',
 )
 
-AUTH_PROFILE_MODULE = 'slumber_test.Profile'
+AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
 
 # Needed to get the Django nose test runner working
 TEST_RUNNER='django_nose.NoseTestSuiteRunner'
@@ -144,7 +143,7 @@ NOSE_ARGS = [
     '--with-coverage',
     '--cover-erase',
     '--cover-branches',
-    '--cover-package=slumber,slumber_test',
+    '--cover-package=slumber,slumber_examples',
     '--cover-html', '--cover-html-dir=../../coverage',
 ]
 

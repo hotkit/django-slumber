@@ -16,8 +16,8 @@ setup(
     keywords = "django rest data server client",
     packages = [
         'slumber', 'slumber.connector', 'slumber.operations', 'slumber.server',
-        'slumber_test', 'slumber_test.no_models', 'slumber_test.tests',
-            'slumber_test.nested1', 'slumber_test.nested1.nested2'],
+        'slumber_examples', 'slumber_examples.no_models', 'slumber_examples.tests',
+            'slumber_examples.nested1', 'slumber_examples.nested1.nested2'],
     long_description = read('README.markdown'),
     install_requires = ['simplejson', 'httplib2'],
     classifiers = [

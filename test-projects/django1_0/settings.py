@@ -82,11 +82,10 @@ INSTALLED_APPS = (
     'django.contrib.sites',
 
     # Slumber tests
-    'slumber_test',
-    'slumber_test.nested1',
-    'slumber_test.nested1.nested2',
-    'slumber_test.no_models',
-    'shop',
+    'slumber_examples',
+    'slumber_examples.nested1',
+    'slumber_examples.nested1.nested2',
+    'slumber_examples.no_models',
 )
 
-AUTH_PROFILE_MODULE = 'slumber_test.Profile'
+AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
