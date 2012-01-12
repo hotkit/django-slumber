@@ -88,12 +88,12 @@ class TestViews(django.test.TestCase):
         self.client.get('/')
 
     @mock_client()
-    @mock.patch('slumber_test.views.ok_text')
+    @mock.patch('slumber_examples.views.ok_text')
     def test_mocked_then_patched(self, ok_text_patch):
         ok_text_patch.return_value = HttpResponse('patched')
         self.client.get('/')
 
-    @mock.patch('slumber_test.views.ok_text')
+    @mock.patch('slumber_examples.views.ok_text')
     @mock_client()
     def test_patched_then_mocked(self, ok_text_patch):
         ok_text_patch.return_value = HttpResponse('patched')

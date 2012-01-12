@@ -4,7 +4,7 @@ from django.test import TestCase
 from slumber import client
 from slumber.connector.middleware import Cache
 
-from slumber_test.tests.client import TestsWithPizza
+from slumber_examples.tests.client import TestsWithPizza
 
 from mock import patch
 
@@ -16,10 +16,10 @@ class _FailingMiddleware:
 class TestAddMiddleware(TestCase):
     def setUp(self):
         settings.MIDDLEWARE_CLASSES.append(
-            'slumber_test.tests.middleware._FailingMiddleware')
+            'slumber_examples.tests.middleware._FailingMiddleware')
     def tearDown(self):
         settings.MIDDLEWARE_CLASSES.remove(
-            'slumber_test.tests.middleware._FailingMiddleware')
+            'slumber_examples.tests.middleware._FailingMiddleware')
 
     def test_middleware_fails(self):
         with self.assertRaises(AssertionError):
@@ -38,8 +38,8 @@ class TestMiddleware(TestsWithPizza):
 
 
     def test_alias_writes_are_visible(self):
-        m1 = client.slumber_test.Pizza.get(pk=1)
-        m2 = client.slumber_test.Pizza.get(pk=1)
+        m1 = client.slumber_examples.Pizza.get(pk=1)
+        m2 = client.slumber_examples.Pizza.get(pk=1)
         self.assertEqual(m1.id, m2.id)
         with self.assertRaises(AttributeError):
             m1.attr

@@ -6,7 +6,7 @@ from django.test import TestCase
 from slumber import client
 from slumber._caches import CLIENT_INSTANCE_CACHE
 from slumber.connector import Client, DictObject
-from slumber_test.models import Pizza, PizzaPrice, PizzaSizePrice
+from slumber_examples.models import Pizza, PizzaPrice, PizzaSizePrice
 
 
 class TestDirectoryURLs(TestCase):
@@ -29,7 +29,7 @@ class TestLoads(TestCase):
 
     def test_applications_local(self):
         client = Client('http://localhost:8000/slumber')
-        self.assertTrue(hasattr(client, 'slumber_test'))
+        self.assertTrue(hasattr(client, 'slumber_examples'))
 
     def test_applications_remote(self):
         def request(k, u):
@@ -65,10 +65,10 @@ class TestLoads(TestCase):
             pass
 
     def test_module_attributes(self):
-        self.assertTrue(client.slumber_test.Pizza.module, 'slumber_test')
-        self.assertTrue(client.slumber_test.Pizza.name, 'Pizza')
+        self.assertTrue(client.slumber_examples.Pizza.module, 'slumber_examples')
+        self.assertTrue(client.slumber_examples.Pizza.name, 'Pizza')
         try:
-            client.slumber_test.Pizza.not_a_module_attr
+            client.slumber_examples.Pizza.not_a_module_attr
             self.fail("This should have thrown an attribute error")
         except AttributeError:
             pass
@@ -90,14 +90,14 @@ class TestsWithPizza(TestCase):
     def setUp(self):
         self.s = Pizza(name='S1', for_sale=True)
         self.s.save()
-        self.pizza = client.slumber_test.Pizza.get(pk=self.s.pk)
+        self.pizza = client.slumber_examples.Pizza.get(pk=self.s.pk)
 
 
     def test_instance_type(self):
         self.assertEqual(self.s.pk, self.pizza.id)
-        self.assertEqual(type(self.pizza).__name__, 'slumber_test.Pizza')
+        self.assertEqual(type(self.pizza).__name__, 'slumber_examples.Pizza')
         pizza_type = str(type(self.pizza))
-        self.assertTrue(pizza_type.endswith("slumber_test.Pizza'>"),
+        self.assertTrue(pizza_type.endswith("slumber_examples.Pizza'>"),
             pizza_type)
 
 
@@ -127,7 +127,7 @@ class TestsWithPizza(TestCase):
         self.assertEquals(unicode(first_price), "PizzaPrice object")
         self.assertEquals(first_price.pizza.for_sale, True)
         first_price_type = str(type(first_price))
-        self.assertTrue(first_price_type.endswith("slumber_test.PizzaPrice'>"),
+        self.assertTrue(first_price_type.endswith("slumber_examples.PizzaPrice'>"),
             first_price_type)
 
 
@@ -146,7 +146,7 @@ class TestsWithPizza(TestCase):
 
     def test_instance_no_pk(self):
         with self.assertRaises(AssertionError):
-            pizza = client.slumber_test.Pizza.get()
+            pizza = client.slumber_examples.Pizza.get()
 
 
     def test_2nd_pizza_comes_from_cache(self):
@@ -155,10 +155,10 @@ class TestsWithPizza(TestCase):
         # Make a 2nd alias to the same object
         fail = lambda *a, **f: self.fail("_InstanceConnector.__init__ called again %s, %s" % (a, f))
         with patch('slumber.connector.api._InstanceConnector.__init__', fail):
-            pizza2 = client.slumber_test.Pizza.get(pk=self.s.pk)
+            pizza2 = client.slumber_examples.Pizza.get(pk=self.s.pk)
             self.assertEqual(unicode(pizza2), u"S1")
 
 
     def test_pizza_not_found(self):
         with self.assertRaises(AssertionError):
-            p2 = client.slumber_test.Pizza.get(pk=2)
+            p2 = client.slumber_examples.Pizza.get(pk=2)
