@@ -72,6 +72,9 @@ class DjangoModel(object):
                 fields[field] = dict(name=field,
                     kind='value', type=type_name,
                     verbose_name=definition.verbose_name)
+        for prop in self.properties['r']:
+            fields[prop] = dict(
+                name=prop, kind='property', readonly=True)
         return fields
 
     @property

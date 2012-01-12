@@ -13,4 +13,4 @@ def configure(django_model,
     """
     model = DJANGO_MODEL_TO_SLUMBER_MODEL[django_model]
 
-    model.properties['r'].append(properties_ro or [])
+    model.properties['r'] += properties_ro or []
