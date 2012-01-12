@@ -22,9 +22,9 @@ class TestJSON(TestCase):
 
 class InternalAPIs(TestCase):
     def test_get_application(self):
-        app = get_application('slumber_test')
-        self.assertEqual(app.name, 'slumber_test')
-        self.assertEqual(app.path, 'slumber_test')
+        app = get_application('slumber_examples')
+        self.assertEqual(app.name, 'slumber_examples')
+        self.assertEqual(app.path, 'slumber_examples')
 
     def test_slumber_services_none(self):
         directory = get_slumber_services()

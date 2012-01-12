@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from slumber import client
 from slumber.connector.proxies import UserInstanceProxy
-from slumber_test.tests.configurations import PatchForAuthnService
+from slumber_examples.tests.configurations import PatchForAuthnService
 
 
 class UserProxyTests(PatchForAuthnService, TestCase):
@@ -14,10 +14,10 @@ class UserProxyTests(PatchForAuthnService, TestCase):
         self.assertIn(UserInstanceProxy, type(self.proxy_user).__mro__)
 
     def test_has_perm(self):
-        self.assertFalse(self.proxy_user.has_perm('slumber_test.not-a-permission'))
+        self.assertFalse(self.proxy_user.has_perm('slumber_examples.not-a-permission'))
 
     def test_user_has_module_permission(self):
-        self.assertFalse(self.proxy_user.has_module_perms('slumber_test'))
+        self.assertFalse(self.proxy_user.has_module_perms('slumber_examples'))
 
     def test_user_get_group_permissions(self):
         perms = self.proxy_user.get_group_permissions()
