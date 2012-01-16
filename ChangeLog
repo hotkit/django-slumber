@@ -1,5 +1,6 @@
 2012-01-16  Kirit Saelensminde  <kirit@felspar.com>
  The server side conversion to JSON compatible Python objects now includes the request so that, for example, URIs can be handled correctly.
+ The Slumber configuration now also allows us to add in JSON transform functions for specific types for when property values are processed.
 
 2012-01-12  Kirit Saelensminde  <kirit@felspar.com>
  Renamed the slumber_test folder to slumber_examples.
