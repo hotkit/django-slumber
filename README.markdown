@@ -6,7 +6,7 @@ To install Slumber use:
 
 To install the current development version use:
 
-    pip install  git+git://github.com/KayEss/django-slumber.git
+    pip install  git+git://github.com/KayEss/django-slumber.git@develop
 
 
 # Using Slumber #
