@@ -12,13 +12,13 @@ class GetProfile(InstanceOperation):
     """Fetches the user proflle from the auth remote server.
     """
 
-    def get(self, _request, response, _appname, _modelname, pk):
+    def get(self, request, response, _appname, _modelname, pk):
         """Implements the profile lookup.
         """
         try:
             user = self.model.model.objects.get(pk=pk)
             profile = user.get_profile()
-            instance_data(response,
+            instance_data(request, response,
                 DJANGO_MODEL_TO_SLUMBER_MODEL[type(profile)],
                 profile)
         except ObjectDoesNotExist:

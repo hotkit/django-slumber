@@ -7,7 +7,7 @@ from slumber.server import get_slumber_root
 from slumber.server.json import to_json_data
 
 
-def instance_data(into, model, instance):
+def instance_data(request, into, model, instance):
     """Fill in the dict `into` with information about the instance of the
     specified model.
     """
@@ -22,7 +22,7 @@ def instance_data(into, model, instance):
     into['fields'] = {}
     for field, meta in model.fields.items():
         into['fields'][field] = dict(
-            data=to_json_data(model, instance, field, meta),
+            data=to_json_data(request, model, instance, field, meta),
             kind=meta['kind'], type=meta['type'])
     into['data_arrays'] = {}
     for field in model.data_arrays:
@@ -40,12 +40,12 @@ class InstanceData(InstanceOperation):
         if dataset:
             self._get_dataset(request, response, instance, dataset)
         else:
-            self._get_instance_data(response, instance)
+            self._get_instance_data(request, response, instance)
 
-    def _get_instance_data(self, response, instance):
+    def _get_instance_data(self, request, response, instance):
         """Return the base field data for the instance.
         """
-        return instance_data(response, self.model, instance)
+        return instance_data(request, response, self.model, instance)
 
     def _get_dataset(self, request, response, instance, dataset):
         """Return one page of the array data.
