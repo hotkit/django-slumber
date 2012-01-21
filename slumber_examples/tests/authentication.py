@@ -11,8 +11,8 @@ from slumber import client
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
 from slumber.test import mock_client
-from slumber_test.models import Profile
-from slumber_test.tests.configurations import ConfigureAuthnBackend, \
+from slumber_examples.models import Profile
+from slumber_examples.tests.configurations import ConfigureAuthnBackend, \
     PatchForAuthnService
 
 
@@ -70,38 +70,38 @@ class TestBackend(PatchForAuthnService, TestCase):
     def test_module_perms(self):
         user = self.backend.get_user(self.user.username, 'username')
         self.assertTrue(hasattr(user, 'remote_user'))
-        self.assertFalse(self.backend.has_module_perms(user, 'slumber_test'))
+        self.assertFalse(self.backend.has_module_perms(user, 'slumber_examples'))
 
     def test_existing_permission(self):
         self.assertTrue(bool(ContentType.objects.all().count()))
         content_type = ContentType.objects.get(
-            app_label='slumber_test', model='pizza')
+            app_label='slumber_examples', model='pizza')
         permission = Permission.objects.get(
             codename='add_pizza', content_type=content_type)
         user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
-        self.assertFalse(self.backend.has_perm(user, 'slumber_test.add_pizza'))
+        self.assertFalse(self.backend.has_perm(user, 'slumber_examples.add_pizza'))
 
     def test_existing_permission(self):
         self.assertTrue(bool(ContentType.objects.all().count()))
         content_type = ContentType.objects.get(
-            app_label='slumber_test', model='pizza')
+            app_label='slumber_examples', model='pizza')
         permission = Permission.objects.get(
             codename='add_pizza', content_type=content_type)
         self.user.user_permissions.add(permission)
         user = self.backend.get_user(self.user.username, 'username')
         self.assertTrue(hasattr(user, 'remote_user'))
-        self.assertTrue(self.backend.has_perm(user, 'slumber_test.add_pizza'))
+        self.assertTrue(self.backend.has_perm(user, 'slumber_examples.add_pizza'))
 
     def test_missing_permission(self):
         user = self.backend.get_user(self.user.username, 'username')
         self.assertTrue(hasattr(user, 'remote_user'))
-        self.assertFalse(self.backend.has_perm(user, 'slumber_test.not-a-perm'))
+        self.assertFalse(self.backend.has_perm(user, 'slumber_examples.not-a-perm'))
         perm = Permission.objects.get(codename='not-a-perm',
-            content_type__app_label='slumber_test')
+            content_type__app_label='slumber_examples')
         self.assertEqual(perm.codename, 'not-a-perm')
         self.assertEqual(perm.name, perm.codename)
-        self.assertEqual(perm.content_type.app_label, 'slumber_test')
+        self.assertEqual(perm.content_type.app_label, 'slumber_examples')
         self.assertEqual(perm.content_type.model, 'unknown')
 
     def test_permission_with_new_app(self):
@@ -142,7 +142,7 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
 
     @mock_client()
     def test_isnt_authenticated(self):
-        with patch('slumber_test.views._ok_text', self.save_user):
+        with patch('slumber_examples.views._ok_text', self.save_user):
             self.client.get('/')
         self.assertFalse(self.user.is_authenticated())
 
@@ -161,7 +161,7 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
                     email='test@example.com')],
     )
     def test_is_authenticated(self):
-        with patch('slumber_test.views._ok_text', self.save_user):
+        with patch('slumber_examples.views._ok_text', self.save_user):
             self.client.get('/', HTTP_X_FOST_USER='testuser')
         self.assertTrue(self.user.is_authenticated())
 
@@ -177,7 +177,7 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
         remote_user = client.auth.django.contrib.auth.User.get(
             username='testuser')
         remote_user.is_staff = True
-        with patch('slumber_test.views._ok_text', self.save_user):
+        with patch('slumber_examples.views._ok_text', self.save_user):
             self.client.get('/', HTTP_X_FOST_USER='testuser')
         self.assertTrue(self.user.is_staff)
 
@@ -191,7 +191,7 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
     def test_admin_is_authenticated(self):
         admin = User(username='admin')
         admin.save()
-        with patch('slumber_test.views._ok_text', self.save_user):
+        with patch('slumber_examples.views._ok_text', self.save_user):
             self.client.get('/', HTTP_X_FOST_USER=admin.username)
         self.assertTrue(self.user.is_authenticated())
         self.assertEqual(admin, self.user)
@@ -200,6 +200,6 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
         auth__django__contrib__auth__User = []
     )
     def test_remote_user_not_found(self):
-        with patch('slumber_test.views._ok_text', self.save_user):
+        with patch('slumber_examples.views._ok_text', self.save_user):
             self.client.get('/', HTTP_X_FOST_USER='testuser')
         self.assertFalse(self.user.is_authenticated())

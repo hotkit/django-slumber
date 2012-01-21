@@ -34,6 +34,7 @@ class DjangoModel(object):
         self.name = model_instance.__name__
         self.path = app.path + '/' + self.name + '/'
 
+        self.properties = dict(r=[], w=[])
         self._fields, self._data_arrays = {}, []
 
     def _get_fields_and_data_arrays(self):
@@ -71,6 +72,12 @@ class DjangoModel(object):
                 fields[field] = dict(name=field,
                     kind='value', type=type_name,
                     verbose_name=definition.verbose_name)
+        for prop in self.properties['r']:
+            fields[prop] = dict(
+                name=prop,
+                kind='property',
+                type='.'.join([self.app.name, self.name, prop]),
+                readonly=True)
         return fields
 
     @property

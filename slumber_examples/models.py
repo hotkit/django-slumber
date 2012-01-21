@@ -3,6 +3,11 @@ from django.db import models
 
 class Shop(models.Model):
     name = models.fields.CharField(max_length=200)
+    slug = models.fields.CharField(max_length=20, unique=True, blank=False)
+
+    @property
+    def web_address(self):
+        return 'http://www.example.com/%s/' % self.slug
 
 
 class Pizza(models.Model):

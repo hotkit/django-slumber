@@ -39,5 +39,5 @@ class TestServices(TestCase):
 
 
     def test_service_applications_appear(self):
-        self.assertTrue(hasattr(self.client.pizzas, 'slumber_test'))
+        self.assertTrue(hasattr(self.client.pizzas, 'slumber_examples'))
 

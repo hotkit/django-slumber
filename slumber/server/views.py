@@ -103,8 +103,9 @@ def get_model(_, response, model):
     response['fields'] = model.fields
     # We have to access _meta
     # pylint: disable=W0212
-    response['puttable'] = [[f] for f in model.fields
-        if model.model._meta.get_field(f).unique] + \
+    response['puttable'] = [[f] for f, p in model.fields.items()
+            if p['kind'] != 'property' and
+                model.model._meta.get_field(f).unique] + \
         list(model.model._meta.unique_together)
     response['data_arrays'] = model.data_arrays
     response['operations'] = dict(

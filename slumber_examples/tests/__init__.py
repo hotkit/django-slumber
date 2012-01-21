@@ -1,3 +1,4 @@
+from application_configuration import *
 from authentication import *
 from client import *
 from middleware import *

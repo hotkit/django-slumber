@@ -19,6 +19,6 @@ class DereferenceInstance(ModelOperation):
             instance = self.model.model.objects.get(
                 **dict([(k, request.GET[k])
                     for k in request.GET.keys()]))
-            return instance_data(response, self.model, instance)
+            return instance_data(request, response, self.model, instance)
         except self.model.model.DoesNotExist:
             return HttpResponseNotFound()
