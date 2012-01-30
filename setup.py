@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name = "django_slumber",
-    version = "0.4.6.1",
+    version = "0.4.6.2",
     author = "Kirit Saelensminde",
     author_email = "kirit@felspar.com",
     url='https://github.com/KayEss/django-slumber',

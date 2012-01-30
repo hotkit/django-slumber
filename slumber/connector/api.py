@@ -28,7 +28,8 @@ def get_instance(model, instance_url, display_name, fields = None):
         # pylint: disable = W0212
         if model._url.endswith(type_url):
             bases.append(proxy)
-    instance_type = type(model.module + '.' + model.name, tuple(bases), {})
+    type_name = str(model.module + '.' + model.name)
+    instance_type = type(type_name, tuple(bases), {})
     return instance_type(instance_url, display_name, fields)
 
 
