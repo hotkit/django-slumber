@@ -40,7 +40,7 @@ def get_model(url):
         for type_url, proxy in MODEL_PROXIES.items():
             if url.endswith(type_url):
                 bases.append(proxy)
-        model_type = type(url, tuple(bases), {})
+        model_type = type(str(url), tuple(bases), {})
         return model_type(url)
     else:
         return MODEL_URL_TO_SLUMBER_MODEL[url]

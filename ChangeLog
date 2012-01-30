@@ -1,3 +1,6 @@
+2012-01-30  Kirit Saelensminde  <kirit@felspar.com>
+ Forced the model URL used for the type name to be a str as some Windows boxes seem to get Unicode strings for the URLs where most machines gets normal Python strings.
+
 2012-01-16  Kirit Saelensminde  <kirit@felspar.com>
  The server side conversion to JSON compatible Python objects now includes the request so that, for example, URIs can be handled correctly.
  The Slumber configuration now also allows us to add in JSON transform functions for specific types for when property values are processed.
