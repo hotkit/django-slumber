@@ -77,9 +77,14 @@ def get_slumber_services(directory = None):
         services = {}
         for k, v in directory.items():
             if v in settings.INSTALLED_APPS:
-                url = urljoin(
-                    urljoin(get_slumber_local_url_prefix(),
-                        get_slumber_root()), '../%s' % k)
+                # This version maps the everything on the service name to
+                # the SLUMBER_SERVICE service
+                url = urljoin(get_slumber_local_url_prefix(),
+                        get_slumber_root())
+                # The below version properly sets the prefix
+                #url = urljoin(
+                    #urljoin(get_slumber_local_url_prefix(),
+                        #get_slumber_root()), '../%s' % k)
                 services[k] = url
             else:
                 services[k] = v
