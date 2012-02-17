@@ -19,18 +19,18 @@ class NoServiceSpecified(Exception):
     pass
 
 
-def _get_slumber_service():
+def _get_slumber_service(model):
     """Implementation for get_slumber_service which allows a single
     patching point.
     """
     return getattr(settings, 'SLUMBER_SERVICE', None)
-def get_slumber_service():
+def get_slumber_service(model=None):
     """Returns the current Slumber service name.
 
     This allows us to control the setting value in tests more easily for
     early versions of Django.
     """
-    return _get_slumber_service()
+    return _get_slumber_service(model)
 
 
 def _get_slumber_directory():
