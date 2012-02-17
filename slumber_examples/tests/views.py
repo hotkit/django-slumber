@@ -44,8 +44,7 @@ class ServiceTests(object):
     def setUp(self):
         pizzas = lambda: 'pizzas'
         self.__patchers = [
-            patch('slumber.server.views.get_slumber_service', pizzas),
-            patch('slumber.server.get_slumber_service', pizzas),
+            patch('slumber.server._get_slumber_service', pizzas),
         ]
         [p.start() for p in self.__patchers]
     def tearDown(self):
@@ -411,6 +410,7 @@ class UserViews(ViewTests):
         response, json = self.do_get(self.perms % self.user.pk)
         self.assertEquals(response.status_code, 200)
         self.assertItemsEqual(json['group_permissions'], [])
+
 
 class UserViewsPlain(UserViews, PlainTests, TestCase):
     pass

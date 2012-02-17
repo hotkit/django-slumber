@@ -1,6 +1,7 @@
 """
     The standard Slumber server implementation.
 """
+from urlparse import urljoin
 from urlparse import urlparse
 
 from django.conf import settings
@@ -36,14 +37,14 @@ def get_slumber_service():
 def _get_slumber_directory():
     """Implementation for get_slumber_directory which allows a single
     patching point.
+
+    This allows us to control the setting value in tests more easily for
+    early versions of Django.
     """
     return getattr(settings, 'SLUMBER_DIRECTORY',
         'http://localhost:8000/slumber/')
 def get_slumber_directory():
     """Returns the directory setting.
-
-    This allows us to control the setting value in tests more easily for
-    early versions of Django.
     """
     return _get_slumber_directory()
 
@@ -73,7 +74,21 @@ def get_slumber_services(directory = None):
     if not directory:
         directory = get_slumber_directory()
     if hasattr(directory, 'items'): # Feels like a dict
-        return directory
+        services = {}
+        for k, v in directory.items():
+            if v in settings.INSTALLED_APPS:
+                # This version maps the everything on the service name to
+                # the SLUMBER_SERVICE service
+                url = urljoin(get_slumber_local_url_prefix(),
+                        get_slumber_root())
+                # The below version properly sets the prefix
+                #url = urljoin(
+                    #urljoin(get_slumber_local_url_prefix(),
+                        #get_slumber_root()), '../%s' % k)
+                services[k] = url
+            else:
+                services[k] = v
+        return services
     else:
         return None
 

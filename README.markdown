@@ -70,6 +70,20 @@ or
     SLUMBER_DIRECTORY = 'http://localhost:8000/slumber/'
 
 
+### Django application services ###
+
+Sometimes it's useful to be able to put a Django application into a service. There's a few ways of doing this. If it's a single application that needs to be in a service then the application name can be given as the location of a service in the `SLUMBER_DIRECTORY`. For example:
+
+    SLUMBER_DIRECTORY = {
+        'auth': 'django.contrib.auth',
+        'pizzas': 'slumber_examples',
+    }
+
+For this to work the application name given in the service configuration must exactly match the name that is in Django's `INSTALLED_APPS` setting. Any applications not mapped to a service name will appear either at the top level, or within the service name specified by `SLUMBER_SERVICE`.
+
+''NB'' The current implementation aliases the extra services to the same location as the main service. This does expose the requested application, but also exposes all other applications on that service name and fails to remove the application from the main service name. I.e. on the above example, both `auth` and `pizzas` will have all applications exposed through the client.
+
+
 ### Using a non Slumber Django project for the directory ###
 
 The Slumber directory doesn't even need to be Django. All that is needed is that the url that the directory points at returns JSON that describes where to find the services. The JSON returned for the above example should look like:
@@ -133,7 +147,7 @@ This will make a new read-only property `web_site` available in the data about i
 
 # Doing development #
 
-_This project uses git flow. Don't forget to do `git flow init`_ (use defaults for all options).
+_This project uses git flow. Don't forget to do `git flow init -d`_ (i.e. use defaults for all options).
 
 First you will want to create virtual environments to run the tests in. There is a helper script in `test-projects` for this.
 

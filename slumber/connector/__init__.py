@@ -13,7 +13,7 @@ from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
 from slumber.connector.ua import get
 from slumber.server import get_slumber_service, get_slumber_directory, \
-    get_slumber_services
+    get_slumber_services, get_slumber_local_url_prefix, get_slumber_root
 
 
 class ServiceConnector(object):
