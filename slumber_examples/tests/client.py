@@ -162,3 +162,31 @@ class TestsWithPizza(TestCase):
     def test_pizza_not_found(self):
         with self.assertRaises(AssertionError):
             p2 = client.slumber_examples.Pizza.get(pk=2)
+
+
+class AppServiceTests(TestCase):
+    """Used to get service view tests where the service is configured
+    on the application.
+    """
+    def setUp(self):
+        pizzas = lambda: 'pizzas'
+        directory = lambda: {
+                'auth': 'django.contrib.auth',
+                'pizzas': 'http://localhost:8000/slumber/pizzas',
+            }
+        self.__patchers = [
+            patch('slumber.server._get_slumber_service', pizzas),
+            patch('slumber.server._get_slumber_directory', directory),
+        ]
+        [p.start() for p in self.__patchers]
+        self.client = Client()
+    def tearDown(self):
+        [p.stop() for p in self.__patchers]
+
+    def test_auth(self):
+        self.assertTrue(hasattr(self.client, 'auth'), self.client.__dict__)
+
+    def test_pizzas(self):
+        self.assertTrue(hasattr(self.client, 'pizzas'), self.client.__dict__)
+        self.assertTrue(hasattr(self.client.pizzas, 'slumber_examples'),
+            self.client.pizzas.__dict__)

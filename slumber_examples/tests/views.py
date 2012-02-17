@@ -50,12 +50,6 @@ class ServiceTests(object):
     def tearDown(self):
         [p.stop() for p in self.__patchers]
 
-class AppServiceTests(object):
-    """Used to get service view tests where the service is configured
-    on the application.
-    """
-    pass
-
 
 class ViewErrors(ViewTests):
 
@@ -416,6 +410,7 @@ class UserViews(ViewTests):
         response, json = self.do_get(self.perms % self.user.pk)
         self.assertEquals(response.status_code, 200)
         self.assertItemsEqual(json['group_permissions'], [])
+
 
 class UserViewsPlain(UserViews, PlainTests, TestCase):
     pass

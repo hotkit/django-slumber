@@ -13,7 +13,7 @@ from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
 from slumber.connector.ua import get
 from slumber.server import get_slumber_service, get_slumber_directory, \
-    get_slumber_services
+    get_slumber_services, get_slumber_local_url_prefix
 
 
 class ServiceConnector(object):
@@ -27,7 +27,12 @@ class ServiceConnector(object):
         """
         if not self._directory:
             raise AttributeError(attr_name)
-        _, json = get(self._directory)
+        if self._directory in settings.INSTALLED_APPS:
+            directory_path = self._directory.replace('/', '.')
+            service_url = get_slumber_local_url_prefix() + directory_path
+            json = dict(apps={self._directory: service_url})
+        else:
+            _, json = get(self._directory)
         apps = {}
         for app in json['apps'].keys():
             root = apps
