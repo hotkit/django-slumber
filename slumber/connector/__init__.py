@@ -65,7 +65,6 @@ class Client(ServiceConnector):
         else:
             for k, v in services.items():
                 if v in settings.INSTALLED_APPS:
-                    directory_path = v.replace('.', '/')
                     v = urljoin(get_slumber_local_url_prefix(),
                         get_slumber_root())
                 setattr(self, k, ServiceConnector(v))
