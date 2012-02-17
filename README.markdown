@@ -145,7 +145,7 @@ This will make a new read-only property `web_site` available in the data about i
 
 # Doing development #
 
-_This project uses git flow. Don't forget to do `git flow init`_ (use defaults for all options).
+_This project uses git flow. Don't forget to do `git flow init -d`_ (i.e. use defaults for all options).
 
 First you will want to create virtual environments to run the tests in. There is a helper script in `test-projects` for this.
 
