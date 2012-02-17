@@ -6,6 +6,8 @@ from django.test import TestCase
 from slumber import client
 from slumber._caches import CLIENT_INSTANCE_CACHE
 from slumber.connector import Client, DictObject
+from slumber.connector.ua import get
+
 from slumber_examples.models import Pizza, PizzaPrice, PizzaSizePrice
 
 
@@ -181,6 +183,12 @@ class AppServiceTests(TestCase):
         [p.start() for p in self.__patchers]
     def tearDown(self):
         [p.stop() for p in self.__patchers]
+
+    def test_directory(self):
+        request, json = get('http://localhost:8000/slumber/')
+        self.assertEquals(json['services'], {
+            'auth': 'http://localhost:8000/slumber/auth',
+            'pizzas': 'http://localhost:8000/slumber/pizzas'})
 
     def test_auth(self):
         self.client = Client()
