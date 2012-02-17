@@ -1,6 +1,7 @@
 """
     The standard Slumber server implementation.
 """
+from urlparse import urljoin
 from urlparse import urlparse
 
 from django.conf import settings
@@ -73,7 +74,16 @@ def get_slumber_services(directory = None):
     if not directory:
         directory = get_slumber_directory()
     if hasattr(directory, 'items'): # Feels like a dict
-        return directory
+        services = {}
+        for k, v in directory.items():
+            if v in settings.INSTALLED_APPS:
+                url = urljoin(
+                    urljoin(get_slumber_local_url_prefix(),
+                        get_slumber_root()), '../%s' % k)
+                services[k] = url
+            else:
+                services[k] = v
+        return services
     else:
         return None
 
