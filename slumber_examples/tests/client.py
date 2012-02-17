@@ -179,14 +179,21 @@ class AppServiceTests(TestCase):
             patch('slumber.server._get_slumber_directory', directory),
         ]
         [p.start() for p in self.__patchers]
-        self.client = Client()
     def tearDown(self):
         [p.stop() for p in self.__patchers]
 
     def test_auth(self):
+        self.client = Client()
         self.assertTrue(hasattr(self.client, 'auth'), self.client.__dict__)
+        self.assertTrue(hasattr(self.client.auth, 'django'),
+            self.client.auth.__dict__)
+        self.assertTrue(hasattr(self.client.auth.django, 'contrib'),
+            self.client.auth.django.__dict__)
+        self.assertTrue(hasattr(self.client.auth.django.contrib, 'auth'),
+            self.client.auth.django.contrib.__dict__)
 
     def test_pizzas(self):
+        self.client = Client()
         self.assertTrue(hasattr(self.client, 'pizzas'), self.client.__dict__)
         self.assertTrue(hasattr(self.client.pizzas, 'slumber_examples'),
             self.client.pizzas.__dict__)
