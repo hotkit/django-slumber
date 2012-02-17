@@ -127,6 +127,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 
+    'django_nose',
+
     # Slumber test applications
     'slumber_examples',
     'slumber_examples.nested1',
@@ -135,6 +137,9 @@ INSTALLED_APPS = (
 )
 
 AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
+
+# Needed to get the Django nose test runner working
+TEST_RUNNER='django_nose.NoseTestSuiteRunner'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
