@@ -28,7 +28,6 @@ class ServiceConnector(object):
         if not self._directory:
             raise AttributeError(attr_name)
         _, json = get(self._directory)
-        print self._directory, json
         apps = {}
         for app in json['apps'].keys():
             root = apps
