@@ -1,3 +1,6 @@
+2012-02-17  Kirit Saelensminde  <kirit@felspar.com>
+ Added tests for Django 1.4.
+
 2012-01-30  Kirit Saelensminde  <kirit@felspar.com>
  Forced the model URL used for the type name to be a str as some Windows boxes seem to get Unicode strings for the URLs where most machines gets normal Python strings.
 
