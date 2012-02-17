@@ -14,6 +14,10 @@ workon slumber1-3
 cd test-projects/django1_3
 check_worked python manage.py test slumber_examples
 
+workon slumber1-4
+cd test-projects/django1_4
+check_worked python manage.py test slumber_examples
+
 workon slumber1-0
 cd ../django1_0
 check_worked python manage.py test slumber_examples
