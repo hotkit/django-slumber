@@ -51,6 +51,11 @@ class ServiceTests(object):
     def tearDown(self):
         [p.stop() for p in self.__patchers]
 
+class AppServiceTests(object):
+    """Used to get service view tests where the service is configured
+    on the application.
+    """
+    pass
 
 class ViewErrors(ViewTests):
 
