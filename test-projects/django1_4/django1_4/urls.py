@@ -5,6 +5,10 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^slumber/', include('slumber.urls')),
+
+    (r'^$', 'slumber_examples.views.ok_text'),
+
     # Examples:
     # url(r'^$', 'django1_4.views.home', name='home'),
     # url(r'^django1_4/', include('django1_4.foo.urls')),
