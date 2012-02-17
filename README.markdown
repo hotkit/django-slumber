@@ -70,6 +70,18 @@ or
     SLUMBER_DIRECTORY = 'http://localhost:8000/slumber/'
 
 
+### Django Application services ###
+
+Sometimes it's useful to be able to put a Django application into a service. There's a few ways of doing this. If it's a single application that needs to be in a service then the application name can be given as the location of a service in the `SLUMBER_DIRECTORY`. For example:
+
+    SLUMBER_DIRECTORY = {
+        'auth': 'django.contrib.auth',
+        'pizzas': 'slumber_examples',
+    }
+
+For this to work the application name given in the service configuration must exactly match the name that is in Django's `INSTALLED_APPS` setting. Any applications not mapped to a service name will appear either at the top level, or within the service name specified by `SLUMBER_SERVICE`.
+
+
 ### Using a non Slumber Django project for the directory ###
 
 The Slumber directory doesn't even need to be Django. All that is needed is that the url that the directory points at returns JSON that describes where to find the services. The JSON returned for the above example should look like:
