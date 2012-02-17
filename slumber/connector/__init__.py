@@ -65,8 +65,9 @@ class Client(ServiceConnector):
         else:
             for k, v in services.items():
                 if v in settings.INSTALLED_APPS:
-                    v = urljoin(get_slumber_local_url_prefix(),
-                        get_slumber_root())
+                    v = urljoin(
+                        urljoin(get_slumber_local_url_prefix(),
+                            get_slumber_root()), '../%s' % k)
                 setattr(self, k, ServiceConnector(v))
             super(Client, self).__init__(None)
 
