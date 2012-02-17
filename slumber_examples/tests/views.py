@@ -44,8 +44,7 @@ class ServiceTests(object):
     def setUp(self):
         pizzas = lambda: 'pizzas'
         self.__patchers = [
-            patch('slumber.server.views.get_slumber_service', pizzas),
-            patch('slumber.server.get_slumber_service', pizzas),
+            patch('slumber.server._get_slumber_service', pizzas),
         ]
         [p.start() for p in self.__patchers]
     def tearDown(self):
@@ -56,6 +55,7 @@ class AppServiceTests(object):
     on the application.
     """
     pass
+
 
 class ViewErrors(ViewTests):
 
