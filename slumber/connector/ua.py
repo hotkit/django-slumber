@@ -72,6 +72,8 @@ def get(url, ttl = 0):
 def post(url, data):
     """Perform a POST request against a Slumber server.
     """
+    # Pylint gets confused by the fake HTTP client
+    # pylint: disable=E1103
     url_fragment = _use_fake(url)
     if url_fragment:
         response = _fake.post(url_fragment, data, HTTP_HOST='localhost:8000')
