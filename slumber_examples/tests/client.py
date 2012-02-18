@@ -75,6 +75,12 @@ class TestLoads(TestCase):
         except AttributeError:
             pass
 
+    def test_can_create_instance(self):
+        rpizza = client.slumber_examples.Pizza.create(
+            name='P1', for_sale=True)
+        lpizza = Pizza.objects.get(name='P1')
+        self.assertEquals(rpizza.id, lpizza.id)
+
 
 class TestAuth(TestCase):
     def setUp(self):

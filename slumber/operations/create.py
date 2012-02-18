@@ -2,6 +2,7 @@
     Implements creation of an object.
 """
 from slumber.operations import ModelOperation
+from slumber.operations.instancedata import instance_data
 
 
 class CreateInstance(ModelOperation):
@@ -13,5 +14,4 @@ class CreateInstance(ModelOperation):
         instance = self.model.model(**dict([(k, str(v))
             for k, v in request.POST.items()]))
         instance.save()
-        response['created'] = True
-        response['pk'] = instance.pk
+        return instance_data(request, response, self.model, instance)
