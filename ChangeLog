@@ -1,3 +1,6 @@
+2012-02-18  Kirit Saelensminde  <kirit@felspar.com>
+ Added a proxy method for the model create operation. This has also changed the data returned by the old create operation.
+
 2012-02-17  Kirit Saelensminde  <kirit@felspar.com>
  Added tests for Django 1.4.
  Added an incomplete version of a new configuration that will allow specific Django applications to be exposed on specific service names.
