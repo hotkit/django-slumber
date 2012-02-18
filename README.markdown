@@ -79,9 +79,9 @@ Sometimes it's useful to be able to put a Django application into a service. The
         'pizzas': 'slumber_examples',
     }
 
-For this to work the application name given in the service configuration must exactly match the name that is in Django's `INSTALLED_APPS` setting. Any applications not mapped to a service name will appear either at the top level, or within the service name specified by `SLUMBER_SERVICE`.
+For this to work the application name given in the service configuration must exactly match the name that is in Django's `INSTALLED_APPS` setting. When used in this way the service will point directly to the Django application mentioned.
 
-''NB'' The current implementation aliases the extra services to the same location as the main service. This does expose the requested application, but also exposes all other applications on that service name and fails to remove the application from the main service name. I.e. on the above example, both `auth` and `pizzas` will have all applications exposed through the client.
+''NB'' The current implementation aliases the application to where it is exposed on the main service. This does expose the requested application, but fails to remove the application from the main service applications. I.e. on the above example, both `auth` and `pizzas` will have all django.contrib.auth application exposed through the client.
 
 
 ### Using a non Slumber Django project for the directory ###

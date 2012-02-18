@@ -180,7 +180,7 @@ class AppServiceTests(TestCase):
         pizzas = lambda: 'pizzas'
         directory = lambda: {
                 'auth': 'django.contrib.auth',
-                'pizzas': 'http://localhost:8000/slumber/pizzas',
+                'pizzas': 'http://localhost:8000/slumber/pizzas/',
             }
         self.__patchers = [
             patch('slumber.server._get_slumber_service', pizzas),
@@ -192,24 +192,14 @@ class AppServiceTests(TestCase):
 
     def test_directory(self):
         request, json = get('http://localhost:8000/slumber/')
-        # This is what we get with our aliasing hack
         self.assertEquals(json['services'], {
-            'auth': 'http://localhost:8000/slumber/pizzas',
-            'pizzas': 'http://localhost:8000/slumber/pizzas'})
-        # This is what we expect when we have a proper implementation
-        #self.assertEquals(json['services'], {
-            #'auth': 'http://localhost:8000/slumber/auth',
-            #'pizzas': 'http://localhost:8000/slumber/pizzas'})
+            'auth': 'http://localhost:8000/slumber/pizzas/django/contrib/auth/',
+            'pizzas': 'http://localhost:8000/slumber/pizzas/'})
 
     def test_auth(self):
         self.client = Client()
         self.assertTrue(hasattr(self.client, 'auth'), self.client.__dict__)
-        self.assertTrue(hasattr(self.client.auth, 'django'),
-            self.client.auth.__dict__)
-        self.assertTrue(hasattr(self.client.auth.django, 'contrib'),
-            self.client.auth.django.__dict__)
-        self.assertTrue(hasattr(self.client.auth.django.contrib, 'auth'),
-            self.client.auth.django.contrib.__dict__)
+        self.assertTrue(hasattr(self.client.auth, 'User'), self.client.auth.__dict__)
 
     def test_pizzas(self):
         self.client = Client()
