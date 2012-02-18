@@ -9,7 +9,7 @@ from slumber._caches import CLIENT_INSTANCE_CACHE, \
 from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
-from slumber.connector.ua import get
+from slumber.connector.ua import get, post
 
 
 def _ensure_absolute(url):
@@ -90,6 +90,13 @@ class ModelConnector(DictObject):
         else:
             raise AttributeError(name)
 
+    def create(self, **kwargs):
+        """Implements the client side for the model `create` operator.
+        """
+        url = urljoin(self._url, self._operations['create'])
+        _, json = post(url, kwargs)
+        return get_instance_from_data(url, json)
+
     def get(self, **kwargs):
         """Implements the client side for the model 'get' operator.
         """
@@ -97,7 +104,7 @@ class ModelConnector(DictObject):
             "You must supply kwargs to filter on to fetch the instance"
         url = urljoin(self._url, 'get/')
         _, json = get(url + '?' + urlencode(kwargs), self._CACHE_TTL)
-        return get_instance_from_data(self._url, json)
+        return get_instance_from_data(url, json)
 
 
 class _InstanceProxy(object):
