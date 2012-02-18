@@ -96,6 +96,17 @@ The Slumber directory doesn't even need to be Django. All that is needed is that
     }
 
 
+## Slumber operations ##
+
+Slumber contains a number of default REST end points on the server side (called operations) which also have a client implementation (called a proxy). Slumber will expose the applications and the models that you have in your Django project and currently provides operations at both the model and instance level.
+
+When dealing with operations that create and modify data it's important to remember that each operation will run in its own transaction on the server and cannot be rolled back once done.
+
+### create (model) ###
+
+Creates a new instance of the model type on the slumber server.
+
+
 ## Slumber remote authentication and authorization ##
 
 Slumber is also able to help you manage centralised authentication and authorization across RESTful services. This allows you to make use of `django.contrib.auth` on one service to handle permissions on another.
