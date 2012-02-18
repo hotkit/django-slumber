@@ -49,8 +49,8 @@ def get_slumber_directory():
     return _get_slumber_directory()
 
 
-def get_slumber_local_url_prefix():
-    """Returns the local URL prefix for Slumber access.
+def get_slumber_service_url():
+    """Returns the full URL found in the settings for the main local service.
     """
     directory = get_slumber_directory()
     if hasattr(directory, 'items'):
@@ -59,12 +59,19 @@ def get_slumber_local_url_prefix():
         except KeyError:
             raise NoServiceSpecified("If you have a Slumber directory "
                 "specifying services you must also set SLUMBER_SERVICE")
-    parsed = urlparse(directory)
+    return directory
+
+
+def get_slumber_local_url_prefix():
+    """Returns the local URL prefix for Slumber access.
+    """
+    service_url = get_slumber_service_url()
+    parsed = urlparse(service_url)
     scheme, netloc = parsed[0], parsed[1]
     if not scheme or not netloc:
         raise AbsoluteURIRequired("The URL for the local service must be "
         "specified as absolute: %s is currently %s" %
-            (get_slumber_service(), directory))
+            (get_slumber_service(), service_url))
     return '%s://%s/' % (parsed[0], parsed[1])
 
 
@@ -79,8 +86,7 @@ def get_slumber_services(directory = None):
             if v in settings.INSTALLED_APPS:
                 # This version maps the everything on the service name to
                 # the SLUMBER_SERVICE service
-                url = urljoin(get_slumber_local_url_prefix(),
-                        get_slumber_root())
+                url = get_slumber_service_url()
                 # The below version properly sets the prefix
                 #url = urljoin(
                     #urljoin(get_slumber_local_url_prefix(),

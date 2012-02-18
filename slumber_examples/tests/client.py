@@ -194,7 +194,7 @@ class AppServiceTests(TestCase):
         request, json = get('http://localhost:8000/slumber/')
         # This is what we get with our aliasing hack
         self.assertEquals(json['services'], {
-            'auth': 'http://localhost:8000/slumber/pizzas/',
+            'auth': 'http://localhost:8000/slumber/pizzas',
             'pizzas': 'http://localhost:8000/slumber/pizzas'})
         # This is what we expect when we have a proper implementation
         #self.assertEquals(json['services'], {
