@@ -10,5 +10,6 @@ function check_worked {
     fi
 }
 
+pandoc -f markdown -t rst README.markdown > README
 check_worked python setup.py sdist upload
 rm -r dist django_slumber.egg-info
