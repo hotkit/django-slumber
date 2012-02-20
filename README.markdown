@@ -70,6 +70,20 @@ or
     SLUMBER_DIRECTORY = 'http://localhost:8000/slumber/'
 
 
+### Django application services ###
+
+Sometimes it's useful to be able to put a Django application into a service. There's a few ways of doing this. If it's a single application that needs to be in a service then the application name can be given as the location of a service in the `SLUMBER_DIRECTORY`. For example:
+
+    SLUMBER_DIRECTORY = {
+        'auth': 'django.contrib.auth',
+        'pizzas': 'slumber_examples',
+    }
+
+For this to work the application name given in the service configuration must exactly match the name that is in Django's `INSTALLED_APPS` setting. When used in this way the service will point directly to the Django application mentioned.
+
+''NB'' The current implementation aliases the application to where it is exposed on the main service. This does expose the requested application, but fails to remove the application from the main service applications. I.e. on the above example, both `auth` and `pizzas` will have all django.contrib.auth application exposed through the client.
+
+
 ### Using a non Slumber Django project for the directory ###
 
 The Slumber directory doesn't even need to be Django. All that is needed is that the url that the directory points at returns JSON that describes where to find the services. The JSON returned for the above example should look like:
@@ -80,6 +94,17 @@ The Slumber directory doesn't even need to be Django. All that is needed is that
             "pizzas": "http://localhost:8001/slumber/pizza/"
         }
     }
+
+
+## Slumber operations ##
+
+Slumber contains a number of default REST end points on the server side (called operations) which also have a client implementation (called a proxy). Slumber will expose the applications and the models that you have in your Django project and currently provides operations at both the model and instance level.
+
+When dealing with operations that create and modify data it's important to remember that each operation will run in its own transaction on the server and cannot be rolled back once done.
+
+### create (model) ###
+
+Creates a new instance of the model type on the slumber server.
 
 
 ## Slumber remote authentication and authorization ##
@@ -133,7 +158,7 @@ This will make a new read-only property `web_site` available in the data about i
 
 # Doing development #
 
-_This project uses git flow. Don't forget to do `git flow init`_ (use defaults for all options).
+_This project uses git flow. Don't forget to do `git flow init -d`_ (i.e. use defaults for all options).
 
 First you will want to create virtual environments to run the tests in. There is a helper script in `test-projects` for this.
 

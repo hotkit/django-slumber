@@ -63,7 +63,7 @@ def get_service_directory(_request, response, service):
     """Return the services.
     """
     directory = get_slumber_services()
-    if directory:
+    if directory or not service:
         response['services'] = directory
     else:
         response['services'] = {}
@@ -82,6 +82,7 @@ def get_applications(request, response):
         return HttpResponseNotFound()
     response['apps'] = dict([(app.name, root + app.path + '/')
         for app in applications()])
+    get_service_directory(request, response, None)
 
 
 def get_models(_, response, app):

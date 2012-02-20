@@ -13,7 +13,7 @@ from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
 from slumber.connector.ua import get
 from slumber.server import get_slumber_service, get_slumber_directory, \
-    get_slumber_services
+    get_slumber_services, get_slumber_local_url_prefix, get_slumber_root
 
 
 class ServiceConnector(object):
@@ -28,8 +28,11 @@ class ServiceConnector(object):
         if not self._directory:
             raise AttributeError(attr_name)
         _, json = get(self._directory)
+        # Pylint gets confused by the JSON object
+        # pylint: disable=E1103
+        json_apps = json.get('apps', {})
         apps = {}
-        for app in json['apps'].keys():
+        for app in json_apps.keys():
             root = apps
             for k in app.split('.'):
                 if not root.has_key(k):
@@ -39,18 +42,25 @@ class ServiceConnector(object):
             """Recursively build the application connectors.
             """
             current_appname = '.'.join(name)
-            if json['apps'].has_key(current_appname):
-                loc._url = urljoin(self._directory,
-                    json['apps'][current_appname])
+            if json_apps.has_key(current_appname):
+                loc._directory = urljoin(self._directory,
+                    json_apps[current_appname])
             for k, v in this_level.items():
-                app_cnx = AppConnector()
+                app_cnx = ServiceConnector(None)
                 setattr(loc, k, app_cnx)
                 recurse_apps(app_cnx, v, name + [k])
         recurse_apps(self, apps, [])
-        if attr_name in apps.keys():
+        models = json.get('models', {})
+        for model_name, url in models.items():
+            model_url = urljoin(self._directory, url)
+            model = get_model(model_url)
+            setattr(self, model_name, model)
+        if attr_name in models.keys():
+            return getattr(self, attr_name)
+        elif attr_name in apps.keys():
             return getattr(self, attr_name)
         else:
-            raise AttributeError(attr_name)
+            raise AttributeError(attr_name, json)
 
 
 class Client(ServiceConnector):
@@ -72,22 +82,3 @@ class Client(ServiceConnector):
         """Flush the (global) instance cache.
         """
         CLIENT_INSTANCE_CACHE.clear()
-
-
-class AppConnector(DictObject):
-    """Handles the client connection to a Django application.
-    """
-    _url = None
-    def __getattr__(self, name):
-        if not self._url:
-            raise AttributeError(name)
-        _, json = get(self._url)
-        models = json['models']
-        for model_name, url in models.items():
-            model_url = urljoin(self._url, url)
-            model = get_model(model_url)
-            setattr(self, model_name, model)
-        if name in models.keys():
-            return getattr(self, name)
-        else:
-            raise AttributeError(name)

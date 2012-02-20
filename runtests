@@ -12,11 +12,18 @@ function check_worked {
 
 workon slumber1-3
 cd test-projects/django1_3
-check_worked python manage.py test slumber_examples
-
-workon slumber1-0
-cd ../django1_0
+echo Django 1.3
 check_worked python manage.py test slumber_examples
 
 cd ../..
 check_worked pylint --rcfile=pylintrc --output-format=colorized slumber
+
+workon slumber1-4
+cd test-projects/django1_4
+echo Django 1.4
+check_worked python manage.py test slumber_examples
+
+workon slumber1-0
+cd ../django1_0
+echo Django 1.0
+check_worked python manage.py test slumber_examples

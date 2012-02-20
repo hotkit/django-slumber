@@ -6,6 +6,8 @@ from django.test import TestCase
 from slumber import client
 from slumber._caches import CLIENT_INSTANCE_CACHE
 from slumber.connector import Client, DictObject
+from slumber.connector.ua import get
+
 from slumber_examples.models import Pizza, PizzaPrice, PizzaSizePrice
 
 
@@ -72,6 +74,12 @@ class TestLoads(TestCase):
             self.fail("This should have thrown an attribute error")
         except AttributeError:
             pass
+
+    def test_can_create_instance(self):
+        rpizza = client.slumber_examples.Pizza.create(
+            name='P1', for_sale=True)
+        lpizza = Pizza.objects.get(name='P1')
+        self.assertEquals(rpizza.id, lpizza.id)
 
 
 class TestAuth(TestCase):
@@ -162,3 +170,39 @@ class TestsWithPizza(TestCase):
     def test_pizza_not_found(self):
         with self.assertRaises(AssertionError):
             p2 = client.slumber_examples.Pizza.get(pk=2)
+
+
+class AppServiceTests(TestCase):
+    """Used to get service view tests where the service is configured
+    on the application.
+    """
+    def setUp(self):
+        pizzas = lambda: 'pizzas'
+        directory = lambda: {
+                'auth': 'django.contrib.auth',
+                'pizzas': 'http://localhost:8000/slumber/pizzas/',
+            }
+        self.__patchers = [
+            patch('slumber.server._get_slumber_service', pizzas),
+            patch('slumber.server._get_slumber_directory', directory),
+        ]
+        [p.start() for p in self.__patchers]
+    def tearDown(self):
+        [p.stop() for p in self.__patchers]
+
+    def test_directory(self):
+        request, json = get('http://localhost:8000/slumber/')
+        self.assertEquals(json['services'], {
+            'auth': 'http://localhost:8000/slumber/pizzas/django/contrib/auth/',
+            'pizzas': 'http://localhost:8000/slumber/pizzas/'})
+
+    def test_auth(self):
+        self.client = Client()
+        self.assertTrue(hasattr(self.client, 'auth'), self.client.__dict__)
+        self.assertTrue(hasattr(self.client.auth, 'User'), self.client.auth.__dict__)
+
+    def test_pizzas(self):
+        self.client = Client()
+        self.assertTrue(hasattr(self.client, 'pizzas'), self.client.__dict__)
+        self.assertTrue(hasattr(self.client.pizzas, 'slumber_examples'),
+            self.client.pizzas.__dict__)

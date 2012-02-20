@@ -5,6 +5,11 @@
 from simplejson import dumps, JSONEncoder
 
 from django.http import HttpResponse
+try:
+    from django.views.decorators.csrf import csrf_exempt
+    USE_CSRF = True
+except ImportError: # pragma: no cover
+    USE_CSRF = False
 
 
 class _proxyEncoder(JSONEncoder):
@@ -31,4 +36,4 @@ def view_handler(view):
         return HttpResponse(dumps(response, indent=4,
                 cls=_proxyEncoder), 'text/plain',
             status=response['_meta']['status'])
-    return wrapper
+    return wrapper if not USE_CSRF else csrf_exempt(wrapper)
