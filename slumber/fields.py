@@ -24,4 +24,4 @@ class RemoteForeignKey(URLField):
     def get_db_prep_value(self, value, *a, **kw):
         return super(RemoteForeignKey, self).get_db_prep_value(
             to_slumber_scheme(value, self.service,
-            get_slumber_services()))
+            get_slumber_services()), *a, **kw)
