@@ -1,5 +1,7 @@
 from django.db import models
 
+from slumber.models import RemoteForeignKey
+
 
 class Shop(models.Model):
     name = models.fields.CharField(max_length=200)
@@ -45,3 +47,6 @@ class Profile(models.Model):
     user = models.ForeignKey('auth.User',
         null=False, blank=False)
 
+
+class Order(models.Model):
+    pizza = RemoteForeignKey(null=False, service='pizzas')

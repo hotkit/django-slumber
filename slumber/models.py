@@ -10,4 +10,6 @@ class RemoteForeignKey(URLField):
     """
     # Django already has too many public methods and we can't change it
     # pylint: disable=R0904
-    pass
+    def __init__(self, service, **kwargs):
+        self.service = service
+        super(RemoteForeignKey, self).__init__(**kwargs)
