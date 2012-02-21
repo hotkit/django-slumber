@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 
-from slumber_examples.models import Pizza, PizzaPrice
+from slumber_examples.models import Pizza, PizzaPrice, Order
 
 
 def _perform(client, method, url, data):
@@ -319,7 +319,9 @@ class BasicViews(ViewTests):
             Pizza.objects.get(pk=s.pk)
 
 class BasicViewsPlain(BasicViews, PlainTests, TestCase):
-    pass
+    def test_service_configuration_missing_for_remoteforeignkey(self):
+        order = Order(shop='http://example.com/slumber/Shop/5/data/')
+        order.save()
 class BasicViewsService(BasicViews, ServiceTests, TestCase):
     def test_services_with_directory(self):
         with patch('slumber.server.get_slumber_directory', lambda: {

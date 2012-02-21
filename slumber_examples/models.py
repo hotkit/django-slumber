@@ -49,4 +49,4 @@ class Profile(models.Model):
 
 
 class Order(models.Model):
-    pizza = RemoteForeignKey(null=False, service='pizzas')
+    shop = RemoteForeignKey(null=False, service='pizzas')
