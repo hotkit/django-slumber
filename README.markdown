@@ -37,6 +37,14 @@ In order to fetch objects from the remote end you should import the client and m
         pizza = client.slumber_test.Pizza.get(pk=1)
         assert pizza
 
+### The RemoteForeignKey model field ###
+
+The `RemoteForeignKey` model field is used where you want a foreign key that points to an object on a different data service.
+
+#### `slumber_service = None` ####
+
+Controls whether Slumber will re-write URLs saved in the database to be relative to the service that it is given. If the URL starts with the same string as the URL for the specified service then Slumber will replace that prefix with `slumber://service/` before putting the data into the database and replace that with the service prefix when reading the data from the database. This means that if you copy a database, for example, from production to testing all of the URLs will come out against the correct services on the test server.
+
 ## Slumber services ##
 
 Services are used when there are multiple RESTful services that all need to communicate together in order to provide a full system. Services are known by name and a single Slumber client can talk to multiple services through the directory server.
