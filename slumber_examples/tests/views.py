@@ -3,6 +3,7 @@ from simplejson import loads
 
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
+from django.db import connection
 from django.test import TestCase
 
 from slumber_examples.models import Pizza, PizzaPrice, Order
@@ -329,6 +330,13 @@ class BasicViewsPlain(BasicViews, PlainTests, TestCase):
     def test_service_configuration_missing_for_remoteforeignkey(self):
         order = Order(shop='http://example.com/slumber/Shop/5/data/')
         order.save()
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT shop FROM slumber_examples_order WHERE id=%s",
+            [order.pk])
+        row = cursor.fetchone()
+        self.assertEquals(row[0], order.shop)
+
 class BasicViewsService(BasicViews, ServiceTests, TestCase):
     def test_services_with_directory(self):
         with patch('slumber.server.get_slumber_directory', lambda: {
@@ -353,10 +361,24 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
     def test_service_configuration_works_for_remoteforeignkey(self):
         order = Order(shop='http://example.com/slumber/Shop/5/data/')
         order.save()
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT shop FROM slumber_examples_order WHERE id=%s",
+            [order.pk])
+        row = cursor.fetchone()
+        self.assertEquals(row[0], order.shop)
 
 class BasicViewsWithServiceDirectory(BasicViews,
         ServiceTestsWithDirectory, TestCase):
-    pass
+    def test_service_configuration_works_for_remoteforeignkey(self):
+        order = Order(shop='http://localhost:8000/slumber/pizzas/Shop/5/data/')
+        order.save()
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT shop FROM slumber_examples_order WHERE id=%s",
+            [order.pk])
+        row = cursor.fetchone()
+        self.assertEquals(row[0], 'slumber://pizzas/Shop/5/data/')
 
 
 class UserViews(ViewTests):
