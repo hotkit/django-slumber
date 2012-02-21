@@ -3,7 +3,13 @@ from slumber.scheme import to_slumber_scheme, from_slumber_scheme, \
     SlumberServiceURLError
 
 
-class URLHandling(TestCase):
+class URLHandlingToDatabase(TestCase):
+    def test_no_services_pass_url_unchanged(self):
+        translated = to_slumber_scheme(
+            'http://example.com/slumber/', 'not_a_service', None)
+        self.assertEquals(translated,
+            'http://example.com/slumber/')
+
     def test_not_a_service(self):
         translated = to_slumber_scheme(
             'http://example.com/slumber/', 'not_a_service',
@@ -31,6 +37,19 @@ class URLHandling(TestCase):
             dict(testservice='http://example.com/slumber/testservice/'))
         self.assertEquals(translated,
             'http://www.example.com/slumber/testservice/Model/')
+
+
+class URLHandlingFromDatabase(TestCase):
+    def test_no_services_with_normal_url(self):
+        translated = from_slumber_scheme(
+            'http://example.com/slumber/', 'not_a_service', None)
+        self.assertEquals(translated,
+            'http://example.com/slumber/')
+
+    def test_no_services_with_slumber_url(self):
+        with self.assertRaises(SlumberServiceURLError):
+            translated = from_slumber_scheme(
+                'slumber://service/Model/', 'service', None)
 
     def test_not_a_slumber_url(self):
         translated = from_slumber_scheme(
