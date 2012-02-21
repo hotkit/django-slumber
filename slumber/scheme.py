@@ -3,6 +3,13 @@
 """
 
 
+class SlumberServiceURLError(Exception):
+    """This exception is thrown if the Slumber URL has a service that does
+    not match the service that it should have.
+    """
+    pass
+
+
 def to_slumber_scheme(url, service, services):
     """Look at the URL and convert it to a service based URL if applicable.
     """
@@ -23,5 +30,7 @@ def from_slumber_scheme(url, service, services):
             if url.startswith(service_prefix):
                 service_url = services[service]
                 return service_url + url[len(service_prefix):]
-        raise NotImplementedError("Service not found")
+        raise SlumberServiceURLError(
+            "Service in URL %s does not match requested service '%s'"
+                % (url, service))
     return url
