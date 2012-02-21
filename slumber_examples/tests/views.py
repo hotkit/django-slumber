@@ -319,9 +319,10 @@ class BasicViews(ViewTests):
             Pizza.objects.get(pk=s.pk)
 
 class BasicViewsPlain(BasicViews, PlainTests, TestCase):
-    def test_service_configuration_missing_for_remoteforeignkey(self):
-        order = Order(shop='http://example.com/slumber/Shop/5/data/')
-        order.save()
+    pass
+    #def test_service_configuration_missing_for_remoteforeignkey(self):
+        #order = Order(shop='http://example.com/slumber/Shop/5/data/')
+        #order.save()
 class BasicViewsService(BasicViews, ServiceTests, TestCase):
     def test_services_with_directory(self):
         with patch('slumber.server.get_slumber_directory', lambda: {
@@ -342,6 +343,10 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
         json = loads(response.content)
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(json['services'].get('pizzas', None), '/slumber/pizzas/', json)
+
+    #def test_service_configuration_works_for_remoteforeignkey(self):
+        #order = Order(shop='http://example.com/slumber/Shop/5/data/')
+        #order.save()
 
 
 class UserViews(ViewTests):
