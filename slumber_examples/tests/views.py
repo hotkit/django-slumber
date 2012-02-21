@@ -41,14 +41,21 @@ class ServiceTests(object):
     """Used to get service based view tests.
     """
     PREFIX  = '/slumber/pizzas'
+    def patch(self, what, to):
+        patcher = patch(what, to)
+        self.__patchers.append(patcher)
+        patcher.start()
     def setUp(self):
-        pizzas = lambda: 'pizzas'
-        self.__patchers = [
-            patch('slumber.server._get_slumber_service', pizzas),
-        ]
-        [p.start() for p in self.__patchers]
+        self.__patchers = []
+        self.patch('slumber.server._get_slumber_service', lambda: 'pizzas')
     def tearDown(self):
         [p.stop() for p in self.__patchers]
+
+class ServiceTestsWithDirectory(ServiceTests):
+    def setUp(self):
+        super(ServiceTestsWithDirectory, self).setUp()
+        directory = lambda: dict(pizzas='http://localhost:8000/slumber/pizzas/')
+        self.patch('slumber.server._get_slumber_directory', directory)
 
 
 class ViewErrors(ViewTests):
@@ -346,6 +353,10 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
     def test_service_configuration_works_for_remoteforeignkey(self):
         order = Order(shop='http://example.com/slumber/Shop/5/data/')
         order.save()
+
+class BasicViewsWithServiceDirectory(BasicViews,
+        ServiceTestsWithDirectory, TestCase):
+    pass
 
 
 class UserViews(ViewTests):
