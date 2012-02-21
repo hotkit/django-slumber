@@ -1,6 +1,6 @@
 from django.db import models
 
-from slumber.models import RemoteForeignKey
+from slumber.fields import RemoteForeignKey
 
 
 class Shop(models.Model):
