@@ -10,6 +10,13 @@ class URLHandling(TestCase):
         self.assertEquals(translated,
             'http://example.com/slumber/')
 
+    def test_no_service_specified(self):
+        translated = to_slumber_scheme(
+            'http://example.com/slumber/', None,
+            dict(testservice='http://example.com/slumber/testservice/'))
+        self.assertEquals(translated,
+            'http://example.com/slumber/')
+
     def test_is_a_service(self):
         translated = to_slumber_scheme(
             'http://example.com/slumber/testservice/Model/', 'testservice',
@@ -37,6 +44,12 @@ class URLHandling(TestCase):
             dict(testservice='http://example.com/slumber/testservice/'))
         self.assertEquals(translated,
             'http://example.com/slumber/testservice/Model/')
+
+    def test_slumber_service_url_without_giving_a_service(self):
+        with self.assertRaises(NotImplementedError):
+            from_slumber_scheme(
+                'slumber://testservice/Model/', None,
+                dict(testservice='http://example.com/slumber/testservice/'))
 
     def test_slumber_service_url_with_a_different_service(self):
         with self.assertRaises(NotImplementedError):

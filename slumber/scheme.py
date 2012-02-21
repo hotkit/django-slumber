@@ -6,7 +6,7 @@
 def to_slumber_scheme(url, service, services):
     """Look at the URL and convert it to a service based URL if applicable.
     """
-    if services.has_key(service):
+    if service and services.has_key(service):
         service_url = services[service]
         if url.startswith(service_url):
             return 'slumber://%s/%s' % (service, url[len(service_url):])
@@ -18,7 +18,7 @@ def from_slumber_scheme(url, service, services):
     configuration.
     """
     if url.startswith('slumber://'):
-        if services.has_key(service):
+        if service and services.has_key(service):
             service_prefix = 'slumber://%s/' % service
             if url.startswith(service_prefix):
                 service_url = services[service]
