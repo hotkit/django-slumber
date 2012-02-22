@@ -26,22 +26,17 @@ class RemoteForeignKey(URLField):
         if isinstance(value, basestring):
             return value
         url = value._url
-        print "get_db_prep_value", value, url
         final_url = super(RemoteForeignKey, self).get_db_prep_value(
             to_slumber_scheme(url, get_slumber_services()), *a, **kw)
-        print "get_db_prep_value", value, final_url
         return final_url
 
     def get_prep_value(self, value):
-        print "get_prep_value", value
         return self.get_db_prep_value(value)
 
     def to_python(self, value):
-        print "to_python", value
         if isinstance(value, _InstanceProxy):
             return value
         url = from_slumber_scheme(
             super(RemoteForeignKey, self).to_python(value),
             get_slumber_services())
-        print "to_python", value, url
         return get_instance_from_url(url)
