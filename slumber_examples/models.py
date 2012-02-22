@@ -49,4 +49,5 @@ class Profile(models.Model):
 
 
 class Order(models.Model):
-    shop = RemoteForeignKey(null=False, service='pizzas')
+    shop = RemoteForeignKey(null=False,
+        model_url='slumber://pizzas/slumber_examples/Shop/')

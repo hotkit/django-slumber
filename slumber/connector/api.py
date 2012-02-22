@@ -47,6 +47,13 @@ def get_model(url):
         return MODEL_URL_TO_SLUMBER_MODEL[url]
 
 
+def get_instance_from_url(url):
+    """Returns a local instance proxy for the object described by the
+    absolute URL provided.
+    """
+    return _InstanceProxy(url, None)
+
+
 def get_instance_from_data(base_url, json):
     """Return a local instance proxy for the object described by the provided
     JSON like Python datastructure.
@@ -145,6 +152,9 @@ class _InstanceProxy(object):
     def __unicode__(self):
         """Allow us to take the unicode name of the instance
         """
+        if not self._display:
+            instance = self._fetch_instance()
+            self._display = instance._display
         return self._display
 
 
@@ -190,10 +200,9 @@ class _InstanceConnector(DictObject):
             for o, u in json['operations'].items()])
         for k, v in json['fields'].items():
             setattr(self, k, from_json_data(self._url, v))
-        if name in json['fields'].keys():
+        self._display = json['display']
+        if name in json['fields'].keys() + ['_operations', '_display']:
             return getattr(self, name)
-        elif name == '_operations':
-            return self._operations
         else:
             return _return_data_array(
                 self._url, json['data_arrays'], self, name, self._CACHE_TTL)
