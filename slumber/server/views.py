@@ -102,8 +102,6 @@ def get_model(_, response, model):
     response['name'] = model.name
     response['module'] = model.app.name
     response['fields'] = model.fields
-    # We have to access _meta
-    # pylint: disable=W0212
     response['puttable'] = [[f] for f, p in model.fields.items()
             if p['kind'] != 'property' and
                 model.model._meta.get_field(f).unique] + \
