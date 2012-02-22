@@ -386,20 +386,24 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
 class BasicViewsWithServiceDirectory(BasicViews,
         ServiceTestsWithDirectory, TestCase):
     def test_service_configuration_works_for_remoteforeignkey(self):
+        client = Client()
+        shop = client.pizzas.slumber_examples.Shop.create(name="Home", slug='home')
         print "About to create Order"
-        #order = Order(shop='http://localhost:8000/slumber/pizzas/Shop/5/data/')
-        #print "About to save Order"
-        #order.save()
-        #print "Fetch from database (raw)"
-        #cursor = connection.cursor()
-        #cursor.execute(
-            #"SELECT substr(shop, 2) FROM slumber_examples_order WHERE id=%s",
-            #[order.pk])
-        #row = cursor.fetchone()
-        #self.assertEquals(row[0], 'slumber://pizzas/Shop/5/data/')
-        #print "Fetch from database (O/RM)"
-        #order2 = Order.objects.get(pk=order.pk)
-        #self.assertEquals(order2.shop, order.shop)
+        order = Order(shop=shop)
+        print "About to save Order"
+        order.save()
+        print "Fetch from database (raw)"
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT shop FROM slumber_examples_order WHERE id=%s",
+            [order.pk])
+        row = cursor.fetchone()
+        self.assertEquals(row[0],
+            'slumber://pizzas/slumber_examples/Shop/data/%s/' % shop.id)
+        print "Fetch from database (O/RM)"
+        order2 = Order.objects.get(pk=order.pk)
+        self.assertEquals(unicode(order2.shop), unicode(order.shop))
+        self.assertEquals(order2.shop.id, order.shop.id)
 
 
 class UserViews(ViewTests):
