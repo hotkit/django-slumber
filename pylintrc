@@ -32,7 +32,8 @@ load-plugins=
 # I0011 Locally disabling ...
 # R0903 Too few public methods
 # W0142 Used * or ** magic
-disable=I0011, R0903, W0142
+# W0212 Access to protected member
+disable=I0011, R0903, W0142, W0212
 
 
 [REPORTS]

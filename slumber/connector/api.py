@@ -24,8 +24,6 @@ def get_instance(model, instance_url, display_name, fields = None):
     fields = fields or {}
     bases = [_InstanceProxy]
     for type_url, proxy in INSTANCE_PROXIES.items():
-        # We're going to allow ourselves access to _url within the library
-        # pylint: disable = W0212
         if model._url.endswith(type_url):
             bases.append(proxy)
     type_name = str(model.module + '.' + model.name)
@@ -45,6 +43,13 @@ def get_model(url):
         return model_type(url)
     else:
         return MODEL_URL_TO_SLUMBER_MODEL[url]
+
+
+def get_instance_from_url(url):
+    """Returns a local instance proxy for the object described by the
+    absolute URL provided.
+    """
+    return _InstanceProxy(url, None)
 
 
 def get_instance_from_data(base_url, json):
@@ -145,6 +150,9 @@ class _InstanceProxy(object):
     def __unicode__(self):
         """Allow us to take the unicode name of the instance
         """
+        if not self._display:
+            instance = self._fetch_instance()
+            self._display = instance._display
         return self._display
 
 
@@ -190,10 +198,9 @@ class _InstanceConnector(DictObject):
             for o, u in json['operations'].items()])
         for k, v in json['fields'].items():
             setattr(self, k, from_json_data(self._url, v))
-        if name in json['fields'].keys():
+        self._display = json['display']
+        if name in json['fields'].keys() + ['_operations', '_display']:
             return getattr(self, name)
-        elif name == '_operations':
-            return self._operations
         else:
             return _return_data_array(
                 self._url, json['data_arrays'], self, name, self._CACHE_TTL)
