@@ -6,37 +6,30 @@ from slumber.scheme import to_slumber_scheme, from_slumber_scheme, \
 class URLHandlingToDatabase(TestCase):
     def test_no_services_pass_url_unchanged(self):
         translated = to_slumber_scheme(
-            'http://example.com/slumber/', 'not_a_service', None)
+            'http://example.com/slumber/', None)
         self.assertEquals(translated,
             'http://example.com/slumber/')
 
     def test_not_a_service(self):
         translated = to_slumber_scheme(
-            'http://example.com/slumber/', 'not_a_service',
+            'http://example.org/slumber/',
             dict(testservice='http://example.com/slumber/testservice/'))
         self.assertEquals(translated,
-            'http://example.com/slumber/')
-
-    def test_no_service_specified(self):
-        translated = to_slumber_scheme(
-            'http://example.com/slumber/', None,
-            dict(testservice='http://example.com/slumber/testservice/'))
-        self.assertEquals(translated,
-            'http://example.com/slumber/')
+            'http://example.org/slumber/')
 
     def test_is_a_service(self):
         translated = to_slumber_scheme(
-            'http://example.com/slumber/testservice/Model/', 'testservice',
+            'http://example.com/slumber/testservice/Model/',
             dict(testservice='http://example.com/slumber/testservice/'))
         self.assertEquals(translated,
             'slumber://testservice/Model/')
 
-    def test_wrong_url_prefix(self):
+    def test_ambiguous_prefix(self):
         translated = to_slumber_scheme(
-            'http://www.example.com/slumber/testservice/Model/', 'testservice',
-            dict(testservice='http://example.com/slumber/testservice/'))
-        self.assertEquals(translated,
-            'http://www.example.com/slumber/testservice/Model/')
+            'http://www.example.com/slumber/testservice/Model/',
+            dict(a='http://www.example.com/slumber/testservice/',
+                testmodel='http://www.example.com/slumber/testservice/Model/'))
+        self.assertEquals(translated, 'slumber://testmodel/')
 
 
 class URLHandlingFromDatabase(TestCase):

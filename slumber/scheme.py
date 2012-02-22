@@ -10,14 +10,18 @@ class SlumberServiceURLError(Exception):
     pass
 
 
-def to_slumber_scheme(url, service, services):
+def to_slumber_scheme(url, services):
     """Look at the URL and convert it to a service based URL if applicable.
     """
-    if service and services and services.has_key(service):
-        service_url = services[service]
-        if url.startswith(service_url):
-            return 'slumber://%s/%s' % (service, url[len(service_url):])
-    return url
+    ret = None
+    if services:
+        longest = None, ''
+        for service, service_url in services.items():
+            if url.startswith(service_url) and len(service_url) > len(longest):
+                ret, longest =  \
+                    'slumber://%s/%s' % (service, url[len(service_url):]), \
+                        service_url
+    return ret or url
 
 
 def from_slumber_scheme(url, services):
