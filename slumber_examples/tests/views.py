@@ -367,17 +367,21 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(json['services'].get('pizzas', None), '/slumber/pizzas/', json)
 
-    #def test_service_configuration_works_for_remoteforeignkey(self):
-        #order = Order(shop='http://example.com/slumber/Shop/5/data/')
-        #order.save()
-        #cursor = connection.cursor()
-        #cursor.execute(
-            #"SELECT shop FROM slumber_examples_order WHERE id=%s",
-            #[order.pk])
-        #row = cursor.fetchone()
-        #self.assertEquals(row[0], order.shop)
-        #order2 = Order.objects.get(pk=order.pk)
-        #self.assertEquals(order2.shop, order.shop)
+    def test_service_configuration_works_for_remoteforeignkey(self):
+        client = Client()
+        shop = client.pizzas.slumber_examples.Shop.create(name="Home", slug='home')
+        order = Order(shop=shop)
+        order.save()
+        self.assertIsNotNone(order.shop)
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT shop FROM slumber_examples_order WHERE id=%s",
+            [order.pk])
+        row = cursor.fetchone()
+        self.assertEquals(row[0], order.shop._url)
+        order2 = Order.objects.get(pk=order.pk)
+        self.assertEquals(unicode(order2.shop), unicode(order.shop))
+        self.assertEquals(order2.shop.id, order.shop.id)
 
 class BasicViewsWithServiceDirectory(BasicViews,
         ServiceTestsWithDirectory, TestCase):
