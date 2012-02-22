@@ -20,7 +20,7 @@ def to_slumber_scheme(url, service, services):
     return url
 
 
-def from_slumber_scheme(url, service, services):
+def from_slumber_scheme(url, services):
     """Turn a Slumber URL into a full URI as specified by the service
     configuration.
     """
@@ -28,9 +28,8 @@ def from_slumber_scheme(url, service, services):
         if not services:
             raise SlumberServiceURLError(
                 "There are no services in the Slumber directory "
-                "so the URL %s for service '%s' cannot be dereferenced"
-                    % (url, service))
-        if service and services.has_key(service):
+                "so the URL %s cannot be dereferenced" % url)
+        for service in  services.keys():
             service_prefix = 'slumber://%s/' % service
             if url.startswith(service_prefix):
                 service_url = services[service]
