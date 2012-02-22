@@ -41,11 +41,11 @@ In order to fetch objects from the remote end you should import the client and m
 
 The `RemoteForeignKey` model field is used where you want a foreign key that points to an object on a different data service.
 
-#### `service = None` ####
+#### `model_url` ####
 
 Controls whether Slumber will re-write URLs saved in the database to be relative to the service that it is given. If the URL starts with the same string as the URL for the specified service then Slumber will replace that prefix with `slumber://service/` before putting the data into the database and replace that with the service prefix when reading the data from the database. This means that if you copy a database, for example, from production to testing all of the URLs will come out against the correct services on the test server.
 
-If no slumber_service is specified then URL translation will not occur. It's very likely that this behaviour will change in a future release.
+The model URL may be specified in the `slumber:` form so that the real URL will be calculated depending on the deployment configuration.
 
 ## Slumber services ##
 
