@@ -48,3 +48,8 @@ class WidgetTest(TestCase):
         form = WidgetTest.Form(dict(rfk=shop._url))
         self.assertTrue(form.is_valid())
         self.assertEquals(form.cleaned_data['rfk'].id, shop.id)
+
+    def test_given_bad_url(self):
+        form = WidgetTest.Form(dict(rfk=
+            'http://localhost:8000/slumber/slumber_examples/Shop/2/data/'))
+        self.assertFalse(form.is_valid())

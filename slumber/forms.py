@@ -3,7 +3,7 @@
 """
 from django import forms
 
-from slumber.connector.api import get_instance_from_url
+from slumber.connector.api import _InstanceProxy, get_instance_from_url
 
 
 class RemoteForeignKeyWidget(forms.TextInput):
@@ -27,5 +27,12 @@ class RemoteForeignKeyField(forms.Field):
             if self.required:
                 raise forms.ValidationError('This field is required')
             return None
+        elif isinstance(value, _InstanceProxy):
+            return value
         else:
-            return get_instance_from_url(value)
+            instance = get_instance_from_url(value)
+            try:
+                instance._fetch_instance()._fetch_data()
+            except AssertionError:
+                raise forms.ValidationError("The remote object doesn't exist")
+            return instance
