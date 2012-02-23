@@ -9,13 +9,28 @@ from slumber_examples.models import Order
 
 class WidgetTest(TestCase):
     class Form(forms.Form):
-        rfk = RemoteForeignKeyField()
+        rfk = RemoteForeignKeyField(required=True)
+    class OptionalForm(forms.Form):
+        rfk = RemoteForeignKeyField(required=False)
 
     def test_default_formfield(self):
         form = WidgetTest.Form()
         self.assertEquals(form.as_p(),
             '''<p><label for="id_rfk">Rfk:</label> '''
                 '''<input type="text" name="rfk" id="id_rfk" /></p>''')
+
+    def test_empty_form_submission_with_required_field(self):
+        form = WidgetTest.Form(dict(rfk=''))
+        self.assertFalse(form.is_valid())
+        self.assertEquals(form.as_p(),
+            '''<ul class="errorlist"><li>This field is required</li></ul>\n'''
+            '''<p><label for="id_rfk">Rfk:</label> '''
+                '''<input type="text" name="rfk" id="id_rfk" /></p>''')
+
+    def test_empty_form_submission_with_optional_field(self):
+        form = WidgetTest.OptionalForm(dict(rfk=''))
+        self.assertTrue(form.is_valid())
+        self.assertIsNone(form.cleaned_data['rfk'])
 
     def test_default_widget_with_data(self):
         shop = client.slumber_examples.Shop.create(
