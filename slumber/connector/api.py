@@ -190,7 +190,9 @@ class _InstanceConnector(DictObject):
         self._url = url
         super(_InstanceConnector, self).__init__(**kwargs)
 
-    def __getattr__(self, name):
+    def _fetch_data(self):
+        """Force fetching the data for this instance.
+        """
         _, json = get(self._url, self._CACHE_TTL)
         # We need to set this outside of __init__ for it to work correctly
         # pylint: disable = W0201
@@ -199,6 +201,10 @@ class _InstanceConnector(DictObject):
         for k, v in json['fields'].items():
             setattr(self, k, from_json_data(self._url, v))
         self._display = json['display']
+        return json
+
+    def __getattr__(self, name):
+        json = self._fetch_data()
         if name in json['fields'].keys() + ['_operations', '_display']:
             return getattr(self, name)
         else:

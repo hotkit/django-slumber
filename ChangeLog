@@ -1,3 +1,6 @@
+2012-02-23  Kirit Saelensminde  <kirit@felspar.com>
+ Added a form field and basic widget for the RemoteForeignKey model field type.
+
 2012-02-22  Kirit Saelensminde  <kirit@felspar.com>
  Added a RemoteForeignKey field type which can be used to handle Slumber objects running in the same or remote services.
 
