@@ -4,9 +4,9 @@
 from django.db.models import URLField, SubfieldBase
 
 from slumber.connector.api import _InstanceProxy, get_instance_from_url
+from slumber.forms import RemoteForeignKeyWidget
 from slumber.scheme import to_slumber_scheme, from_slumber_scheme
 from slumber.server import get_slumber_services
-from slumber.widgets import RemoteForeignKeyWidget
 
 
 class RemoteForeignKey(URLField):
