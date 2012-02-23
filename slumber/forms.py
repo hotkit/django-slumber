@@ -10,8 +10,12 @@ class RemoteForeignKeyWidget(forms.TextInput):
     """A widget that allows the URL to be edited.
     """
     def render(self, name, value, **kw):
-        return super(RemoteForeignKeyWidget, self).render(
-            name, value._url if value else None, **kw)
+        if isinstance(value, basestring):
+            return super(RemoteForeignKeyWidget, self).render(
+                name, value, **kw)
+        else:
+            return super(RemoteForeignKeyWidget, self).render(
+                name, value._url if value else None, **kw)
 
 class RemoteForeignKeyField(forms.Field):
     """A simple widget that allows the URL for the remote object to be
