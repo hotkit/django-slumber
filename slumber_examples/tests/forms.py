@@ -62,3 +62,10 @@ class WidgetTest(TestCase):
         self.assertEquals(form.as_p(),
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" id="id_shop" /></p>''')
+
+    def test_model_form_submission(self):
+        shop = client.slumber_examples.Shop.create(
+            name='Shop', slug='shop')
+        form = WidgetTest.ModelForm(dict(shop=shop))
+        self.assertEquals(type(form.fields['shop']), RemoteForeignKeyField)
+        self.assertTrue(form.is_valid())

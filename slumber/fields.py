@@ -23,6 +23,10 @@ class RemoteForeignKey(URLField):
         self.model_url = model_url
         super(RemoteForeignKey, self).__init__(**kwargs)
 
+    def run_validators(self, value):
+        # Do not rely on validators as we want to support Django 1.0
+        pass
+
     def get_db_prep_value(self, value, *a, **kw):
         if isinstance(value, basestring):
             return value
