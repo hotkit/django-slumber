@@ -6,6 +6,7 @@ from django.db.models import URLField, SubfieldBase
 from slumber.connector.api import _InstanceProxy, get_instance_from_url
 from slumber.scheme import to_slumber_scheme, from_slumber_scheme
 from slumber.server import get_slumber_services
+from slumber.widgets import RemoteForeignKeyWidget
 
 
 class RemoteForeignKey(URLField):
@@ -40,3 +41,8 @@ class RemoteForeignKey(URLField):
             super(RemoteForeignKey, self).to_python(value),
             get_slumber_services())
         return get_instance_from_url(url)
+
+    def formfield(self, **kwargs):
+        defaults = {'form_class': RemoteForeignKeyWidget}
+        defaults.update(kwargs)
+        return super(RemoteForeignKey, self).formfield(**defaults)
