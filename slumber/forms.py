@@ -3,6 +3,8 @@
 """
 from django import forms
 
+from slumber.connector.api import get_instance_from_url
+
 
 class RemoteForeignKeyWidget(forms.TextInput):
     """A widget that allows the URL to be edited.
@@ -19,3 +21,9 @@ class RemoteForeignKeyField(forms.Field):
         default = {'widget': RemoteForeignKeyWidget}
         default.update(kwargs)
         super(RemoteForeignKeyField, self).__init__(**default)
+
+    def clean(self, value):
+        if not value:
+            return None
+        else:
+            return get_instance_from_url(value)

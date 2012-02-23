@@ -26,3 +26,10 @@ class WidgetTest(TestCase):
                 '''<input type="text" name="rfk" '''
                     '''value="http://localhost:8000/slumber/slumber_examples/Shop/data/1/" '''
                     '''id="id_rfk" /></p>''')
+
+    def test_default_widget_with_submit_data(self):
+        shop = client.slumber_examples.Shop.create(
+            name='Shop', slug='shop')
+        form = WidgetTest.Form(dict(rfk=shop._url))
+        self.assertTrue(form.is_valid())
+        self.assertEquals(form.cleaned_data['rfk'].id, shop.id)
