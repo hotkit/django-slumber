@@ -12,6 +12,9 @@ class WidgetTest(TestCase):
         rfk = RemoteForeignKeyField(required=True)
     class OptionalForm(forms.Form):
         rfk = RemoteForeignKeyField(required=False)
+    class ModelForm(forms.ModelForm):
+        class Meta:
+            model = Order
 
     def test_default_formfield(self):
         form = WidgetTest.Form()
@@ -53,3 +56,9 @@ class WidgetTest(TestCase):
         form = WidgetTest.Form(dict(rfk=
             'http://localhost:8000/slumber/slumber_examples/Shop/2/data/'))
         self.assertFalse(form.is_valid())
+
+    def test_model_form(self):
+        form = WidgetTest.ModelForm()
+        self.assertEquals(form.as_p(),
+            '''<p><label for="id_shop">Shop:</label> '''
+                '''<input type="text" name="shop" id="id_shop" /></p>''')

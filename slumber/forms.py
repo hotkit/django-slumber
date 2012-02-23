@@ -17,7 +17,9 @@ class RemoteForeignKeyField(forms.Field):
     """A simple widget that allows the URL for the remote object to be
     seen and edited.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, max_length=None, verify_exists=True, **kwargs):
+        self.max_length = max_length
+        self.verify_exists = verify_exists
         default = {'widget': RemoteForeignKeyWidget}
         default.update(kwargs)
         super(RemoteForeignKeyField, self).__init__(**default)
