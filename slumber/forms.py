@@ -2,6 +2,7 @@
     Contains widgets used for Slumber.
 """
 from django import forms
+from django.contrib.admin.widgets import AdminURLFieldWidget
 
 from slumber.connector.api import _InstanceProxy, get_instance_from_url
 
@@ -27,18 +28,10 @@ class RemoteForeignKeyField(forms.Field):
         self.verify_exists = verify_exists
         default = {'widget': RemoteForeignKeyWidget}
         default.update(kwargs)
+        if default['widget'] == AdminURLFieldWidget:
+            # We have to ignore a request for admin's broken widget
+            default['widget'] = RemoteForeignKeyWidget
         super(RemoteForeignKeyField, self).__init__(**default)
-
-    def prep_value(self, value):
-        """This prepares the value under later versions of Django so that if
-        another widget is used we still get the URL.
-        """
-        # This needs to be a method as that's what Django has designed
-        # pylint: disable=R0201
-        if isinstance(value, basestring):
-            return value
-        else:
-            return value._url if value else None
 
     def clean(self, value):
         if not value:

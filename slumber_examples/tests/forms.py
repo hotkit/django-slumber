@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.admin.widgets import AdminURLFieldWidget
 from django.test import TestCase
 
 from slumber import client
@@ -16,6 +17,8 @@ class WidgetTest(TestCase):
     class ModelForm(forms.ModelForm):
         class Meta:
             model = Order
+    class AdminForm(forms.Form):
+        rfk = RemoteForeignKeyField(widget=AdminURLFieldWidget)
 
     def test_default_formfield(self):
         form = WidgetTest.Form()
@@ -142,3 +145,13 @@ class WidgetTest(TestCase):
                 '''<input type="text" name="shop" '''
                     '''value="http://localhost:8000/slumber/slumber_examples/Shop/data/1/" '''
                     '''id="id_shop" /></p>''')
+
+    def test_admin_form_with_order(self):
+        shop = client.slumber_examples.Shop.create(
+            name='Shop', slug='shop')
+        form = WidgetTest.AdminForm(dict(rfk=shop))
+        self.assertEquals(form.as_p(),
+            '''<p><label for="id_rfk">Rfk:</label> '''
+                '''<input type="text" name="rfk" '''
+                    '''value="http://localhost:8000/slumber/slumber_examples/Shop/data/1/" '''
+                    '''id="id_rfk" /></p>''')
