@@ -12,4 +12,4 @@ function check_worked {
 
 pandoc -f markdown -t rst README.markdown > README
 check_worked python setup.py sdist upload
-rm -r dist django_slumber.egg-info
+rm -r dist django_slumber.egg-info README
