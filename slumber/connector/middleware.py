@@ -23,8 +23,6 @@ class Cache(object):
         """Turn the cache off again at the end of the request and flush it.
         """
         CLIENT_INSTANCE_CACHE.enabled = False
-        # We're inside Slumber so the private access is ok.
-        # pylint: disable=W0212
         client._flush_client_instance_cache()
         return response
 

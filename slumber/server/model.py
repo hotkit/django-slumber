@@ -42,8 +42,6 @@ class DjangoModel(object):
         """
         if self._fields or self._data_arrays:
             return
-        # We have to access _meta
-        # pylint: disable=W0212
         for field in self.model._meta.get_all_field_names():
             try:
                 definition = self.model._meta.get_field(field)
