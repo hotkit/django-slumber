@@ -17,6 +17,7 @@ class RemoteForeignKeyWidget(forms.TextInput):
             return super(RemoteForeignKeyWidget, self).render(
                 name, value._url if value else None, **kw)
 
+
 class RemoteForeignKeyField(forms.Field):
     """A simple widget that allows the URL for the remote object to be
     seen and edited.
@@ -27,6 +28,17 @@ class RemoteForeignKeyField(forms.Field):
         default = {'widget': RemoteForeignKeyWidget}
         default.update(kwargs)
         super(RemoteForeignKeyField, self).__init__(**default)
+
+    def prep_value(self, value):
+        """This prepares the value under later versions of Django so that if
+        another widget is used we still get the URL.
+        """
+        # This needs to be a method as that's what Django has designed
+        # pylint: disable=R0201
+        if isinstance(value, basestring):
+            return value
+        else:
+            return value._url if value else None
 
     def clean(self, value):
         if not value:
