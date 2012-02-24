@@ -3,9 +3,11 @@ from simplejson import loads
 
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
+from django.db import connection
 from django.test import TestCase
 
-from slumber_examples.models import Pizza, PizzaPrice
+from slumber import Client
+from slumber_examples.models import Pizza, PizzaPrice, Order
 
 
 def _perform(client, method, url, data):
@@ -41,14 +43,21 @@ class ServiceTests(object):
     """Used to get service based view tests.
     """
     PREFIX  = '/slumber/pizzas'
+    def patch(self, what, to):
+        patcher = patch(what, to)
+        self.__patchers.append(patcher)
+        patcher.start()
     def setUp(self):
-        pizzas = lambda: 'pizzas'
-        self.__patchers = [
-            patch('slumber.server._get_slumber_service', pizzas),
-        ]
-        [p.start() for p in self.__patchers]
+        self.__patchers = []
+        self.patch('slumber.server._get_slumber_service', lambda: 'pizzas')
     def tearDown(self):
         [p.stop() for p in self.__patchers]
+
+class ServiceTestsWithDirectory(ServiceTests):
+    def setUp(self):
+        super(ServiceTestsWithDirectory, self).setUp()
+        directory = lambda: dict(pizzas='http://localhost:8000/slumber/pizzas/')
+        self.patch('slumber.server._get_slumber_directory', directory)
 
 
 class ViewErrors(ViewTests):
@@ -319,7 +328,23 @@ class BasicViews(ViewTests):
             Pizza.objects.get(pk=s.pk)
 
 class BasicViewsPlain(BasicViews, PlainTests, TestCase):
-    pass
+    def test_service_configuration_missing_for_remoteforeignkey(self):
+        client = Client()
+        shop = client.slumber_examples.Shop.create(name="Home", slug='home')
+        order = Order(shop=shop)
+        order.save()
+        self.assertIsNotNone(order.shop)
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT shop FROM slumber_examples_order WHERE id=%s",
+            [order.pk])
+        row = cursor.fetchone()
+        self.assertEquals(row[0], order.shop._url)
+        order2 = Order.objects.get(pk=order.pk)
+        self.assertIsNotNone(order2.shop)
+        self.assertEquals(unicode(order2.shop), unicode(order.shop))
+        self.assertEquals(order2.shop.id, order.shop.id)
+
 class BasicViewsService(BasicViews, ServiceTests, TestCase):
     def test_services_with_directory(self):
         with patch('slumber.server.get_slumber_directory', lambda: {
@@ -340,6 +365,40 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
         json = loads(response.content)
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(json['services'].get('pizzas', None), '/slumber/pizzas/', json)
+
+    def test_service_configuration_works_for_remoteforeignkey(self):
+        client = Client()
+        shop = client.pizzas.slumber_examples.Shop.create(name="Home", slug='home')
+        order = Order(shop=shop)
+        order.save()
+        self.assertIsNotNone(order.shop)
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT shop FROM slumber_examples_order WHERE id=%s",
+            [order.pk])
+        row = cursor.fetchone()
+        self.assertEquals(row[0], order.shop._url)
+        order2 = Order.objects.get(pk=order.pk)
+        self.assertEquals(unicode(order2.shop), unicode(order.shop))
+        self.assertEquals(order2.shop.id, order.shop.id)
+
+class BasicViewsWithServiceDirectory(BasicViews,
+        ServiceTestsWithDirectory, TestCase):
+    def test_service_configuration_works_for_remoteforeignkey(self):
+        client = Client()
+        shop = client.pizzas.slumber_examples.Shop.create(name="Home", slug='home')
+        order = Order(shop=shop)
+        order.save()
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT shop FROM slumber_examples_order WHERE id=%s",
+            [order.pk])
+        row = cursor.fetchone()
+        self.assertEquals(row[0],
+            'slumber://pizzas/slumber_examples/Shop/data/%s/' % shop.id)
+        order2 = Order.objects.get(pk=order.pk)
+        self.assertEquals(unicode(order2.shop), unicode(order.shop))
+        self.assertEquals(order2.shop.id, order.shop.id)
 
 
 class UserViews(ViewTests):
