@@ -24,3 +24,9 @@ class OrderTests(TestCase):
                 _meta = dict(status=200, message="OK"),
                 form = dict(quantity='integer'),
             ))
+
+    def test_order_post(self):
+        pizza = self.cnx.slumber_examples.Pizza.get(id=self.pizza.id)
+        response = self.client.post('/slumber/slumber_examples/Pizza/order/1/',
+            dict(quantity=3))
+        self.assertEquals(response.status_code, 501, response.content)
