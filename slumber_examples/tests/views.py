@@ -259,6 +259,7 @@ class BasicViews(ViewTests):
             operations=dict(
                 data=self.url('/slumber_examples/Pizza/data/1/'),
                 delete=self.url('/slumber_examples/Pizza/delete/1/'),
+                order=self.url('/slumber_examples/Pizza/order/1/'),
                 update=self.url('/slumber_examples/Pizza/update/1/')),
             fields=dict(
                 id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),

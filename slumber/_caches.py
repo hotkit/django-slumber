@@ -16,3 +16,7 @@ MODEL_URL_TO_SLUMBER_MODEL = {}
 CLIENT_INSTANCE_CACHE = type('cache', (dict,), {})()
 # Leave the cache off by default
 CLIENT_INSTANCE_CACHE.enabled = False
+
+
+# Stores the operations used for a given model on the server
+SLUMBER_MODEL_OPERATIONS = {}
