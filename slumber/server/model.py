@@ -4,7 +4,8 @@
 from django.db.models import ForeignKey
 from django.db.models.fields import FieldDoesNotExist
 
-from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
+from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL, \
+    SLUMBER_MODEL_OPERATIONS
 from slumber.operations.authenticate import AuthenticateUser
 from slumber.operations.authorization import PermissionCheck, \
     ModulePermissions, GetPermissions
@@ -36,6 +37,20 @@ class DjangoModel(object):
 
         self.properties = dict(r=[], w=[])
         self._fields, self._data_arrays = {}, []
+        SLUMBER_MODEL_OPERATIONS[self] = [
+            InstanceList(self, 'instances'),
+            CreateInstance(self, 'create'),
+            InstanceData(self, 'data'),
+            DeleteInstance(self, 'delete'),
+            DereferenceInstance(self, 'get'),
+            UpdateInstance(self, 'update')]
+        if self.path == 'django/contrib/auth/User/':
+            ops = SLUMBER_MODEL_OPERATIONS[self]
+            ops.append(AuthenticateUser(self, 'authenticate'))
+            ops.append(PermissionCheck(self, 'has-permission'))
+            ops.append(GetPermissions(self, 'get-permissions'))
+            ops.append(GetProfile(self, 'get-profile'))
+            ops.append(ModulePermissions(self, 'module-permissions'))
 
     def _get_fields_and_data_arrays(self):
         """Work out what the fields we have are.
@@ -88,21 +103,7 @@ class DjangoModel(object):
     def operations(self):
         """Return all of  the operations available for this model.
         """
-        base_operations = [InstanceList(self, 'instances'),
-                CreateInstance(self, 'create'),
-                InstanceData(self, 'data'),
-                DeleteInstance(self, 'delete'),
-                DereferenceInstance(self, 'get'),
-                UpdateInstance(self, 'update')]
-        extra_operations = []
-        if self.path == 'django/contrib/auth/User/':
-            extra_operations.append(AuthenticateUser(self, 'authenticate'))
-            extra_operations.append(PermissionCheck(self, 'has-permission'))
-            extra_operations.append(GetPermissions(self, 'get-permissions'))
-            extra_operations.append(GetProfile(self, 'get-profile'))
-            extra_operations.append(ModulePermissions(
-                self, 'module-permissions'))
-        return base_operations + extra_operations
+        return SLUMBER_MODEL_OPERATIONS[self]
 
     def operation_by_name(self, name):
         """Return a given operation by name, or throw an exception.

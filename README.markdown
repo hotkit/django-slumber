@@ -117,6 +117,18 @@ When dealing with operations that create and modify data it's important to remem
 Creates a new instance of the model type on the slumber server.
 
 
+## Customising Slumber operations ##
+
+New operations can be added to a model through the configure call.
+
+    from slumber import configure
+
+    configure(Pizza,
+        operations_extra = [(OrderPizza, 'order')])
+
+You need to a pass a list of binary tuples which contain the operation implementation and the name of the operation.
+
+
 ## Slumber remote authentication and authorization ##
 
 Slumber is also able to help you manage centralised authentication and authorization across RESTful services. This allows you to make use of `django.contrib.auth` on one service to handle permissions on another.

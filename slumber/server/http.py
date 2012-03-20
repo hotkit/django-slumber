@@ -30,9 +30,12 @@ def view_handler(view):
         """The decorated implementation.
         """
         response = {'_meta': dict(status=200, message='OK')}
-        http_response = view(request, response, *args, **kwargs)
-        if http_response:
-            return http_response
+        try:
+            http_response = view(request, response, *args, **kwargs)
+            if http_response:
+                return http_response
+        except NotImplementedError, _:
+            response = {'_meta': dict(status=501, message='Not Implemented')}
         return HttpResponse(dumps(response, indent=4,
                 cls=_proxyEncoder), 'text/plain',
             status=response['_meta']['status'])
