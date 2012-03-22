@@ -117,9 +117,26 @@ When dealing with operations that create and modify data it's important to remem
 Creates a new instance of the model type on the slumber server.
 
 
+### data (instance) ###
+
+Returns the instance attributes and provides links to related data.
+
+#### Customising Slumber data ####
+
+When Slumber loads the applications you have defined in your `settings.py` it will also try to load a module called `slumber_conf` from the same place as your models. This can be used to customise how models appear on the Slumber server.
+
+    from models import Shop
+    from slumber import configure
+
+    configure(Shop,
+        properties_ro = ['web_site'])
+
+This will make a new read-only property `web_site` available in the data about instances populated from the `web_site` property on that model.
+
+
 ## Customising Slumber operations ##
 
-New operations can be added to a model through the configure call.
+New operations can be added to a model through the configure call. This should be placed in your `slumber_config` file.
 
     from slumber import configure
 
@@ -163,19 +180,6 @@ If you include your own GET requests to the user agent in a proxy then you shoul
     ua.get(url, self._CACHE_TTL)
 
 See the file `slumber/connector/proxies.py` for examples on the User object.
-
-
-## Customising Slumber data ##
-
-When Slumber loads the applications you have defined in your `settings.py` it will also try to load a module called `slumber` from the same place as your models. This can be used to customise how models appear on the Slumber server.
-
-    from models import Shop
-    from slumber import configure
-
-    configure(Shop,
-        properties_ro = ['web_site'])
-
-This will make a new read-only property `web_site` available in the data about instances populated from the `web_site` property on that model.
 
 
 # Doing development #
