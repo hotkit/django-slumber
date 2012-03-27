@@ -11,6 +11,8 @@ try:
 except ImportError: # pragma: no cover
     USE_CSRF = False
 
+from slumber.server import NotAuthorised, Forbidden
+
 
 class _proxyEncoder(JSONEncoder):
     """If we don't know how to deal with the attribute type we'll just
@@ -29,19 +31,22 @@ def view_handler(view):
     def wrapper(request, *args, **kwargs):
         """The decorated implementation.
         """
-        if not getattr(request, 'user', None) or \
-                not request.user.is_authenticated():
-            response = {'_meta': dict(status=401, message='Unauthorized')}
-        else:
-            response = {'_meta': dict(status=200, message='OK')}
-            try:
-                http_response = view(request, response, *args, **kwargs)
-                if http_response:
-                    return http_response
-            except NotImplementedError, _:
-                response = {
-                    '_meta': dict(status=501, message='Not Implemented')}
+        response = {'_meta': dict(status=200, message='OK')}
+        try:
+            http_response = view(request, response, *args, **kwargs)
+            if http_response:
+                return http_response
+        except NotAuthorised, _:
+            response = {'_meta': dict(status=401, message='Unauthorized'),
+                'error': 'No user is logged in'}
+        except Forbidden, e:
+            response = {'_meta': dict(status=403, message='Forbidden'),
+                'error': unicode(e)}
+        except NotImplementedError, _:
+            response = {
+                '_meta': dict(status=501, message='Not Implemented')}
         return HttpResponse(dumps(response, indent=4,
                 cls=_proxyEncoder), 'text/plain',
             status=response['_meta']['status'])
     return wrapper if not USE_CSRF else csrf_exempt(wrapper)
+
