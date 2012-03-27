@@ -5,10 +5,12 @@ from django.test import TestCase
 from slumber import Client
 
 from slumber_examples.models import Pizza
+from slumber_examples.tests.configurations import ConfigureUser
 
 
-class OrderTests(TestCase):
+class OrderTests(ConfigureUser, TestCase):
     def setUp(self):
+        super(OrderTests, self).setUp()
         self.pizza = Pizza(name='S1', for_sale=True)
         self.pizza.save()
         self.cnx = Client()

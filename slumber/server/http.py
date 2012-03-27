@@ -29,13 +29,18 @@ def view_handler(view):
     def wrapper(request, *args, **kwargs):
         """The decorated implementation.
         """
-        response = {'_meta': dict(status=200, message='OK')}
-        try:
-            http_response = view(request, response, *args, **kwargs)
-            if http_response:
-                return http_response
-        except NotImplementedError, _:
-            response = {'_meta': dict(status=501, message='Not Implemented')}
+        if not getattr(request, 'user', None) or \
+                not request.user.is_authenticated():
+            response = {'_meta': dict(status=401, message='Unauthorized')}
+        else:
+            response = {'_meta': dict(status=200, message='OK')}
+            try:
+                http_response = view(request, response, *args, **kwargs)
+                if http_response:
+                    return http_response
+            except NotImplementedError, _:
+                response = {
+                    '_meta': dict(status=501, message='Not Implemented')}
         return HttpResponse(dumps(response, indent=4,
                 cls=_proxyEncoder), 'text/plain',
             status=response['_meta']['status'])

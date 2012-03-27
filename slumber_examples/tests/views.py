@@ -8,6 +8,7 @@ from django.test import TestCase
 
 from slumber import Client
 from slumber_examples.models import Pizza, PizzaPrice, Order
+from slumber_examples.tests.configurations import ConfigureUser
 
 
 def _perform(client, method, url, data):
@@ -86,9 +87,9 @@ class ViewErrors(ViewTests):
         response, json = self.do_get('/slumber_examples/Pizza/not-an-operation/')
         self.assertEquals(response.status_code, 404)
 
-class ViewErrorsPlain(ViewErrors, PlainTests, TestCase):
+class ViewErrorsPlain(ConfigureUser, ViewErrors, PlainTests, TestCase):
     pass
-class ViewErrorsService(ViewErrors, ServiceTests, TestCase):
+class ViewErrorsService(ConfigureUser, ViewErrors, ServiceTests, TestCase):
     def test_invalid_service(self):
         response = self.client.get('/slumber/not-a-service/',
             HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
@@ -98,6 +99,8 @@ class ViewErrorsService(ViewErrors, ServiceTests, TestCase):
 class BasicViews(ViewTests):
 
     def test_applications(self):
+        self.assertTrue(bool(self.user))
+        self.assertEqual(self.user.pk, 1)
         response, json = self.do_get('/')
         apps = json['apps']
         self.assertEquals(apps['slumber_examples'], self.url('/slumber_examples/'))
@@ -328,7 +331,7 @@ class BasicViews(ViewTests):
         with self.assertRaises(Pizza.DoesNotExist):
             Pizza.objects.get(pk=s.pk)
 
-class BasicViewsPlain(BasicViews, PlainTests, TestCase):
+class BasicViewsPlain(ConfigureUser, BasicViews, PlainTests, TestCase):
     def test_service_configuration_missing_for_remoteforeignkey(self):
         client = Client()
         shop = client.slumber_examples.Shop.create(name="Home", slug='home')
@@ -346,7 +349,7 @@ class BasicViewsPlain(BasicViews, PlainTests, TestCase):
         self.assertEquals(unicode(order2.shop), unicode(order.shop))
         self.assertEquals(order2.shop.id, order.shop.id)
 
-class BasicViewsService(BasicViews, ServiceTests, TestCase):
+class BasicViewsService(ConfigureUser, BasicViews, ServiceTests, TestCase):
     def test_services_with_directory(self):
         with patch('slumber.server.get_slumber_directory', lambda: {
                 'pizzas': 'http://localhost:8000:/slumber/pizzas/',
@@ -383,7 +386,7 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
         self.assertEquals(unicode(order2.shop), unicode(order.shop))
         self.assertEquals(order2.shop.id, order.shop.id)
 
-class BasicViewsWithServiceDirectory(BasicViews,
+class BasicViewsWithServiceDirectory(ConfigureUser, BasicViews,
         ServiceTestsWithDirectory, TestCase):
     def test_service_configuration_works_for_remoteforeignkey(self):
         client = Client()
@@ -442,7 +445,7 @@ class UserViews(ViewTests):
             {'pk': self.user.pk, 'display_name': 'test-user'},
             json['user'])
         self.assertTrue(
-            json['user']['url'].endswith('/django/contrib/auth/User/data/1/'),
+            json['user']['url'].endswith('/django/contrib/auth/User/data/2/'),
             json['user']['url'])
 
     def test_user_permission_no_permission(self):
@@ -473,8 +476,8 @@ class UserViews(ViewTests):
         self.assertItemsEqual(json['group_permissions'], [])
 
 
-class UserViewsPlain(UserViews, PlainTests, TestCase):
+class UserViewsPlain(ConfigureUser, UserViews, PlainTests, TestCase):
     pass
-class UserViewsService(UserViews, ServiceTests, TestCase):
+class UserViewsService(ConfigureUser, UserViews, ServiceTests, TestCase):
     pass
 

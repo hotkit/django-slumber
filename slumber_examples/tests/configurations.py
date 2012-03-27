@@ -6,12 +6,17 @@ from django.contrib.auth.models import User
 from slumber.connector import Client
 
 
-class ConfigureAuthnBackend(object):
+class ConfigureUser(object):
     def setUp(self):
-        self.user = User(username='user', is_active=True, is_staff=True)
+        self.user = User(username='user', is_active=True, is_staff=True,
+            is_superuser=False)
         self.user.set_password('pass')
         self.user.save()
+        super(ConfigureUser, self).setUp()
 
+
+class ConfigureAuthnBackend(ConfigureUser):
+    def setUp(self):
         self.assertFalse(hasattr(settings, 'SLUMBER_DIRECTORY'))
         self.assertFalse(hasattr(settings, 'SLUMBER_SERVICE'))
         self.__backends = settings.AUTHENTICATION_BACKENDS
@@ -30,14 +35,8 @@ class ConfigureAuthnBackend(object):
             'slumber.connector.middleware.Authentication')
 
 
-class PatchForAuthnService(object):
+class PatchForAuthnService(ConfigureUser):
     def setUp(self):
-        user = User(username='test', is_active=True, is_staff=True,
-            is_superuser=False)
-        user.set_password('pass')
-        user.save()
-        self.user = User.objects.get(username=user.username)
-
         self.assertFalse(hasattr(settings, 'SLUMBER_DIRECTORY'))
         self.assertFalse(hasattr(settings, 'SLUMBER_SERVICE'))
         service = lambda: 'auth'
@@ -53,6 +52,7 @@ class PatchForAuthnService(object):
         client_patch.start()
         self.__patchers.append(client_patch)
         super(PatchForAuthnService, self).setUp()
+        self.user = User.objects.get(username=self.user.username)
     def tearDown(self):
         super(PatchForAuthnService, self).tearDown()
         [p.stop() for p in self.__patchers]

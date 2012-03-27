@@ -4,8 +4,10 @@ from django.test import TestCase
 
 from slumber.connector import Client
 
+from slumber_examples.tests.configurations import ConfigureUser
 
-class TestServices(TestCase):
+
+class TestServices(ConfigureUser, TestCase):
     def setUp(self):
         self.service = lambda: 'pizzas'
         self.services = lambda _ = None: {

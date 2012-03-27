@@ -50,7 +50,8 @@ def get(url, ttl = 0):
             HTTP_HOST='localhost:8000')
         if response.status_code in [301, 302]:
             return get(response['location'])
-        assert response.status_code == 200, (url_fragment, response)
+        assert response.status_code == 200, (
+            url_fragment, response.status_code)
         content = response.content
     else:
         cache_key = 'slumber.connector.ua.get.%s' % url
@@ -60,7 +61,7 @@ def get(url, ttl = 0):
                 response, content = Http().request(url)
                 if response.status == 200:
                     break
-            assert response.status == 200, url
+            assert response.status == 200, (url, response.status)
             if ttl:
                 cache.set(cache_key, (response, content), ttl)
         else:
