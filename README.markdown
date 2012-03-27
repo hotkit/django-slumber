@@ -152,6 +152,12 @@ You need to a pass a list of binary tuples which contain the operation implement
 
 Slumber is also able to help you manage centralised authentication and authorization across RESTful services. This allows you to make use of `django.contrib.auth` on one service to handle permissions on another.
 
+In order to make use of remote authentication you will need to add an authentication backend. The default Django settings don't include `AUTHENTICATION_BACKENDS` so you will need to add this. Typically you will want to turn off Django's normal authentication back end.
+
+    AUTHENTICATION_BACKENDS = [
+        'slumber.connector.authentication.Backend',
+    ]
+
 Any server can be used as the central store, but to get Slumber to make use of it Slumber must be properly configured. Continuing our pizza example from earlier and assuming that we have a Slumber server exposed at `http://auth.example.com/slumber/` we would configure our pizza service as follows.
 
     SLUMBER_SERVICE = 'pizzas'
