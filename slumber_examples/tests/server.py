@@ -2,10 +2,13 @@ from datetime import date
 from mock import patch
 from unittest2 import TestCase
 
+from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.server import get_slumber_services, get_slumber_local_url_prefix, \
     NoServiceSpecified, AbsoluteURIRequired
 from slumber.server.http import view_handler
 from slumber.server.meta import get_application
+
+from slumber_examples.models import Pizza
 
 
 class TestJSON(TestCase):
@@ -16,8 +19,8 @@ class TestJSON(TestCase):
             response['u'] = d
         http_response = view({})
         self.assertEquals(http_response.content,
-            """{\n    "u": "%s",\n    "_meta": {\n        "status": 200,\n        "message": "OK"\n    }\n}""" %
-                d)
+            """{\n    "u": "%s",\n"""
+            """    "_meta": {\n        "status": 200,\n        "message": "OK"\n    }\n}""" % d)
 
 
 class InternalAPIs(TestCase):
@@ -79,3 +82,8 @@ class InternalAPIs(TestCase):
                 with self.assertRaises(AbsoluteURIRequired):
                     self.assertEqual(get_slumber_local_url_prefix(),
                     'http://localhost:8000:/')
+
+    def test_application_repr(self):
+        model = DJANGO_MODEL_TO_SLUMBER_MODEL[Pizza]
+        self.assertEqual(str(model), "slumber_examples.Pizza")
+        self.assertEqual(str(model.app), "slumber_examples")
