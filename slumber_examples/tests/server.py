@@ -1,6 +1,7 @@
 from datetime import date
 from mock import patch
-from unittest2 import TestCase
+
+from django.test import TestCase
 
 from slumber.server import get_slumber_services, get_slumber_local_url_prefix, \
     NoServiceSpecified, AbsoluteURIRequired
@@ -11,10 +12,15 @@ from slumber.server.meta import get_application
 class TestJSON(TestCase):
     def test_unicode_attributes(self):
         d = date.today()
+        class Request(object):
+            class user(object):
+                @classmethod
+                def is_authenticated(cls):
+                    return True
         @view_handler
         def view(request, response):
             response['u'] = d
-        http_response = view({})
+        http_response = view(Request())
         self.assertEquals(http_response.content,
             """{\n    "u": "%s",\n    "_meta": {\n        "status": 200,\n        "message": "OK"\n    }\n}""" %
                 d)

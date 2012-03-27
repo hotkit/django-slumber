@@ -22,7 +22,7 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.backend = Backend()
 
     def test_remote_user(self):
-        user = client.auth.django.contrib.auth.User.get(username='test')
+        user = client.auth.django.contrib.auth.User.get(username='user')
         for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
                 'first_name', 'last_name', 'email', 'username']:
             self.assertTrue(hasattr(user, attr), user.__dict__.keys())
