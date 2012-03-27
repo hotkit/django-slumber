@@ -20,12 +20,14 @@ class NoServiceSpecified(Exception):
     pass
 
 class NotAuthorised(Exception):
-    """Thrown when an anonymous user tries to access an operation, model or application data.
+    """Thrown when an anonymous user tries to access an operation, model or
+    application data.
     """
     pass
 
 class Forbidden(Exception):
-    """Thrown when a user tries to access an operation for which they don't have permission.
+    """Thrown when a user tries to access an operation for which they don't
+    have permission.
     """
     pass
 
