@@ -29,19 +29,26 @@ def require_user(function):
     """Throw NotAuthorised if the view is accessed anonymously.
     """
     def decorated(cls, request, *args, **kwargs):
+        """The docorated function.
+        """
         if not request.user.is_authenticated():
             raise NotAuthorised()
         return function(cls, request, *args, **kwargs)
     return decorated
 
 
-def require_permission(permission):
+def require_permission(_permission):
     """Throw Forbidden if the user does not have the required permission
     """
     def decorator(function):
+        """The decorator returned from its configuration function.
+        """
         @require_user
         def decorated(request, *args, **kwargs):
+            """The decorated view function.
+            """
             return function(request, *args, **kwargs)
+        return decorated
     return decorator
 
 
@@ -60,12 +67,12 @@ def view_handler(view):
         except NotAuthorised, _:
             response = {'_meta': dict(status=401, message='Unauthorized'),
                 'error': 'No user is logged in'}
-        except Forbidden, e:
+        except Forbidden, exception:
             response = {'_meta': dict(status=403, message='Forbidden'),
-                'error': unicode(e)}
-        except ObjectDoesNotExist, e:
+                'error': unicode(exception)}
+        except ObjectDoesNotExist, exception:
             response = {'_meta': dict(status=404, message='Not Found'),
-                'error': unicode(e)}
+                'error': unicode(exception)}
         except NotImplementedError, _:
             response = {
                 '_meta': dict(status=501, message='Not Implemented'),
