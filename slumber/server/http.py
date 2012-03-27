@@ -4,6 +4,7 @@
 """
 from simplejson import dumps, JSONEncoder
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 try:
     from django.views.decorators.csrf import csrf_exempt
@@ -61,6 +62,9 @@ def view_handler(view):
                 'error': 'No user is logged in'}
         except Forbidden, e:
             response = {'_meta': dict(status=403, message='Forbidden'),
+                'error': unicode(e)}
+        except ObjectDoesNotExist, e:
+            response = {'_meta': dict(status=404, message='Not Found'),
                 'error': unicode(e)}
         except NotImplementedError, _:
             response = {

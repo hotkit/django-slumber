@@ -1,5 +1,6 @@
 from datetime import datetime
 from mock import patch
+from simplejson import loads
 
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
@@ -31,6 +32,8 @@ class TestAuthnRequired(ConfigureUser, TestCase):
         response = self.client.get('/slumber/slumber_examples/Pizza/data/1/',
             REMOTE_ADDR='127.0.0.1')
         self.assertEqual(response.status_code, 404)
+        json = loads(response.content)
+        self.assertEqual(json["error"], "Pizza matching query does not exist.")
 
 
 class TestBackend(PatchForAuthnService, TestCase):
