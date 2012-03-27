@@ -1,4 +1,5 @@
 from datetime import date
+from simplejson import loads
 from mock import patch
 
 from django.test import TestCase
@@ -20,13 +21,15 @@ class TestJSON(TestCase):
                 @classmethod
                 def is_authenticated(cls):
                     return True
+                username = 'testuser'
         @view_handler
         def view(request, response):
             response['u'] = d
         http_response = view(Request())
-        self.assertEquals(http_response.content,
-            """{\n    "u": "%s",\n"""
-            """    "_meta": {\n        "status": 200,\n        "message": "OK"\n    }\n}""" % d)
+        content = loads(http_response.content)
+        self.assertEquals(content, dict(
+            u = str(d),
+            _meta = dict(status = 200, message = "OK", username = "testuser")))
 
 
 class InternalAPIs(TestCase):

@@ -79,6 +79,8 @@ def view_handler(view):
             response = {
                 '_meta': dict(status=501, message='Not Implemented'),
                 'error': "Not implemented"}
+        if request.user.is_authenticated():
+            response['_meta']['username'] = request.user.username
         return HttpResponse(dumps(response, indent=4,
                 cls=_proxyEncoder), 'text/plain',
             status=response['_meta']['status'])

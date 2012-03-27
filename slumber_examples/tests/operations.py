@@ -23,7 +23,7 @@ class OrderTests(ConfigureUser, TestCase):
         self.assertEquals(response.status_code, 200, response.content)
         json = loads(response.content)
         self.assertEquals(json, dict(
-                _meta = dict(status=200, message="OK"),
+                _meta = dict(status=200, message="OK", username='user'),
                 form = dict(quantity='integer'),
             ))
 
