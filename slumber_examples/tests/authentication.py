@@ -12,8 +12,20 @@ from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
 from slumber.test import mock_client
 from slumber_examples.models import Profile
-from slumber_examples.tests.configurations import ConfigureAuthnBackend, \
-    PatchForAuthnService
+from slumber_examples.tests.configurations import ConfigureUser, \
+    ConfigureAuthnBackend, PatchForAuthnService
+
+
+class TestAuthnRequired(ConfigureUser, TestCase):
+    def test_not_authenticated(self):
+        response = self.client.get('/slumber/',
+            REMOTE_ADDR='10.75.195.3')
+        self.assertEqual(response.status_code, 401)
+
+    def test_authenticated(self):
+        response = self.client.get('/slumber/',
+            REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 200)
 
 
 class TestBackend(PatchForAuthnService, TestCase):
@@ -22,7 +34,7 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.backend = Backend()
 
     def test_remote_user(self):
-        user = client.auth.django.contrib.auth.User.get(username='test')
+        user = client.auth.django.contrib.auth.User.get(username='user')
         for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
                 'first_name', 'last_name', 'email', 'username']:
             self.assertTrue(hasattr(user, attr), user.__dict__.keys())

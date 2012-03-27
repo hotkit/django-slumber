@@ -1,3 +1,9 @@
+2012-03-23  Kirit Saelensminde  <kirit@felspar.com>
+ Added a form field and basic widget for the RemoteForeignKey model field type.
+
+2012-03-20  Kirit Saelensminde  <kirit@felspar.com>
+ The server side operations can now be added to.
+
 2012-02-23  Kirit Saelensminde  <kirit@felspar.com>
  Added a form field and basic widget for the RemoteForeignKey model field type.
 

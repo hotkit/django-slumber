@@ -101,6 +101,18 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_ip_authn.authentication.Middleware',
+]
+
+# Configure the authentication backends
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'django_ip_authn.authentication.Authenticate',
+)
+
+# Auto login IP numbers
+VALID_IP_NUMBERS = [
+    '127.0.0.1', '127.0.1.1', # Allow only localhost IP numbers
 ]
 
 ROOT_URLCONF = 'django1_4.urls'

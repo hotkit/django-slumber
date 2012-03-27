@@ -52,6 +52,9 @@ class DjangoModel(object):
             ops.append(GetProfile(self, 'get-profile'))
             ops.append(ModulePermissions(self, 'module-permissions'))
 
+    def __repr__(self):
+        return "%s.%s" % (self.app, self.name)
+
     def _get_fields_and_data_arrays(self):
         """Work out what the fields we have are.
         """

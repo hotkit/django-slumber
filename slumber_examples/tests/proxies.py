@@ -8,7 +8,7 @@ from slumber_examples.tests.configurations import PatchForAuthnService
 class UserProxyTests(PatchForAuthnService, TestCase):
     def setUp(self):
         super(UserProxyTests, self).setUp()
-        self.proxy_user = client.auth.django.contrib.auth.User.get(username='test')
+        self.proxy_user = client.auth.django.contrib.auth.User.get(username='user')
 
     def test_user_proxy_is_used(self):
         self.assertIn(UserInstanceProxy, type(self.proxy_user).__mro__)

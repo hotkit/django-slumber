@@ -9,9 +9,10 @@ from slumber.connector import Client, DictObject
 from slumber.connector.ua import get
 
 from slumber_examples.models import Pizza, PizzaPrice, PizzaSizePrice
+from slumber_examples.tests.configurations import ConfigureUser
 
 
-class TestDirectoryURLs(TestCase):
+class TestDirectoryURLs(ConfigureUser, TestCase):
     def test_get_default_url_with_made_client(self):
         client = Client()
         self.assertEqual('http://localhost:8000/slumber/', client._directory)
@@ -27,7 +28,7 @@ class TestDirectoryURLs(TestCase):
         self.assertIsNone(client._directory)
 
 
-class TestLoads(TestCase):
+class TestLoads(ConfigureUser, TestCase):
 
     def test_applications_local(self):
         client = Client('http://localhost:8000/slumber')
@@ -82,7 +83,7 @@ class TestLoads(TestCase):
         self.assertEquals(rpizza.id, lpizza.id)
 
 
-class TestAuth(TestCase):
+class TestAuth(ConfigureUser, TestCase):
     def setUp(self):
         self.u = User(username='user')
         self.u.save()
@@ -94,8 +95,9 @@ class TestAuth(TestCase):
             self.assertTrue(hasattr(user, attr), user.__dict__.keys())
 
 
-class TestsWithPizza(TestCase):
+class TestsWithPizza(ConfigureUser, TestCase):
     def setUp(self):
+        super(TestsWithPizza, self).setUp()
         self.s = Pizza(name='S1', for_sale=True)
         self.s.save()
         self.pizza = client.slumber_examples.Pizza.get(pk=self.s.pk)
@@ -172,11 +174,12 @@ class TestsWithPizza(TestCase):
             p2 = client.slumber_examples.Pizza.get(pk=2)
 
 
-class AppServiceTests(TestCase):
+class AppServiceTests(ConfigureUser, TestCase):
     """Used to get service view tests where the service is configured
     on the application.
     """
     def setUp(self):
+        super(AppServiceTests, self).setUp()
         pizzas = lambda: 'pizzas'
         directory = lambda: {
                 'auth': 'django.contrib.auth',
@@ -189,6 +192,7 @@ class AppServiceTests(TestCase):
         [p.start() for p in self.__patchers]
     def tearDown(self):
         [p.stop() for p in self.__patchers]
+        super(AppServiceTests, self).tearDown()
 
     def test_directory(self):
         request, json = get('http://localhost:8000/slumber/')

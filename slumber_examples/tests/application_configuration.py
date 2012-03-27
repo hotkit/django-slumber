@@ -4,11 +4,13 @@ from slumber import client, configure
 from slumber.server.application import DjangoApp
 
 from slumber_examples.models import Shop
+from slumber_examples.tests.configurations import ConfigureUser
+
 
 from views import _perform
 
 
-class TestSlumberConfiguration(TestCase):
+class TestSlumberConfiguration(ConfigureUser, TestCase):
     def test_shop_class_appears(self):
         self.assertTrue(hasattr(client.slumber_examples, 'Shop'),
             client.slumber_examples.__dict__.keys())
