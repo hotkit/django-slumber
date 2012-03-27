@@ -24,6 +24,24 @@ class _proxyEncoder(JSONEncoder):
         return unicode(obj)
 
 
+def require_user(function):
+    """Throw NotAuthorised if the view is accessed anonymously.
+    """
+    def decorated(request, *args, **kwargs):
+        return function(request, *args, **kwargs)
+    return decorated
+
+
+def require_permission(permission):
+    """Throw Forbidden if the user does not have the required permission
+    """
+    def decorator(function):
+        @require_user
+        def decorated(request, *args, **kwargs):
+            return function(request, *args, **kwargs)
+    return decorator
+
+
 def view_handler(view):
     """Wrap a view function so it can return either JSON, HTML or some
     other response.
