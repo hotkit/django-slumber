@@ -37,17 +37,19 @@ def require_user(function):
     return decorated
 
 
-def require_permission(_permission):
+def require_permission(permission):
     """Throw Forbidden if the user does not have the required permission
     """
     def decorator(function):
         """The decorator returned from its configuration function.
         """
         @require_user
-        def decorated(request, *args, **kwargs):
+        def decorated(cls, request, *args, **kwargs):
             """The decorated view function.
             """
-            return function(request, *args, **kwargs)
+            if not request.user.has_perm(permission):
+                raise Forbidden("Requires permission %s" % permission)
+            return function(cls, request, *args, **kwargs)
         return decorated
     return decorator
 

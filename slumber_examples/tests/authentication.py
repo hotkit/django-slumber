@@ -12,7 +12,7 @@ from slumber import client
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
 from slumber.test import mock_client
-from slumber_examples.models import Profile
+from slumber_examples.models import Pizza, Profile
 from slumber_examples.tests.configurations import ConfigureUser, \
     ConfigureAuthnBackend, PatchForAuthnService
 
@@ -34,6 +34,13 @@ class TestAuthnRequired(ConfigureUser, TestCase):
         self.assertEqual(response.status_code, 404)
         json = loads(response.content)
         self.assertEqual(json["error"], "Pizza matching query does not exist.")
+
+    def test_model_update_requires_permission(self):
+        pizza = Pizza(name='Before change')
+        pizza.save()
+        response = self.client.post('/slumber/slumber_examples/Pizza/update/%s/' % pizza.pk,
+            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 403)
 
 
 class TestBackend(PatchForAuthnService, TestCase):

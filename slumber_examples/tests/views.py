@@ -225,6 +225,8 @@ class BasicViews(ViewTests):
 
 
     def test_update_instance(self):
+        self.user.is_superuser = True
+        self.user.save()
         s = Pizza(name='S1', for_sale=True)
         s.save()
         response, json = self.do_post('/slumber_examples/Pizza/update/1/', {

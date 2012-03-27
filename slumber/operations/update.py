@@ -3,13 +3,15 @@
 """
 from django.http import HttpResponseRedirect
 
-from slumber.server import get_slumber_root
 from slumber.operations import InstanceOperation
+from slumber.server import get_slumber_root
+from slumber.server.http import require_permission
 
 
 class UpdateInstance(InstanceOperation):
     """Update the attributes of a given instance.
     """
+    @require_permission('appname.update_model')
     def post(self, request, _response, _appname, _modelname, pk):
         """Perform the update.
         """
