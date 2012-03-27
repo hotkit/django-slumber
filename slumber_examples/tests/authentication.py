@@ -17,15 +17,20 @@ from slumber_examples.tests.configurations import ConfigureUser, \
 
 
 class TestAuthnRequired(ConfigureUser, TestCase):
-    def test_not_authenticated(self):
+    def test_directory_works_when_not_authenticated(self):
         response = self.client.get('/slumber/',
+            REMOTE_ADDR='10.75.195.3')
+        self.assertEqual(response.status_code, 200)
+
+    def test_model_requires_authentication(self):
+        response = self.client.get('/slumber/slumber_examples/Pizza/data/1/',
             REMOTE_ADDR='10.75.195.3')
         self.assertEqual(response.status_code, 401)
 
     def test_authenticated(self):
-        response = self.client.get('/slumber/',
+        response = self.client.get('/slumber/slumber_examples/Pizza/data/1/',
             REMOTE_ADDR='127.0.0.1')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)
 
 
 class TestBackend(PatchForAuthnService, TestCase):

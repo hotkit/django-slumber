@@ -4,6 +4,7 @@
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.operations import InstanceOperation
 from slumber.server import get_slumber_root
+from slumber.server.http import require_user
 from slumber.server.json import to_json_data
 
 
@@ -33,6 +34,7 @@ def instance_data(request, into, model, instance):
 class InstanceData(InstanceOperation):
     """Return the instance data.
     """
+    @require_user
     def get(self, request, response, _appname, _modelname, pk, dataset = None):
         """Implement the fetching of attribute data for an instance.
         """

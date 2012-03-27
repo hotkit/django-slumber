@@ -27,8 +27,10 @@ class _proxyEncoder(JSONEncoder):
 def require_user(function):
     """Throw NotAuthorised if the view is accessed anonymously.
     """
-    def decorated(request, *args, **kwargs):
-        return function(request, *args, **kwargs)
+    def decorated(cls, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            raise NotAuthorised()
+        return function(cls, request, *args, **kwargs)
     return decorated
 
 
@@ -62,7 +64,8 @@ def view_handler(view):
                 'error': unicode(e)}
         except NotImplementedError, _:
             response = {
-                '_meta': dict(status=501, message='Not Implemented')}
+                '_meta': dict(status=501, message='Not Implemented'),
+                'error': "Not implemented"}
         return HttpResponse(dumps(response, indent=4,
                 cls=_proxyEncoder), 'text/plain',
             status=response['_meta']['status'])
