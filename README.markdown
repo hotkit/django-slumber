@@ -19,6 +19,8 @@ In order to start to use Slumber on the server side you simply need to include i
 
     (r'^slumber/', include('slumber.urls'))
 
+Note that slumber will not accept any anonymous requests. These will always result in 401 responses. The simplest to configure option is to make use of local IP based authentication. This is not recommended for production use, but is useful for development.
+
 ## The Slumber data client ##
 
 The data client is to be found at `slumber.client`. It must be configured to be told the location of the directory server.
