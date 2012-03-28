@@ -1,5 +1,6 @@
 from datetime import datetime
 from mock import patch
+from simplejson import loads
 
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
@@ -11,21 +12,69 @@ from slumber import client
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
 from slumber.test import mock_client
-from slumber_examples.models import Profile
+from slumber_examples.models import Pizza, Profile
 from slumber_examples.tests.configurations import ConfigureUser, \
     ConfigureAuthnBackend, PatchForAuthnService
 
 
 class TestAuthnRequired(ConfigureUser, TestCase):
-    def test_not_authenticated(self):
+    def setUp(self):
+        self.pizza = Pizza(name='Before change')
+        self.pizza.save()
+        super(TestAuthnRequired, self).setUp()
+
+    def test_directory_works_when_not_authenticated(self):
         response = self.client.get('/slumber/',
+            REMOTE_ADDR='10.75.195.3')
+        self.assertEqual(response.status_code, 200)
+
+    def test_model_requires_authentication(self):
+        response = self.client.get('/slumber/slumber_examples/Pizza/data/%s/' % self.pizza.pk,
             REMOTE_ADDR='10.75.195.3')
         self.assertEqual(response.status_code, 401)
 
     def test_authenticated(self):
-        response = self.client.get('/slumber/',
+        response = self.client.get('/slumber/slumber_examples/Pizza/data/234234/',
             REMOTE_ADDR='127.0.0.1')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)
+        json = loads(response.content)
+        self.assertEqual(json["error"], "Pizza matching query does not exist.")
+
+    def test_model_create_requires_permission(self):
+        response = self.client.post('/slumber/slumber_examples/Pizza/create/',
+            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 403)
+
+    def test_model_create_checks_correct_permission(self):
+        permission = Permission.objects.get(codename="add_pizza")
+        self.user.user_permissions.add(permission)
+        response = self.client.post('/slumber/slumber_examples/Pizza/create/',
+            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 200, response.content)
+
+    def test_model_update_requires_permission(self):
+        response = self.client.post('/slumber/slumber_examples/Pizza/update/%s/' % self.pizza.pk,
+            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 403)
+
+    def test_model_update_checks_correct_permission(self):
+        permission = Permission.objects.get(codename="change_pizza")
+        self.user.user_permissions.add(permission)
+        response = self.client.post('/slumber/slumber_examples/Pizza/update/%s/' % self.pizza.pk,
+            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 302, response.content)
+
+    def test_model_delete_requires_permission(self):
+        response = self.client.post('/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk,
+            {}, REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 403)
+
+    def test_model_delete_checks_correct_permission(self):
+        permission = Permission.objects.get(codename="delete_pizza")
+        self.user.user_permissions.add(permission)
+        response = self.client.post('/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk,
+            {}, REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 200, response.content)
 
 
 class TestBackend(PatchForAuthnService, TestCase):

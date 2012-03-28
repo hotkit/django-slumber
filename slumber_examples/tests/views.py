@@ -215,6 +215,8 @@ class BasicViews(ViewTests):
         self.assertEquals(response.status_code, 403, response.content)
 
     def test_instance_creation_post(self):
+        self.user.is_superuser = True
+        self.user.save()
         response, json = self.do_post('/slumber_examples/Pizza/create/',
             {'name': 'Test Pizza', 'for_sale': ''})
         self.assertTrue(json.get('identity', '').endswith(
@@ -225,6 +227,8 @@ class BasicViews(ViewTests):
 
 
     def test_update_instance(self):
+        self.user.is_superuser = True
+        self.user.save()
         s = Pizza(name='S1', for_sale=True)
         s.save()
         response, json = self.do_post('/slumber_examples/Pizza/update/1/', {
@@ -321,6 +325,8 @@ class BasicViews(ViewTests):
 
 
     def test_delete_instance(self):
+        self.user.is_superuser = True
+        self.user.save()
         s = Pizza(name='P')
         s.save()
         response, json = self.do_get('/slumber_examples/Pizza/data/%s/' % s.pk)
@@ -333,6 +339,8 @@ class BasicViews(ViewTests):
 
 class BasicViewsPlain(ConfigureUser, BasicViews, PlainTests, TestCase):
     def test_service_configuration_missing_for_remoteforeignkey(self):
+        self.user.is_superuser = True
+        self.user.save()
         client = Client()
         shop = client.slumber_examples.Shop.create(name="Home", slug='home')
         order = Order(shop=shop)
@@ -371,6 +379,8 @@ class BasicViewsService(ConfigureUser, BasicViews, ServiceTests, TestCase):
         self.assertEqual(json['services'].get('pizzas', None), '/slumber/pizzas/', json)
 
     def test_service_configuration_works_for_remoteforeignkey(self):
+        self.user.is_superuser = True
+        self.user.save()
         client = Client()
         shop = client.pizzas.slumber_examples.Shop.create(name="Home", slug='home')
         order = Order(shop=shop)
@@ -389,6 +399,8 @@ class BasicViewsService(ConfigureUser, BasicViews, ServiceTests, TestCase):
 class BasicViewsWithServiceDirectory(ConfigureUser, BasicViews,
         ServiceTestsWithDirectory, TestCase):
     def test_service_configuration_works_for_remoteforeignkey(self):
+        self.user.is_superuser = True
+        self.user.save()
         client = Client()
         shop = client.pizzas.slumber_examples.Shop.create(name="Home", slug='home')
         order = Order(shop=shop)

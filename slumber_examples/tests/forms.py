@@ -21,6 +21,12 @@ class WidgetTest(ConfigureUser, TestCase):
     class AdminForm(forms.Form):
         rfk = RemoteForeignKeyField(widget=AdminURLFieldWidget)
 
+    def setUp(self):
+        super(WidgetTest, self).setUp()
+        self.user.is_superuser = True
+        self.user.save()
+
+
     def test_default_formfield(self):
         form = WidgetTest.Form()
         self.assertEquals(form.as_p(),

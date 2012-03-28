@@ -77,6 +77,8 @@ class TestLoads(ConfigureUser, TestCase):
             pass
 
     def test_can_create_instance(self):
+        self.user.is_superuser = True
+        self.user.save()
         rpizza = client.slumber_examples.Pizza.create(
             name='P1', for_sale=True)
         lpizza = Pizza.objects.get(name='P1')
