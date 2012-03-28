@@ -325,6 +325,8 @@ class BasicViews(ViewTests):
 
 
     def test_delete_instance(self):
+        self.user.is_superuser = True
+        self.user.save()
         s = Pizza(name='P')
         s.save()
         response, json = self.do_get('/slumber_examples/Pizza/data/%s/' % s.pk)

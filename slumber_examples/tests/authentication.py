@@ -64,6 +64,18 @@ class TestAuthnRequired(ConfigureUser, TestCase):
             {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
         self.assertEqual(response.status_code, 302, response.content)
 
+    def test_model_delete_requires_permission(self):
+        response = self.client.post('/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk,
+            {}, REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 403)
+
+    def test_model_delete_checks_correct_permission(self):
+        permission = Permission.objects.get(codename="delete_pizza")
+        self.user.user_permissions.add(permission)
+        response = self.client.post('/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk,
+            {}, REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 200, response.content)
+
 
 class TestBackend(PatchForAuthnService, TestCase):
     def setUp(self):
