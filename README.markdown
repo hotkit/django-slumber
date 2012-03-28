@@ -116,12 +116,15 @@ When dealing with operations that create and modify data it's important to remem
 
 ### create (model) ###
 
-Creates a new instance of the model type on the slumber server.
+Creates a new instance of the model type on the slumber server. In order to use this the user must have the standard `app.add_model` permission.
 
+### delete (instance) ###
+
+Uses a POST request to delete the instance. The user requires the `app.delete_model` permission.
 
 ### data (instance) ###
 
-Returns the instance attributes and provides links to related data.
+Returns the instance attributes and provides links to related data. Only authenticated users may get instance data.
 
 #### Customising Slumber data ####
 
@@ -134,6 +137,10 @@ When Slumber loads the applications you have defined in your `settings.py` it wi
         properties_ro = ['web_site'])
 
 This will make a new read-only property `web_site` available in the data about instances populated from the `web_site` property on that model.
+
+### update (instance) ###
+
+Allows the instance attributes to be changed. The user must have the `app.change_model` permission.
 
 
 ## Customising Slumber operations ##
