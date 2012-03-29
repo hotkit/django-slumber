@@ -3,7 +3,7 @@
     to make use of Django models in a RESTful manner.
 """
 from slumber.connector import Client
-from slumber.server.configuration import configure
+from slumber.configuration import configure
 
 
 # In order to allow mocking of the Slumber client instance we need an extra

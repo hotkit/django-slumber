@@ -145,7 +145,7 @@ Allows the instance attributes to be changed. The user must have the `app.change
 
 ## Customising Slumber operations ##
 
-New operations can be added to a model through the configure call. This should be placed in your `slumber_config` file.
+New operations can be added to a model through the configure call. This should be placed in your `slumber_config` file (in `slumber_config.py` in your application folder).
 
     from slumber import configure
 
@@ -153,6 +153,47 @@ New operations can be added to a model through the configure call. This should b
         operations_extra = [(OrderPizza, 'order')])
 
 You need to a pass a list of binary tuples which contain the operation implementation and the name of the operation.
+
+
+## Customising the Slumber client ##
+
+Operations that you wish to expose on the client side can be added to a proxy that implements the binding in any way you choose. Proxies come in two types: model proxies and instance proxies.
+
+When the client creates a model instance to connect to a remote model it will look for a user defined proxy class and use that as a mix-in super class for the model type it builds. This allows you to place methods on the proxy and have them used by your client code.
+
+    class ShopProxy(object):
+        def has_shop_proxy(self):
+            return True
+
+This proxy can be set up by configuring it in your `slumber_config.py` file:
+
+    configure('/slumber_examples/Shop/',
+        model_proxy = ShopProxy)
+
+For the model URL we need to specify enough of the model URL that it will be unique. Normally just the application and model name are needed, but sometimes you will want to include service names if you want to have the same model use different proxies depending on the service it's connected to.
+
+Note that although this is a model proxy the method on the proxy is still an instance method and not a class method or static.
+
+Instance proxies are done in exactly the same way, but the configuration is done via `instance_proxy` instead.
+
+    class PizzaProxy(object):
+        def has_pizza_proxy(self):
+            return True
+
+And:
+
+    configure('/slumber_examples/Pizza/',
+        instance_proxy = PizzaProxy)
+
+If your proxy needs to find an operation URL then they will appear in `self._operations`, which is a dict keyed on the operation name given on the server.
+
+    from slumber.connector.ua import get
+
+    def Example(object):
+        def proxy_operation(self):
+            json = get(self._operations['operation-name']
+
+This would expect to find an operation name `operation-name` on the server and will issue a GET against it.
 
 
 ## Slumber remote authentication and authorization ##
