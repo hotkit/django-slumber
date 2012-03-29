@@ -9,7 +9,8 @@ from slumber.server.json import DATA_MAPPING
 def configure(django_model,
         properties_ro = None,
         to_json = None,
-        operations_extra = None):
+        operations_extra = None,
+        proxy = None):
     """Configure Slumber for the provided model.
 
     * properties_ro : A list of properties that may be read from the client,
@@ -20,6 +21,8 @@ def configure(django_model,
         examples
     * operations_extra: A list of operations that are to be added to the
         model.
+    * proxy: The proxy to be used on the client side when this model is
+        encountered.
     """
     model = DJANGO_MODEL_TO_SLUMBER_MODEL[django_model]
 
