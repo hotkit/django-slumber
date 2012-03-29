@@ -11,8 +11,8 @@ configure(Pizza,
 configure(Shop,
     properties_ro = ['web_address'])
 
-configure('/Pizza/',
+configure('/slumber_examples/Pizza/',
     instance_proxy = PizzaProxy)
 
-configure('/Shop/',
+configure('/slumber_examples/Shop/',
     model_proxy = ShopProxy)
