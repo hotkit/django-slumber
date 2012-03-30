@@ -165,7 +165,7 @@ When the client creates a model instance to connect to a remote model it will lo
         def has_shop_proxy(self):
             return True
 
-This proxy can be set up by configuring it in your `slumber_proxies.py` file:
+This proxy can be set up by configuring it in your `slumber_client.py` file:
 
     configure('/slumber_examples/Shop/',
         model_proxy = ShopProxy)
@@ -193,11 +193,11 @@ If your proxy needs to find an operation URL then they will appear in `self._ope
 
 This would expect to find an operation name `operation-name` on the server and will issue a GET against it.
 
-Slumber will automatically load the proxies for you when the client is first used. The packages that contain `slumber_proxies` modules will need to be listed in the `SLUMBER_PROXIES` setting. I.e.:
+Slumber will automatically load the proxies for you when the client is first used. The packages that contain `slumber_client` modules will need to be listed in the `SLUMBER_CLIENT_APPS` setting. I.e.:
 
-    SLUMBER_PROXIES = ['slumber_examples']
+    SLUMBER_CLIENT_APPS = ['slumber_examples']
 
-This will cause the client to do an import of `slumber_examples.slumber_proxies`.
+This will cause the client to do an import of `slumber_examples.slumber_client`.
 
 
 ## Slumber remote authentication and authorization ##
