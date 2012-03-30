@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from slumber import client
+from slumber.connector import Client
 from slumber.connector.proxies import UserInstanceProxy
 from slumber_examples.models import Pizza
 from slumber_examples.tests.configurations import PatchForAuthnService
@@ -31,10 +32,12 @@ class UserProxyTests(PatchForAuthnService, TestCase):
 
 class ProxyConfigurationTests(TestCase):
     def test_shop_has_model_proxy(self):
-        self.assertTrue(client.slumber_examples.Shop.has_shop_proxy())
+        self.assertTrue(
+            client.slumber_examples.Shop.has_shop_proxy())
 
     def test_pizza_has_instance_proxy(self):
         lpizza = Pizza(name='Test pizza')
         lpizza.save()
-        rpizza = client.slumber_examples.Pizza.get(pk=lpizza.pk)
+        rpizza = client.slumber_examples.Pizza.get(
+            pk=lpizza.pk)
         self.assertTrue(rpizza.has_pizza_proxy())

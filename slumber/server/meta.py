@@ -15,7 +15,7 @@ def applications():
     else:
         apps = [get_application(app) for app in settings.INSTALLED_APPS]
         for app in apps:
-            __import__(app.name, globals(), locals(), ['slumber_config'])
+            __import__(app.name, globals(), locals(), ['slumber_server'])
         return apps
 
 def get_application(app_name):
