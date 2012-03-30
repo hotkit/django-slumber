@@ -145,7 +145,7 @@ Allows the instance attributes to be changed. The user must have the `app.change
 
 ## Customising Slumber operations ##
 
-New operations can be added to a model through the configure call. This should be placed in your `slumber_config` file (in `slumber_config.py` in your application folder).
+New operations can be added to a model through the configure call. This should be placed in your `slumber_server` file (in `slumber_server.py` in your application folder).
 
     from slumber import configure
 
@@ -165,7 +165,7 @@ When the client creates a model instance to connect to a remote model it will lo
         def has_shop_proxy(self):
             return True
 
-This proxy can be set up by configuring it in your `slumber_config.py` file:
+This proxy can be set up by configuring it in your `slumber_proxies.py` file:
 
     configure('/slumber_examples/Shop/',
         model_proxy = ShopProxy)
@@ -180,8 +180,6 @@ Instance proxies are done in exactly the same way, but the configuration is done
         def has_pizza_proxy(self):
             return True
 
-And:
-
     configure('/slumber_examples/Pizza/',
         instance_proxy = PizzaProxy)
 
@@ -191,9 +189,15 @@ If your proxy needs to find an operation URL then they will appear in `self._ope
 
     def Example(object):
         def proxy_operation(self):
-            json = get(self._operations['operation-name']
+            json = get(self._operations['operation-name'])
 
 This would expect to find an operation name `operation-name` on the server and will issue a GET against it.
+
+Slumber will automatically load the proxies for you when the client is first used. The packages that contain `slumber_proxies` modules will need to be listed in the `SLUMBER_PROXIES` setting. I.e.:
+
+    SLUMBER_PROXIES = ['slumber_examples']
+
+This will cause the client to do an import of `slumber_examples.slumber_proxies`.
 
 
 ## Slumber remote authentication and authorization ##
