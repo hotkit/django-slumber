@@ -66,7 +66,11 @@ class ServiceConnector(object):
 class Client(ServiceConnector):
     """The first level of the Slumber client connector.
     """
-    def __init__(self, directory=None):
+    def __init__(self, directory=None, proxies=None):
+        if proxies is None:
+            proxies = getattr(settings, 'SLUMBER_PROXIES', [])
+        for proxy in proxies:
+            __import__(proxy, globals(), locals(), ['slumber_proxies'])
         services = get_slumber_services(directory)
         if not services:
             if not directory:
