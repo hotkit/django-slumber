@@ -1,3 +1,12 @@
+2012-03-30  Kirit Saelensminde  <kirit@felspar.com>
+ Client side proxies are now loaded via the new SLUMBER_CLIENT_APPS setting.
+
+2012-03-28  Kirit Saelensminde  <kirit@felspar.com>
+ Permissions are now checked on several of the default operations.
+
+2012-03-27  Kirit Saelensminde  <kirit@felspar.com>
+ Better error responses are returned to the client based on a number of exceptions that might be thrown.
+
 2012-03-23  Kirit Saelensminde  <kirit@felspar.com>
  Added a form field and basic widget for the RemoteForeignKey model field type.
 
