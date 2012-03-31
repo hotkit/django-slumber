@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.test import TestCase
 
 from slumber import client
+from slumber._caches import PER_THREAD
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
 from slumber.test import mock_client
@@ -78,7 +79,24 @@ class TestAuthnRequired(ConfigureUser, TestCase):
 
 
 class TestAuthnForwarding(TestCase):
-    pass
+    def setUp(self):
+        settings.MIDDLEWARE_CLASSES.append(
+            'slumber.connector.middleware.ForwardAuthentication')
+        super(TestAuthnForwarding, self).setUp()
+    def tearDown(self):
+        super(TestAuthnForwarding, self).tearDown()
+        settings.MIDDLEWARE_CLASSES.remove(
+            'slumber.connector.middleware.ForwardAuthentication')
+
+    def test_request_is_saved(self):
+        called = []
+        def check_request(request):
+            called.append(True)
+            self.assertEqual(request, PER_THREAD.request)
+            return HttpResponse('ok', 'text/plain')
+        with patch('slumber_examples.views._ok_text', check_request):
+            self.client.get('/')
+        self.assertTrue(called)
 
 
 class TestBackend(PatchForAuthnService, TestCase):
