@@ -4,7 +4,11 @@
 from django.contrib.auth import authenticate
 
 from slumber import client
-from slumber._caches import CLIENT_INSTANCE_CACHE
+from slumber._caches import CLIENT_INSTANCE_CACHE, PER_THREAD
+
+
+# Django defines the class members as methods
+# pylint: disable=R0201
 
 
 class Cache(object):
@@ -12,8 +16,6 @@ class Cache(object):
     of each request.
     """
 
-    # Django defines this as a method
-    # pylint: disable=R0201
     def process_request(self, _request):
         """Turn the cache on.
         """
@@ -31,8 +33,6 @@ class Authentication(object):
     """Used when authentication is delegated from a remote host.
     """
 
-    # Django defines this as a method
-    # pylint: disable=R0201
     def process_request(self, request):
         """Looks for the X_FOST_User header, and if found authenticates that
         user.
@@ -43,3 +43,22 @@ class Authentication(object):
             if user:
                 request.user = user
 
+
+class ForwardAuthentication(object):
+    """Used to forward authentication of the currently logged in user to
+    another backend.
+    """
+
+    def process_request(self, request):
+        """Save the request in thread local storage so it can be retrieved
+        by the user agent when it makes requests.
+        """
+        PER_THREAD.request = request
+
+    def process_response(self, request, response):
+        """Forget the request, but do an assert to make sure nothing horrible
+        has happened to it first.
+        """
+        assert PER_THREAD.request is request
+        PER_THREAD.request = None
+        return response
