@@ -26,7 +26,7 @@ class TestPost(TestCase):
         self.assertEqual(json, 123)
 
     def test_real(self):
-        def _request(_self, url, method, body):
+        def _request(_self, url, method, body, headers={}):
             self.assertEqual(body, "data=23")
             return _response_httplib2(), "123"
         with patch('slumber.connector.ua.Http.request', _request):
@@ -45,7 +45,7 @@ class TestGet(TestCase):
         class response:
             status = 200
             content = '''{"apps":{}}'''
-        def _request(_self, url):
+        def _request(_self, url, headers={}):
             r = response()
             return r, r.content
         with patch('slumber.connector.ua.Http.request', _request):
@@ -71,7 +71,7 @@ class TestGet(TestCase):
         class response:
             status = 200
             content = '''{"apps":{}}'''
-        def _request(_self, url):
+        def _request(_self, url, headers={}):
             self.callers.append(_self)
             r = response()
             return r, r.content
@@ -86,7 +86,7 @@ class TestGet(TestCase):
             def __init__(self, counter):
                 self.status = 200 if counter == 1 else 404
         counter = []
-        def _request(_self, url):
+        def _request(_self, url, headers={}):
             r = _response(len(counter))
             counter.append(True)
             return r, r.content
@@ -98,7 +98,7 @@ class TestGet(TestCase):
         class _response:
             content = ''
             status = 500
-        def _request(_self, url):
+        def _request(_self, url, headers={}):
             r = _response()
             return r, r.content
         with patch('slumber.connector.ua.Http.request',_request):
@@ -106,7 +106,7 @@ class TestGet(TestCase):
                 get(self.cache_url)
 
     def test_cache_ttl(self):
-        def _request(_self, url):
+        def _request(_self, url, headers={}):
             r = _response_httplib2()
             return r, r.content
         with patch('slumber.connector.ua.Http.request', _request):

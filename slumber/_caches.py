@@ -25,4 +25,3 @@ SLUMBER_MODEL_OPERATIONS = {}
 
 # Make the request available
 PER_THREAD = threading.local()
-

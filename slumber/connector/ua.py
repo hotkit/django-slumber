@@ -11,6 +11,7 @@ from urllib import urlencode
 from urlparse import parse_qs
 
 
+from slumber._caches import PER_THREAD
 from slumber.server import get_slumber_local_url_prefix
 
 
@@ -38,6 +39,18 @@ def _use_fake(url):
         return url
 
 
+def _sign_request(_method, _url, _body = ''):
+    """Calculate the request headers that need to be added so that the
+    request is properly signed and the Slumber server will consider
+    the current user to be authenticated.
+    """
+    headers = {}
+    request = getattr(PER_THREAD, 'request', None)
+    if request and request.user.is_authenticated():
+        pass
+    return headers
+
+
 def get(url, ttl = 0):
     """Perform a GET request against a Slumber server.
     """
@@ -47,7 +60,7 @@ def get(url, ttl = 0):
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
         response = _fake.get(file_spec, query,
-            HTTP_HOST='localhost:8000')
+            HTTP_HOST='localhost:8000', **_sign_request('GET', url))
         if response.status_code in [301, 302]:
             return get(response['location'])
         assert response.status_code == 200, (
@@ -58,7 +71,8 @@ def get(url, ttl = 0):
         cached = cache.get(cache_key)
         if not cached:
             for _ in range(0, 3):
-                response, content = Http().request(url)
+                response, content = Http().request(
+                    url, headers=_sign_request('GET', url))
                 if response.status == 200:
                     break
             assert response.status == 200, (url, response.status)
