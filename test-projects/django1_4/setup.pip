@@ -1,2 +1,3 @@
 django
 django-nose
+git+git://github.com/nose-devs/nose.git
