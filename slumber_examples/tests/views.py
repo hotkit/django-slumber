@@ -65,13 +65,15 @@ class ViewErrors(ViewTests):
 
     def test_method_error(self):
         response, json = self.do_post('/slumber_examples/Pizza/instances/', {})
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 405)
+        self.assertEquals(response['Allow'], 'GET')
 
     def test_invalid_method(self):
         url = self.url('/slumber_examples/Pizza/instances/')
         response = self.client.get(url, REQUEST_METHOD='PURGE',
             HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
-        self.assertEquals(response.status_code, 403, response.content)
+        self.assertEquals(response.status_code, 405, response.content)
+        self.assertEquals(response['Allow'], 'GET')
 
     def test_missing_slash(self):
         response, json = self.do_get('/slumber_examples')
@@ -212,7 +214,8 @@ class BasicViews(ViewTests):
 
     def test_instance_creation_get(self):
         response, json = self.do_get('/slumber_examples/Pizza/create/')
-        self.assertEquals(response.status_code, 403, response.content)
+        self.assertEquals(response.status_code, 405, response.content)
+        self.assertEquals(response['Allow'], 'POST')
 
     def test_instance_creation_post(self):
         self.user.is_superuser = True
