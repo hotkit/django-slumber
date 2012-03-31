@@ -14,7 +14,7 @@ def _forbidden(_request, response, *_):
 class ModelOperation(object):
     """Base class for model operations.
     """
-    METHODS = ['GET', 'POST', 'PUT', 'DELETE']
+    METHODS = ['GET', 'OPTIONS', 'POST', 'PUT', 'DELETE']
     model_operation = True
     def __init__(self, model, name):
         self.model = model
@@ -22,11 +22,11 @@ class ModelOperation(object):
         self.regex = ''
         self.path = model.path + name + '/'
 
-    def headers(self, retvalue, _request, response):
+    def headers(self, retvalue, request, response):
         """Calculate and place extra headers needed for certain types of
         response.
         """
-        if response['_meta']['status'] == 405:
+        if response['_meta']['status'] == 405 or request.method == 'OPTIONS':
             response['_meta'].setdefault('headers', {})
             response['_meta']['headers']['Allow'] = \
                 ', '.join([method
@@ -44,6 +44,12 @@ class ModelOperation(object):
             return self.headers(retvalue, request, response)
         else:
             _forbidden(request, response)
+        return self.headers(None, request, response)
+
+
+    def options(self, request, response, *_):
+        """A standard options response that will fill in the Allow header.
+        """
         return self.headers(None, request, response)
 
 
