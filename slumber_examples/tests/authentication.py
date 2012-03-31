@@ -33,6 +33,8 @@ class TestAuthnRequired(ConfigureUser, TestCase):
         response = self.client.get('/slumber/slumber_examples/Pizza/data/%s/' % self.pizza.pk,
             REMOTE_ADDR='10.75.195.3')
         self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.get('WWW-Authenticate', None),
+            'FOST')
 
     def test_authenticated(self):
         response = self.client.get('/slumber/slumber_examples/Pizza/data/234234/',
