@@ -77,6 +77,10 @@ class TestAuthnRequired(ConfigureUser, TestCase):
         self.assertEqual(response.status_code, 200, response.content)
 
 
+class TestAuthnForwarding(TestCase):
+    pass
+
+
 class TestBackend(PatchForAuthnService, TestCase):
     def setUp(self):
         super(TestBackend, self).setUp()
