@@ -12,6 +12,7 @@ from slumber import client
 from slumber._caches import PER_THREAD
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
+from slumber.connector.ua import _sign_request
 from slumber.test import mock_client
 from slumber_examples.models import Pizza, Profile
 from slumber_examples.tests.configurations import ConfigureUser, \
@@ -80,7 +81,7 @@ class TestAuthnRequired(ConfigureUser, TestCase):
         self.assertEqual(response.status_code, 200, response.content)
 
 
-class TestAuthnForwarding(TestCase):
+class TestAuthnForwarding(ConfigureUser, TestCase):
     def setUp(self):
         settings.MIDDLEWARE_CLASSES.append(
             'slumber.connector.middleware.ForwardAuthentication')
@@ -99,6 +100,31 @@ class TestAuthnForwarding(TestCase):
         with patch('slumber_examples.views._ok_text', check_request):
             self.client.get('/')
         self.assertTrue(called)
+
+    def test_signing_function_signs(self):
+        headers = {}
+        def check_request(request):
+            for k, v in _sign_request('GET', '/').items():
+                headers[k] = v
+            return HttpResponse('ok', 'text/plain')
+        with patch('slumber_examples.views._ok_text', check_request):
+            self.client.get('/', REMOTE_ADDR='127.0.0.1')
+        self.assertTrue(headers.has_key('Authorization'), headers)
+
+    def test_username_with_colon(self):
+        self.user.username = "my:name"
+        self.user.save()
+        headers = {}
+        def check_request(request):
+            for k, v in _sign_request('GET', '/').items():
+                headers[k] = v
+            return HttpResponse('ok', 'text/plain')
+        with patch('slumber_examples.views._ok_text', check_request):
+            self.client.get('/', REMOTE_ADDR='127.0.0.1')
+        self.assertTrue(headers.has_key('Authorization'), headers)
+        self.assertTrue(
+            headers['Authorization'].startswith('FOST my%3Aname:'),
+            headers)
 
 
 class TestBackend(PatchForAuthnService, TestCase):

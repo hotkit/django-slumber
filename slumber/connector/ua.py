@@ -5,11 +5,13 @@
 from django.core.cache import cache
 from django.test.client import Client as FakeClient
 
+from datetime import datetime
+from fost_authn.signature import fost_hmac_request_signature
 from httplib2 import Http
+import logging
 from simplejson import loads
-from urllib import urlencode
+from urllib import quote, urlencode
 from urlparse import parse_qs
-
 
 from slumber._caches import PER_THREAD
 from slumber.server import get_slumber_local_url_prefix
@@ -39,15 +41,24 @@ def _use_fake(url):
         return url
 
 
-def _sign_request(_method, _url, _body = ''):
+def _sign_request(method, url, body = ''):
     """Calculate the request headers that need to be added so that the
     request is properly signed and the Slumber server will consider
     the current user to be authenticated.
     """
+    logging.info(u'%s\n%s', type(body), body)
     headers = {}
     request = getattr(PER_THREAD, 'request', None)
     if request and request.user.is_authenticated():
-        pass
+        if type(body) == unicode:
+            body = body.encode('utf-8')
+        now = datetime.utcnow().isoformat() + 'Z'
+        _, signature = fost_hmac_request_signature(
+            str(request.user.password), method, url, now, {}, body)
+        headers['Authorization'] = 'FOST %s:%s' % (
+            quote(request.user.username.encode('utf-8')),
+            signature)
+        headers['X-Fost-Timestamp'] = now
     return headers
 
 
@@ -91,13 +102,15 @@ def post(url, data):
     # pylint: disable=E1103
     url_fragment = _use_fake(url)
     if url_fragment:
-        response = _fake.post(url_fragment, data, HTTP_HOST='localhost:8000')
+        response = _fake.post(url_fragment, data,
+            HTTP_HOST='localhost:8000', **_sign_request('POST', url, data))
         assert response.status_code == 200, \
             (url_fragment, response, response.content)
         content = response.content
     else:
         body = urlencode(data)
-        response, content = Http().request(url, "POST", body=body)
+        response, content = Http().request(url, "POST", body=body,
+            headers = _sign_request('POST', url, data))
         assert response.status == 200, content
     return response, loads(content)
 
