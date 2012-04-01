@@ -1,5 +1,6 @@
 from httplib2 import ServerNotFoundError
 from mock import Mock, patch
+import socket
 from unittest2 import TestCase
 
 from django.core.cache import cache
@@ -90,7 +91,7 @@ class TestGet(TestCase):
             r = _response(len(counter))
             counter.append(True)
             return r, r.content
-        with patch('slumber.connector.ua.Http.request',_request):
+        with patch('slumber.connector.ua.Http.request', _request):
             get(self.cache_url)
         self.assertEqual(len(counter), 2)
 
@@ -127,3 +128,9 @@ class TestGet(TestCase):
             # If we get a server error then we presume that there is no good
             # Internet connection and don't fail the test
             pass
+        except socket.error:
+            pass
+        except Exception, e:
+            print type(e)
+            raise e
+
