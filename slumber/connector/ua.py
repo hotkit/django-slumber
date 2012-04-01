@@ -50,8 +50,6 @@ def _sign_request(method, url, body = ''):
     headers = {}
     request = getattr(PER_THREAD, 'request', None)
     if request and request.user.is_authenticated():
-        if type(body) == unicode:
-            body = body.encode('utf-8')
         now = datetime.utcnow().isoformat() + 'Z'
         _, signature = fost_hmac_request_signature(
             str(request.user.password), method, url, now, {}, body)
