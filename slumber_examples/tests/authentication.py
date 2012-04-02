@@ -1,4 +1,6 @@
 from datetime import datetime
+from fost_authn.authentication import FostBackend
+import logging
 from mock import patch
 from simplejson import loads
 
@@ -12,7 +14,7 @@ from slumber import client
 from slumber._caches import PER_THREAD
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
-from slumber.connector.ua import _sign_request
+from slumber.connector.ua import _sign_request, get
 from slumber.test import mock_client
 from slumber_examples.models import Pizza, Profile
 from slumber_examples.tests.configurations import ConfigureUser, \
@@ -125,6 +127,34 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
         self.assertTrue(
             headers['Authorization'].startswith('FOST my%3Aname:'),
             headers)
+
+    def test_authentication_backend_accepts_signature(self):
+        def check_request(request):
+            print "request", request.META.keys()
+            class response:
+                status = 200
+                content = '''null'''
+            def _request(_self, url, headers={}):
+                backend = FostBackend()
+                print headers.keys()
+                authz = headers['Authorization']
+                key = authz[5:5+len(self.user.username)]
+                signature = authz[6+len(self.user.username):]
+                logging.info('Authorization %s %s', key, signature)
+                request.META['HTTP_X_FOST_TIMESTAMP'] = headers[
+                    'X-FOST-Timestamp']
+                request.META['HTTP_X_FOST_HEADERS'] = headers[
+                    'X-FOST-Headers']
+                user = backend.authenticate(request=request,
+                    key=key, hmac=signature)
+                self.assertTrue(user)
+                r = response()
+                return r, r.content
+            with patch('slumber.connector.ua.Http.request', _request):
+                response, json = get('http://example.com/')
+            return HttpResponse(response.content, 'text/plain')
+        with patch('slumber_examples.views._ok_text', check_request):
+            self.client.get('/', REMOTE_ADDR='127.0.0.1')
 
 
 class TestBackend(PatchForAuthnService, TestCase):

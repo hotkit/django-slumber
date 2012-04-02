@@ -8,10 +8,9 @@ from django.test.client import Client as FakeClient
 from datetime import datetime
 from fost_authn.signature import fost_hmac_request_signature
 from httplib2 import Http
-import logging
 from simplejson import loads
 from urllib import quote, urlencode
-from urlparse import parse_qs
+from urlparse import parse_qs, urlparse
 
 from slumber._caches import PER_THREAD
 from slumber.server import get_slumber_local_url_prefix
@@ -46,7 +45,6 @@ def _sign_request(method, url, body = ''):
     request is properly signed and the Slumber server will consider
     the current user to be authenticated.
     """
-    logging.info(u'%s\n%s', type(body), body)
     headers = {}
     request = getattr(PER_THREAD, 'request', None)
     if request and request.user.is_authenticated():
@@ -56,7 +54,8 @@ def _sign_request(method, url, body = ''):
         headers['Authorization'] = 'FOST %s:%s' % (
             quote(request.user.username.encode('utf-8')),
             signature)
-        headers['X-Fost-Timestamp'] = now
+        headers['X-FOST-Timestamp'] = now
+        headers['X-FOST-Headers'] = 'X-FOST-Headers'
     return headers
 
 
@@ -69,7 +68,7 @@ def get(url, ttl = 0):
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
         response = _fake.get(file_spec, query,
-            HTTP_HOST='localhost:8000', **_sign_request('GET', url))
+            HTTP_HOST='localhost:8000', **_sign_request('GET', file_spec))
         if response.status_code in [301, 302]:
             return get(response['location'])
         assert response.status_code == 200, (
@@ -79,9 +78,11 @@ def get(url, ttl = 0):
         cache_key = 'slumber.connector.ua.get.%s' % url
         cached = cache.get(cache_key)
         if not cached:
+            _, _, path, _, query, _ = urlparse(url)
+            to_sign = path + ('' if not query else '?' + query)
             for _ in range(0, 3):
                 response, content = Http().request(
-                    url, headers=_sign_request('GET', url))
+                    url, headers=_sign_request('GET', to_sign))
                 if response.status == 200:
                     break
             assert response.status == 200, (url, response.status)
