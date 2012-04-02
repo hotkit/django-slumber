@@ -6,6 +6,7 @@ from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
 
 from slumber import client
+from slumber._caches import PER_THREAD
 from slumber.connector.proxies import attach_to_local_user
 
 
@@ -26,6 +27,15 @@ def _assert_properly_configured():
             "handle all authentication and authorization.")
 
 
+def _save_authenticated_username(method):
+    def decorated(self, **kwargs):
+        user = method(self, **kwargs)
+        if user:
+            PER_THREAD.username = user.username
+        return user
+    return decorated
+
+
 class Backend(object):
     """An authentication backend which delegates user permissions to another
     Slumber service.
@@ -33,6 +43,7 @@ class Backend(object):
     Currently this backend does not support object permissions.
     """
 
+    @_save_authenticated_username
     def authenticate(self, x_fost_user=None, username=None, password=None):
         """Authenticate the user when the middleware passes it in.
         """
