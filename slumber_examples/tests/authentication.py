@@ -172,6 +172,7 @@ class TestBackend(PatchForAuthnService, TestCase):
 
     def test_delegated_login(self):
         user = self.backend.authenticate(x_fost_user=self.user.username)
+        self.assertTrue(user)
         self.assertEqual(user.username, self.user.username)
 
     def test_remote_login(self):
