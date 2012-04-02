@@ -89,8 +89,8 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
             'slumber.connector.middleware.ForwardAuthentication')
         settings.SLUMBER_SERVICE='pizzas'
         super(TestAuthnForwarding, self).setUp()
-        self.user = User(username='pizzas', password=settings.SECRET_KEY)
-        self.user.save()
+        self.service = User(username='pizzas', password=settings.SECRET_KEY)
+        self.service.save()
     def tearDown(self):
         super(TestAuthnForwarding, self).tearDown()
         delattr(settings, 'SLUMBER_SERVICE')
@@ -128,9 +128,9 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
         with patch('slumber_examples.views._ok_text', check_request):
             self.client.get('/', REMOTE_ADDR='127.0.0.1')
         self.assertTrue(headers.has_key('Authorization'), headers)
-        self.assertTrue(
-            headers['Authorization'].startswith('FOST my%3Aname:'),
-            headers)
+        self.assertTrue(headers.has_key('X-FOST-User'), headers)
+        self.assertEqual(headers['X-FOST-User'], self.user.username)
+
 
     def test_authentication_backend_accepts_signature(self):
         def check_request(request):
@@ -140,8 +140,8 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
             def _request(_self, url, headers={}):
                 backend = FostBackend()
                 authz = headers['Authorization']
-                key = authz[5:5+len(self.user.username)]
-                signature = authz[6+len(self.user.username):]
+                key = authz[5:5+len(self.service.username)]
+                signature = authz[6+len(self.service.username):]
                 logging.info('Authorization %s %s', key, signature)
                 request.META['HTTP_X_FOST_TIMESTAMP'] = headers[
                     'X-FOST-Timestamp']
