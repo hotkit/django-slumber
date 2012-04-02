@@ -130,13 +130,11 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
 
     def test_authentication_backend_accepts_signature(self):
         def check_request(request):
-            print "request", request.META.keys()
             class response:
                 status = 200
                 content = '''null'''
             def _request(_self, url, headers={}):
                 backend = FostBackend()
-                print headers.keys()
                 authz = headers['Authorization']
                 key = authz[5:5+len(self.user.username)]
                 signature = authz[6+len(self.user.username):]
