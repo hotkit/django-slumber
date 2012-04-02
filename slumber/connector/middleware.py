@@ -37,7 +37,7 @@ class Authentication(object):
         """Looks for the X_FOST_User header, and if found authenticates that
         user.
         """
-        user_header = request.META.get('HTTP_X_FOST_USER', None)
+        user_header = getattr(request, 'SIGNED', {}).get('HTTP_X_FOST_USER', None)
         if user_header:
             user = authenticate(x_fost_user=user_header)
             if user:
@@ -61,4 +61,5 @@ class ForwardAuthentication(object):
         """
         assert PER_THREAD.request is request
         PER_THREAD.request = None
+        PER_THREAD.username = None
         return response
