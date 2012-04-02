@@ -88,17 +88,6 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'k9)vvui_bsm2h-a98un&71kxdmv7t2k3v01op0y9(qjqh1-x%t'
 
-# Configure the authentication backends
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'django_ip_authn.authentication.Authenticate',
-)
-
-# Auto login IP numbers
-VALID_IP_NUMBERS = [
-    '127.0.0.1', '127.0.1.1', # Allow only localhost IP numbers
-]
-
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -112,18 +101,6 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django_ip_authn.authentication.Middleware',
-]
-
-# Configure the authentication backends
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'django_ip_authn.authentication.Authenticate',
-)
-
-# Auto login IP numbers
-VALID_IP_NUMBERS = [
-    '127.0.0.1', '127.0.1.1', # Allow only localhost IP numbers
 ]
 
 ROOT_URLCONF = 'django1_3.urls'
