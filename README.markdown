@@ -230,6 +230,8 @@ To use this as the `auth` service from elsewhere we would now need to give the a
         'pizzas': 'http://localhost:8000/'
     }
 
+If Slumber needs to pass authenticated requests to another service then the `slumber.connector.middleware.ForwardAuthentication` middleware needs to be installed.
+
 
 ## Caching of requests ##
 
