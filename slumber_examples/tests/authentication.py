@@ -87,9 +87,13 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
     def setUp(self):
         settings.MIDDLEWARE_CLASSES.append(
             'slumber.connector.middleware.ForwardAuthentication')
+        settings.SLUMBER_SERVICE='pizzas'
         super(TestAuthnForwarding, self).setUp()
+        self.user = User(username='pizzas', password=settings.SECRET_KEY)
+        self.user.save()
     def tearDown(self):
         super(TestAuthnForwarding, self).tearDown()
+        delattr(settings, 'SLUMBER_SERVICE')
         settings.MIDDLEWARE_CLASSES.remove(
             'slumber.connector.middleware.ForwardAuthentication')
 

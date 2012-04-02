@@ -2,6 +2,7 @@
     Implements the user agent used to communicate with the Slumber
     servers.
 """
+from django.conf import settings
 from django.core.cache import cache
 from django.test.client import Client as FakeClient
 
@@ -13,7 +14,7 @@ from urllib import quote, urlencode
 from urlparse import parse_qs, urlparse
 
 from slumber._caches import PER_THREAD
-from slumber.server import get_slumber_local_url_prefix
+from slumber.server import get_slumber_local_url_prefix, get_slumber_service
 
 
 _fake = FakeClient()
@@ -45,18 +46,23 @@ def _sign_request(method, url, body = ''):
     request is properly signed and the Slumber server will consider
     the current user to be authenticated.
     """
-    headers = {}
-    request = getattr(PER_THREAD, 'request', None)
-    if request and request.user.is_authenticated():
+    service = get_slumber_service()
+    if service:
+        to_sign = {}
+        request = getattr(PER_THREAD, 'request', None)
         now = datetime.utcnow().isoformat() + 'Z'
         _, signature = fost_hmac_request_signature(
-            str(request.user.password), method, url, now, {}, body)
+            settings.SECRET_KEY, method, url, now, to_sign, body)
+        headers = {}
         headers['Authorization'] = 'FOST %s:%s' % (
-            quote(request.user.username.encode('utf-8')),
-            signature)
+            get_slumber_service(), signature)
         headers['X-FOST-Timestamp'] = now
-        headers['X-FOST-Headers'] = 'X-FOST-Headers'
-    return headers
+        headers['X-FOST-Headers'] = ' '.join(['X-FOST-Headers'] + to_sign.keys())
+        for key, value in to_sign.items():
+            headers[key] = value
+        return headers
+    else:
+        return {}
 
 
 def get(url, ttl = 0):
