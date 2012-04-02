@@ -67,7 +67,9 @@ def view_handler(view):
             if http_response:
                 return http_response
         except NotAuthorised, _:
-            response = {'_meta': dict(status=401, message='Unauthorized'),
+            response = {
+                '_meta': dict(status=401, message='Unauthorized',
+                    headers= {'WWW-Authenticate':'FOST'}),
                 'error': 'No user is logged in'}
         except Forbidden, exception:
             response = {'_meta': dict(status=403, message='Forbidden'),
@@ -79,8 +81,13 @@ def view_handler(view):
             response = {
                 '_meta': dict(status=501, message='Not Implemented'),
                 'error': "Not implemented"}
-        return HttpResponse(dumps(response, indent=4,
+        if request.user.is_authenticated():
+            response['_meta']['username'] = request.user.username
+        http_response = HttpResponse(dumps(response, indent=4,
                 cls=_proxyEncoder), 'text/plain',
             status=response['_meta']['status'])
+        for header, value in response['_meta'].get('headers', {}).items():
+            http_response[header] = value
+        return http_response
     return wrapper if not USE_CSRF else csrf_exempt(wrapper)
 

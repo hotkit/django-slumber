@@ -35,7 +35,7 @@ class TestLoads(ConfigureUser, TestCase):
         self.assertTrue(hasattr(client, 'slumber_examples'))
 
     def test_applications_remote(self):
-        def request(k, u):
+        def request(k, u, headers):
             self.assertEquals(u, 'http://slumber.example.com/')
             return DictObject(status=200), '''{"apps":{}}'''
         with patch('slumber.connector.ua.Http.request', self.fail):

@@ -1,6 +1,7 @@
 """
     Some caches used in the implementation of the Slumber client or server.
 """
+import threading
 
 
 # Stores the applications via their application names
@@ -20,3 +21,7 @@ CLIENT_INSTANCE_CACHE.enabled = False
 
 # Stores the operations used for a given model on the server
 SLUMBER_MODEL_OPERATIONS = {}
+
+
+# Make the request available
+PER_THREAD = threading.local()

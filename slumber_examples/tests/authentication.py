@@ -1,4 +1,6 @@
 from datetime import datetime
+from fost_authn.authentication import FostBackend
+import logging
 from mock import patch
 from simplejson import loads
 
@@ -9,8 +11,10 @@ from django.http import HttpResponse
 from django.test import TestCase
 
 from slumber import client
+from slumber._caches import PER_THREAD
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
+from slumber.connector.ua import _sign_request, get
 from slumber.test import mock_client
 from slumber_examples.models import Pizza, Profile
 from slumber_examples.tests.configurations import ConfigureUser, \
@@ -32,6 +36,8 @@ class TestAuthnRequired(ConfigureUser, TestCase):
         response = self.client.get('/slumber/slumber_examples/Pizza/data/%s/' % self.pizza.pk,
             REMOTE_ADDR='10.75.195.3')
         self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.get('WWW-Authenticate', None),
+            'FOST')
 
     def test_authenticated(self):
         response = self.client.get('/slumber/slumber_examples/Pizza/data/234234/',
@@ -75,6 +81,78 @@ class TestAuthnRequired(ConfigureUser, TestCase):
         response = self.client.post('/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk,
             {}, REMOTE_ADDR='127.0.0.1')
         self.assertEqual(response.status_code, 200, response.content)
+
+
+class TestAuthnForwarding(ConfigureUser, TestCase):
+    def setUp(self):
+        settings.MIDDLEWARE_CLASSES.append(
+            'slumber.connector.middleware.ForwardAuthentication')
+        super(TestAuthnForwarding, self).setUp()
+    def tearDown(self):
+        super(TestAuthnForwarding, self).tearDown()
+        settings.MIDDLEWARE_CLASSES.remove(
+            'slumber.connector.middleware.ForwardAuthentication')
+
+    def test_request_is_saved(self):
+        called = []
+        def check_request(request):
+            called.append(True)
+            self.assertEqual(request, PER_THREAD.request)
+            return HttpResponse('ok', 'text/plain')
+        with patch('slumber_examples.views._ok_text', check_request):
+            self.client.get('/')
+        self.assertTrue(called)
+
+    def test_signing_function_signs(self):
+        headers = {}
+        def check_request(request):
+            for k, v in _sign_request('GET', '/').items():
+                headers[k] = v
+            return HttpResponse('ok', 'text/plain')
+        with patch('slumber_examples.views._ok_text', check_request):
+            self.client.get('/', REMOTE_ADDR='127.0.0.1')
+        self.assertTrue(headers.has_key('Authorization'), headers)
+
+    def test_username_with_colon(self):
+        self.user.username = "my:name"
+        self.user.save()
+        headers = {}
+        def check_request(request):
+            for k, v in _sign_request('GET', '/').items():
+                headers[k] = v
+            return HttpResponse('ok', 'text/plain')
+        with patch('slumber_examples.views._ok_text', check_request):
+            self.client.get('/', REMOTE_ADDR='127.0.0.1')
+        self.assertTrue(headers.has_key('Authorization'), headers)
+        self.assertTrue(
+            headers['Authorization'].startswith('FOST my%3Aname:'),
+            headers)
+
+    def test_authentication_backend_accepts_signature(self):
+        def check_request(request):
+            class response:
+                status = 200
+                content = '''null'''
+            def _request(_self, url, headers={}):
+                backend = FostBackend()
+                authz = headers['Authorization']
+                key = authz[5:5+len(self.user.username)]
+                signature = authz[6+len(self.user.username):]
+                logging.info('Authorization %s %s', key, signature)
+                request.META['HTTP_X_FOST_TIMESTAMP'] = headers[
+                    'X-FOST-Timestamp']
+                request.META['HTTP_X_FOST_HEADERS'] = headers[
+                    'X-FOST-Headers']
+                user = backend.authenticate(request=request,
+                    key=key, hmac=signature)
+                self.assertTrue(user)
+                r = response()
+                return r, r.content
+            with patch('slumber.connector.ua.Http.request', _request):
+                response, json = get('http://example.com/')
+            return HttpResponse(response.content, 'text/plain')
+        with patch('slumber_examples.views._ok_text', check_request):
+            self.client.get('/', REMOTE_ADDR='127.0.0.1')
 
 
 class TestBackend(PatchForAuthnService, TestCase):

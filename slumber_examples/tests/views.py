@@ -12,7 +12,9 @@ from slumber_examples.tests.configurations import ConfigureUser
 
 
 def _perform(client, method, url, data):
-    response = getattr(client, method)(url, data,
+    def method_wrapper(*a, **kw):
+        return client.get(*a, REQUEST_METHOD=method.upper(), **kw)
+    response = getattr(client, method, method_wrapper)(url, data,
         HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
     if response.status_code == 200:
         return response, loads(response.content)
@@ -28,6 +30,9 @@ class ViewTests(object):
 
     def do_post(self, url, body):
         return _perform(self.client, 'post', self.url(url), body)
+
+    def do_options(self, url):
+        return _perform(self.client, 'options', self.url(url), {})
 
     def url(self, path):
         if not path.startswith(self.PREFIX + '/'):
@@ -65,13 +70,15 @@ class ViewErrors(ViewTests):
 
     def test_method_error(self):
         response, json = self.do_post('/slumber_examples/Pizza/instances/', {})
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 405)
+        self.assertEquals(response['Allow'], 'GET, OPTIONS')
 
     def test_invalid_method(self):
         url = self.url('/slumber_examples/Pizza/instances/')
         response = self.client.get(url, REQUEST_METHOD='PURGE',
             HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
-        self.assertEquals(response.status_code, 403, response.content)
+        self.assertEquals(response.status_code, 405, response.content)
+        self.assertEquals(response['Allow'], 'GET, OPTIONS')
 
     def test_missing_slash(self):
         response, json = self.do_get('/slumber_examples')
@@ -212,7 +219,13 @@ class BasicViews(ViewTests):
 
     def test_instance_creation_get(self):
         response, json = self.do_get('/slumber_examples/Pizza/create/')
-        self.assertEquals(response.status_code, 403, response.content)
+        self.assertEquals(response.status_code, 405, response.content)
+        self.assertEquals(response['Allow'], 'OPTIONS, POST')
+
+    def test_instance_creation_options(self):
+        response, json = self.do_options('/slumber_examples/Pizza/create/')
+        self.assertEquals(response.status_code, 200, response.content)
+        self.assertEquals(response['Allow'], 'OPTIONS, POST')
 
     def test_instance_creation_post(self):
         self.user.is_superuser = True
@@ -259,7 +272,7 @@ class BasicViews(ViewTests):
         response, json = self.do_get('/slumber_examples/Pizza/data/%s/' % s.pk)
         self.maxDiff = None
         self.assertEquals(json, dict(
-            _meta={'message': 'OK', 'status': 200},
+            _meta={'message': 'OK', 'status': 200, 'username': 'user'},
             type=self.url('/slumber_examples/Pizza/'),
             identity=self.url('/slumber_examples/Pizza/data/1/'),
             display='S1',
@@ -284,7 +297,7 @@ class BasicViews(ViewTests):
         p.save()
         response, json = self.do_get('/slumber_examples/PizzaPrice/data/%s/' % p.pk)
         self.assertEquals(json, dict(
-            _meta={'message': 'OK', 'status': 200},
+            _meta={'message': 'OK', 'status': 200, 'username': 'user'},
             type=self.url('/slumber_examples/PizzaPrice/'),
             identity=self.url('/slumber_examples/PizzaPrice/data/1/'),
             display="PizzaPrice object",
