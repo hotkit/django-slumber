@@ -22,6 +22,7 @@ class ConfigureAuthnBackend(ConfigureUser):
         self.__backends = settings.AUTHENTICATION_BACKENDS
         settings.AUTHENTICATION_BACKENDS = (
             'django.contrib.auth.backends.ModelBackend',
+            'fost_authn.FostBackend',
             'slumber.connector.authentication.Backend',
         )
         settings.MIDDLEWARE_CLASSES.append(
