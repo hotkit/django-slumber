@@ -100,8 +100,13 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'fost_authn.Middleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 ]
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'fost_authn.FostBackend',
+)
 
 ROOT_URLCONF = 'django1_3.urls'
 
