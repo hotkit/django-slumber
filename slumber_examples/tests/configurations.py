@@ -12,6 +12,9 @@ class ConfigureUser(object):
             is_superuser=False)
         self.user.set_password('pass')
         self.user.save()
+        self.service = User(username='service', is_active=True, is_staff=True,
+            is_superuser=True, password=settings.SECRET_KEY)
+        self.service.save()
         super(ConfigureUser, self).setUp()
 
 

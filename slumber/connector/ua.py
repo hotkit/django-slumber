@@ -4,7 +4,8 @@
 """
 from django.conf import settings
 from django.core.cache import cache
-from django.test.client import Client as FakeClient
+from django.test.client import Client as FakeClient, encode_multipart, \
+    BOUNDARY
 
 from datetime import datetime
 from fost_authn.signature import fost_hmac_request_signature
@@ -42,16 +43,20 @@ def _use_fake(url):
         return url
 
 
-def _calculate_signature(service, method, url, body, username):
+def _calculate_signature(service, method, url, body, username, for_fake_client=False):
     """Do the signed request calculation.
     """
     to_sign = {}
     if username:
         to_sign['X-FOST-User'] = username
     request = getattr(PER_THREAD, 'request', None)
+    if for_fake_client:
+        data = encode_multipart(BOUNDARY, body or {})
+    else:
+        data = body
     now = datetime.utcnow().isoformat() + 'Z'
     _, signature = fost_hmac_request_signature(
-        settings.SECRET_KEY, method, url, now, to_sign, body)
+        settings.SECRET_KEY, method, url, now, to_sign, data)
     headers = {}
     headers['Authorization'] = 'FOST %s:%s' % (service, signature)
     headers['X-FOST-Timestamp'] = now
@@ -59,7 +64,11 @@ def _calculate_signature(service, method, url, body, username):
     for key, value in to_sign.items():
         headers[key] = value
     logging.debug("_calculate_signature adding headers: %s", headers)
-    return headers
+    if for_fake_client:
+        return dict([('HTTP_' + k.upper().replace('-', '_'), v)
+            for k, v in headers.items()])
+    else:
+        return headers
 
 
 def _sign_request(method, url, body = ''):

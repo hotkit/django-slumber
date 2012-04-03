@@ -7,6 +7,7 @@ from django.db import connection
 from django.test import TestCase
 
 from slumber import Client
+from slumber.connector.ua import _calculate_signature
 from slumber_examples.models import Pizza, PizzaPrice, Order
 from slumber_examples.tests.configurations import ConfigureUser
 
@@ -14,8 +15,9 @@ from slumber_examples.tests.configurations import ConfigureUser
 def _perform(client, method, url, data):
     def method_wrapper(*a, **kw):
         return client.get(*a, REQUEST_METHOD=method.upper(), **kw)
+    headers = _calculate_signature('service', method.upper(), url, '', None, True)
     response = getattr(client, method, method_wrapper)(url, data,
-        HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+        HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1', **headers)
     if response.status_code == 200:
         return response, loads(response.content)
     else:
