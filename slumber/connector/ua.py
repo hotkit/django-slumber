@@ -9,6 +9,7 @@ from django.test.client import Client as FakeClient
 from datetime import datetime
 from fost_authn.signature import fost_hmac_request_signature
 from httplib2 import Http
+import logging
 from simplejson import loads
 from urllib import quote, urlencode
 from urlparse import parse_qs, urlparse
@@ -41,6 +42,26 @@ def _use_fake(url):
         return url
 
 
+def _calculate_signature(service, method, url, body, username):
+    """Do the signed request calculation.
+    """
+    to_sign = {}
+    if username:
+        to_sign['X-FOST-User'] = username
+    request = getattr(PER_THREAD, 'request', None)
+    now = datetime.utcnow().isoformat() + 'Z'
+    _, signature = fost_hmac_request_signature(
+        settings.SECRET_KEY, method, url, now, to_sign, body)
+    headers = {}
+    headers['Authorization'] = 'FOST %s:%s' % (service, signature)
+    headers['X-FOST-Timestamp'] = now
+    headers['X-FOST-Headers'] = ' '.join(['X-FOST-Headers'] + to_sign.keys())
+    for key, value in to_sign.items():
+        headers[key] = value
+    logging.debug("_calculate_signature adding headers: %s", headers)
+    return headers
+
+
 def _sign_request(method, url, body = ''):
     """Calculate the request headers that need to be added so that the
     request is properly signed and the Slumber server will consider
@@ -48,19 +69,7 @@ def _sign_request(method, url, body = ''):
     """
     service = get_slumber_service()
     if service:
-        to_sign = {}
-        request = getattr(PER_THREAD, 'request', None)
-        now = datetime.utcnow().isoformat() + 'Z'
-        _, signature = fost_hmac_request_signature(
-            settings.SECRET_KEY, method, url, now, to_sign, body)
-        headers = {}
-        headers['Authorization'] = 'FOST %s:%s' % (
-            get_slumber_service(), signature)
-        headers['X-FOST-Timestamp'] = now
-        headers['X-FOST-Headers'] = ' '.join(['X-FOST-Headers'] + to_sign.keys())
-        for key, value in to_sign.items():
-            headers[key] = value
-        return headers
+        return _calculate_signature(service, method, url, body, None)
     else:
         return {}
 
@@ -73,8 +82,10 @@ def get(url, ttl = 0):
     url_fragment = _use_fake(url)
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
+        headers = dict([(k.upper().replace('-', '_'), v)
+            for k, v in _sign_request('GET', file_spec).items()])
         response = _fake.get(file_spec, query,
-            HTTP_HOST='localhost:8000', **_sign_request('GET', file_spec))
+            HTTP_HOST='localhost:8000', **headers)
         if response.status_code in [301, 302]:
             return get(response['location'])
         assert response.status_code == 200, (
