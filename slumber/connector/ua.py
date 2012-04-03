@@ -50,10 +50,11 @@ def _calculate_signature(service, method, url, body, username, for_fake_client=F
     if username:
         to_sign['X-FOST-User'] = username
     request = getattr(PER_THREAD, 'request', None)
-    if for_fake_client:
+    if for_fake_client and method in ['POST', 'PUT']:
+        logging.info("Encoding %s", body or {})
         data = encode_multipart(BOUNDARY, body or {})
     else:
-        data = body
+        data = body or ''
     now = datetime.utcnow().isoformat() + 'Z'
     _, signature = fost_hmac_request_signature(
         settings.SECRET_KEY, method, url, now, to_sign, data)

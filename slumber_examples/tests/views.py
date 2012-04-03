@@ -15,7 +15,7 @@ from slumber_examples.tests.configurations import ConfigureUser
 def _perform(client, method, url, data):
     def method_wrapper(*a, **kw):
         return client.get(*a, REQUEST_METHOD=method.upper(), **kw)
-    headers = _calculate_signature('service', method.upper(), url, '', None, True)
+    headers = _calculate_signature('service', method.upper(), url, data, None, True)
     response = getattr(client, method, method_wrapper)(url, data,
         HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1', **headers)
     if response.status_code == 200:
