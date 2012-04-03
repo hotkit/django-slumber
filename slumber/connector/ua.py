@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.test.client import Client as FakeClient, encode_multipart, \
     BOUNDARY
+from django.utils.http import urlencode
 
 from datetime import datetime
 from fost_authn.signature import fost_hmac_request_signature
@@ -50,9 +51,13 @@ def _calculate_signature(service, method, url, body, username, for_fake_client=F
     if username:
         to_sign['X-FOST-User'] = username
     request = getattr(PER_THREAD, 'request', None)
-    if for_fake_client and method in ['POST', 'PUT']:
-        logging.info("Encoding %s", body or {})
-        data = encode_multipart(BOUNDARY, body or {})
+    if for_fake_client:
+        if method in ['POST', 'PUT']:
+            logging.info("Encoding POST/PUT data %s", body or {})
+            data = encode_multipart(BOUNDARY, body or {})
+        else:
+            logging.info("Encoding query string %s", body or {})
+            data = urlencode(body or {}, doseq=True)
     else:
         data = body or ''
     now = datetime.utcnow().isoformat() + 'Z'
