@@ -1,6 +1,8 @@
 """
     Middleware to help manage the Slumber client.
 """
+import logging
+
 from django.contrib.auth import authenticate
 
 from slumber import client
@@ -37,7 +39,9 @@ class Authentication(object):
         """Looks for the X_FOST_User header, and if found authenticates that
         user.
         """
-        user_header = getattr(request, 'SIGNED', {}).get('HTTP_X_FOST_USER', None)
+        signed = getattr(request, 'SIGNED', {})
+        logging.info("Signed headers: %s", signed)
+        user_header = signed.get('HTTP_X_FOST_USER', None)
         if user_header:
             user = authenticate(x_fost_user=user_header)
             if user:
