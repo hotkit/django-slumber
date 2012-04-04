@@ -33,6 +33,7 @@ def _parse_qs(url):
     else:
         return url, {}
 
+
 def _use_fake(url):
     """Return the local URL fragment if the request should use the Fake
     HTTP client as it is local, otherwise return None
@@ -137,7 +138,8 @@ def post(url, data):
     url_fragment = _use_fake(url)
     if url_fragment:
         response = _fake.post(url_fragment, data,
-            HTTP_HOST='localhost:8000', **_sign_request('POST', url, data, True))
+            HTTP_HOST='localhost:8000',
+            **_sign_request('POST', url_fragment, data, True))
         assert response.status_code == 200, \
             (url_fragment, response, response.content)
         content = response.content
