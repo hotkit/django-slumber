@@ -58,7 +58,8 @@ def _calculate_signature(authn_name, method, url, body, username, for_fake_clien
             data = encode_multipart(BOUNDARY, body or {})
         else:
             logging.info("Encoding query string %s", body or {})
-            data = urlencode(body or {}, doseq=True)
+            data = body if isinstance(body, basestring) else \
+                urlencode(body or {}, doseq=True)
     else:
         data = body or ''
     now = datetime.utcnow().isoformat() + 'Z'
@@ -101,7 +102,7 @@ def get(url, ttl = 0):
     url_fragment = _use_fake(url)
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
-        headers = _sign_request('GET', file_spec, '', True)
+        headers = _sign_request('GET', file_spec, query, True)
         response = _fake.get(file_spec, query,
             HTTP_HOST='localhost:8000', **headers)
         if response.status_code in [301, 302]:

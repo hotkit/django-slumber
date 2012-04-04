@@ -2,6 +2,7 @@
     Implements the conversion of the response data to valid HTTP
     data.
 """
+import logging
 from simplejson import dumps, JSONEncoder
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -31,6 +32,8 @@ def require_user(function):
     def decorated(cls, request, *args, **kwargs):
         """The docorated function.
         """
+        logging.debug("User %s is_authenticated: %s", request.user,
+            request.user.is_authenticated())
         if not request.user.is_authenticated():
             raise NotAuthorised()
         return function(cls, request, *args, **kwargs)
@@ -83,6 +86,8 @@ def view_handler(view):
                 'error': "Not implemented"}
         if request.user.is_authenticated():
             response['_meta']['username'] = request.user.username
+        else:
+            logging.debug("Request user %s not authenticated", request.user)
         http_response = HttpResponse(dumps(response, indent=4,
                 cls=_proxyEncoder), 'text/plain',
             status=response['_meta']['status'])
