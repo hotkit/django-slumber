@@ -13,7 +13,7 @@ from fost_authn.signature import fost_hmac_request_signature
 from httplib2 import Http
 import logging
 from simplejson import loads
-from urllib import quote, urlencode
+from urllib import urlencode
 from urlparse import parse_qs, urlparse
 
 from slumber._caches import PER_THREAD
@@ -50,13 +50,16 @@ def _use_fake(url):
     logging.debug("Using real HTTP for %s", url)
 
 
-def _calculate_signature(authn_name, method, url, body, username, for_fake_client):
+def _calculate_signature(authn_name, method, url, body,
+        username, for_fake_client):
     """Do the signed request calculation.
     """
+    # We need all arguments and all locals
+    # pylint: disable=R0913
+    # pylint: disable=R0914
     to_sign = {}
     if username:
         to_sign['X-FOST-User'] = username
-    request = getattr(PER_THREAD, 'request', None)
     if for_fake_client:
         if method in ['POST', 'PUT']:
             logging.info("Encoding POST/PUT data %s", body or {})
