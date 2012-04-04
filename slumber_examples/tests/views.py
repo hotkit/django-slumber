@@ -16,8 +16,8 @@ def _perform(client, method, url, data):
     def method_wrapper(*a, **kw):
         return client.get(*a, REQUEST_METHOD=method.upper(), **kw)
     headers = _calculate_signature('service', method.upper(), url, data, None, True)
-    response = getattr(client, method, method_wrapper)(url, data,
-        HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1', **headers)
+    response = getattr(client, method, method_wrapper)(
+        url, data, **headers)
     if response.status_code == 200:
         return response, loads(response.content)
     else:
@@ -100,8 +100,7 @@ class ViewErrorsPlain(ConfigureUser, ViewErrors, PlainTests, TestCase):
     pass
 class ViewErrorsService(ConfigureUser, ViewErrors, ServiceTests, TestCase):
     def test_invalid_service(self):
-        response = self.client.get('/slumber/not-a-service/',
-            HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+        response = self.client.get('/slumber/not-a-service/')
         self.assertEquals(response.status_code, 404, response.content)
 
 

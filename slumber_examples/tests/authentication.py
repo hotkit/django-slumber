@@ -28,13 +28,11 @@ class TestAuthnRequired(ConfigureUser, TestCase):
         super(TestAuthnRequired, self).setUp()
 
     def test_directory_works_when_not_authenticated(self):
-        response = self.client.get('/slumber/',
-            REMOTE_ADDR='10.75.195.3')
+        response = self.client.get('/slumber/')
         self.assertEqual(response.status_code, 200)
 
     def test_model_requires_authentication(self):
-        response = self.client.get('/slumber/slumber_examples/Pizza/data/%s/' % self.pizza.pk,
-            REMOTE_ADDR='10.75.195.3')
+        response = self.client.get('/slumber/slumber_examples/Pizza/data/%s/' % self.pizza.pk)
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.get('WWW-Authenticate', None),
             'FOST Realm="Slumber"')
@@ -91,11 +89,9 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
     def setUp(self):
         settings.MIDDLEWARE_CLASSES.append(
             'slumber.connector.middleware.ForwardAuthentication')
-        settings.SLUMBER_SERVICE='service'
         super(TestAuthnForwarding, self).setUp()
     def tearDown(self):
         super(TestAuthnForwarding, self).tearDown()
-        delattr(settings, 'SLUMBER_SERVICE')
         settings.MIDDLEWARE_CLASSES.remove(
             'slumber.connector.middleware.ForwardAuthentication')
 
