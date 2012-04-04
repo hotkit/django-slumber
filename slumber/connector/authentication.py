@@ -28,7 +28,11 @@ def _assert_properly_configured():
 
 
 def _save_authenticated_username(method):
+    """Wrapper to make the logic for saving the request simpler.
+    """
     def decorated(self, **kwargs):
+        """Save the request.
+        """
         user = method(self, **kwargs)
         if user:
             PER_THREAD.username = user.username
