@@ -23,6 +23,10 @@ def _get_slumber_authn_name():
     """
     return getattr(settings, 'SLUMBER_AUTHN_NAME', get_slumber_service())
 def get_slumber_authn_name():
+    """Return the user name that is to be used for authenticating Slumber
+    requests to the back end. This user name is used together with the
+    SECRET_KEY and defaults to the service name.
+    """
     return _get_slumber_authn_name()
 
 
@@ -42,7 +46,7 @@ class ServiceConnector(object):
             raise AttributeError(attr_name)
         _, json = get(self._directory)
         logging.debug(
-            "Looking for attribute %s on %s resulted in these applications",
+            "Looking for attribute %s on %s resulted in these applications %s",
             attr_name, self, json)
         # Pylint gets confused by the JSON object
         # pylint: disable=E1103
