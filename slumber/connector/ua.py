@@ -40,9 +40,14 @@ def _use_fake(url):
     """
     slumber_local = get_slumber_local_url_prefix()
     if url.startswith(slumber_local):
+        logging.debug("Using local fake HTTP due to %s starting with %s",
+            url, slumber_local)
         return url[len(slumber_local) - 1:]
     elif url.startswith('/'):
+        logging.debug("Using local fake HTTP due to %s starting with /",
+            url)
         return url
+    logging.debug("Using real HTTP for %s", url)
 
 
 def _calculate_signature(authn_name, method, url, body, username, for_fake_client):
@@ -117,6 +122,8 @@ def get(url, ttl = 0):
         cache_key = 'slumber.connector.ua.get.%s' % url
         cached = cache.get(cache_key)
         if not cached:
+            logging.debug("Cache miss for url %s with cache key %s",
+                url, cache_key)
             _, _, path, _, query, _ = urlparse(url)
             to_sign = path + ('' if not query else '?' + query)
             for _ in range(0, 3):
@@ -129,6 +136,7 @@ def get(url, ttl = 0):
             if ttl:
                 cache.set(cache_key, (response, content), ttl)
         else:
+            logging.debug("Fetched %s from cache key %s", url, cache_key)
             response, content = cached
             response.from_cache = True
     return response, loads(content)

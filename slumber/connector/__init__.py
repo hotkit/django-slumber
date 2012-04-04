@@ -1,10 +1,11 @@
 """
     Code for the Slumber client connector.
 """
-from django.conf import settings
-
+import logging
 from urllib import urlencode
 from urlparse import urljoin
+
+from django.conf import settings
 
 from slumber._caches import CLIENT_INSTANCE_CACHE, \
     MODEL_URL_TO_SLUMBER_MODEL
@@ -34,9 +35,15 @@ class ServiceConnector(object):
     def __getattr__(self, attr_name):
         """Fetch the application list from the Slumber directory on request.
         """
+        logging.debug("Looking for attribute %s on %s for directory %s",
+            attr_name, self, self._directory)
         if not self._directory:
+            logging.debug("Raising AttributeError as _directory is falsey")
             raise AttributeError(attr_name)
         _, json = get(self._directory)
+        logging.debug(
+            "Looking for attribute %s on %s resulted in these applications",
+            attr_name, self, json)
         # Pylint gets confused by the JSON object
         # pylint: disable=E1103
         json_apps = json.get('apps', {})
