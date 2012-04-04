@@ -22,6 +22,10 @@ class ConfigureUser(object):
         headers = _calculate_signature('service', 'GET', url, '', username, True)
         return self.client.get(url, **headers)
 
+    def signed_post(self, username, url, data):
+        headers = _calculate_signature('service', 'POST', url, data, username, True)
+        return self.client.post(url, data, **headers)
+
 
 class ConfigureAuthnBackend(ConfigureUser):
     def setUp(self):

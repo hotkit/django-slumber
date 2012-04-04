@@ -47,39 +47,43 @@ class TestAuthnRequired(ConfigureUser, TestCase):
         self.assertEqual(json["error"], "Pizza matching query does not exist.")
 
     def test_model_create_requires_permission(self):
-        response = self.client.post('/slumber/slumber_examples/Pizza/create/',
-            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(self.user.username,
+            '/slumber/slumber_examples/Pizza/create/',
+            {'name': 'new test pizza'})
         self.assertEqual(response.status_code, 403)
 
     def test_model_create_checks_correct_permission(self):
         permission = Permission.objects.get(codename="add_pizza")
         self.user.user_permissions.add(permission)
-        response = self.client.post('/slumber/slumber_examples/Pizza/create/',
-            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(None,
+            '/slumber/slumber_examples/Pizza/create/',
+            {'name': 'new test pizza'})
         self.assertEqual(response.status_code, 200, response.content)
 
     def test_model_update_requires_permission(self):
-        response = self.client.post('/slumber/slumber_examples/Pizza/update/%s/' % self.pizza.pk,
-            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(self.user.username,
+            '/slumber/slumber_examples/Pizza/update/%s/' % self.pizza.pk,
+            {'name': 'new test pizza'})
         self.assertEqual(response.status_code, 403)
 
     def test_model_update_checks_correct_permission(self):
         permission = Permission.objects.get(codename="change_pizza")
         self.user.user_permissions.add(permission)
-        response = self.client.post('/slumber/slumber_examples/Pizza/update/%s/' % self.pizza.pk,
-            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(self.user.username,
+            '/slumber/slumber_examples/Pizza/update/%s/' % self.pizza.pk,
+            {'name': 'new test pizza'})
         self.assertEqual(response.status_code, 302, response.content)
 
     def test_model_delete_requires_permission(self):
-        response = self.client.post('/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk,
-            {}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(self.user.username,
+            '/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk, {})
         self.assertEqual(response.status_code, 403)
 
     def test_model_delete_checks_correct_permission(self):
         permission = Permission.objects.get(codename="delete_pizza")
         self.user.user_permissions.add(permission)
-        response = self.client.post('/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk,
-            {}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(self.user.username,
+            '/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk, {})
         self.assertEqual(response.status_code, 200, response.content)
 
 
