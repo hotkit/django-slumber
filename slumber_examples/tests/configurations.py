@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from slumber.connector import Client
+from slumber.connector.ua import _calculate_signature
 
 
 class ConfigureUser(object):
@@ -16,6 +17,10 @@ class ConfigureUser(object):
             is_superuser=True, password=settings.SECRET_KEY)
         self.service.save()
         super(ConfigureUser, self).setUp()
+
+    def signed_get(self,  username, url='/'):
+        headers = _calculate_signature('service', 'GET', url, '', username, True)
+        self.client.get('/', **headers)
 
 
 class ConfigureAuthnBackend(ConfigureUser):

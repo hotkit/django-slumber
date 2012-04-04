@@ -14,7 +14,7 @@ from slumber import client
 from slumber._caches import PER_THREAD
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
-from slumber.connector.ua import _calculate_signature, _sign_request, get
+from slumber.connector.ua import  _sign_request, get
 from slumber.test import mock_client
 from slumber_examples.models import Pizza, Profile
 from slumber_examples.tests.configurations import ConfigureUser, \
@@ -87,10 +87,8 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
     def setUp(self):
         settings.MIDDLEWARE_CLASSES.append(
             'slumber.connector.middleware.ForwardAuthentication')
-        settings.SLUMBER_SERVICE='pizzas'
+        settings.SLUMBER_SERVICE='service'
         super(TestAuthnForwarding, self).setUp()
-        self.service.username = 'pizzas'
-        self.service.save()
     def tearDown(self):
         super(TestAuthnForwarding, self).tearDown()
         delattr(settings, 'SLUMBER_SERVICE')
@@ -126,11 +124,10 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
                 headers[k] = v
             return HttpResponse('ok', 'text/plain')
         with patch('slumber_examples.views._ok_text', check_request):
-            self.client.get('/', REMOTE_ADDR='127.0.0.1')
+            self.signed_get(self.user.username)
         self.assertTrue(headers.has_key('Authorization'), headers)
         self.assertTrue(headers.has_key('X-FOST-User'), headers)
         self.assertEqual(headers['X-FOST-User'], self.user.username)
-
 
     def test_authentication_backend_accepts_signature(self):
         def check_request(request):
@@ -156,7 +153,7 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
                 response, json = get('http://example.com/')
             return HttpResponse(response.content, 'text/plain')
         with patch('slumber_examples.views._ok_text', check_request):
-            self.client.get('/', REMOTE_ADDR='127.0.0.1')
+            self.signed_get(self.user.username)
 
 
 class TestBackend(PatchForAuthnService, TestCase):
@@ -283,10 +280,6 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
     def save_user(self, request):
         self.user = request.user
         return HttpResponse('ok')
-
-    def signed_get(self, username):
-        headers = _calculate_signature('service', 'GET', '/', '', username, True)
-        self.client.get('/', **headers)
 
     @mock_client()
     def test_isnt_authenticated(self):
