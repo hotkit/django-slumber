@@ -357,9 +357,10 @@ class BasicViewsPlain(ConfigureUser, BasicViews, PlainTests, TestCase):
         self.user.is_superuser = True
         self.user.save()
         client = Client()
-        shop = client.slumber_examples.Shop.create(name="Home", slug='home')
-        order = Order(shop=shop)
-        order.save()
+        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
+            shop = client.slumber_examples.Shop.create(name="Home", slug='home')
+            order = Order(shop=shop)
+            order.save()
         self.assertIsNotNone(order.shop)
         cursor = connection.cursor()
         cursor.execute(

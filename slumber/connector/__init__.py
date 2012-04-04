@@ -16,6 +16,15 @@ from slumber.server import get_slumber_service, get_slumber_directory, \
     get_slumber_services, get_slumber_local_url_prefix, get_slumber_root
 
 
+def _get_slumber_authn_name():
+    """Used in the implementation of get_auth_name so it can be easily
+    patched.
+    """
+    return getattr(settings, 'SLUMBER_AUTHN_NAME', get_slumber_service())
+def get_slumber_authn_name():
+    return _get_slumber_authn_name()
+
+
 class ServiceConnector(object):
     """Connects to a service.
     """

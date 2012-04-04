@@ -17,7 +17,7 @@ from urllib import quote, urlencode
 from urlparse import parse_qs, urlparse
 
 from slumber._caches import PER_THREAD
-from slumber.server import get_slumber_local_url_prefix, get_slumber_service
+from slumber.server import get_slumber_local_url_prefix
 
 
 _fake = FakeClient()
@@ -44,7 +44,7 @@ def _use_fake(url):
         return url
 
 
-def _calculate_signature(service, method, url, body, username, for_fake_client=False):
+def _calculate_signature(authn_name, method, url, body, username, for_fake_client):
     """Do the signed request calculation.
     """
     to_sign = {}
@@ -64,12 +64,12 @@ def _calculate_signature(service, method, url, body, username, for_fake_client=F
     _, signature = fost_hmac_request_signature(
         settings.SECRET_KEY, method, url, now, to_sign, data)
     headers = {}
-    headers['Authorization'] = 'FOST %s:%s' % (service, signature)
+    headers['Authorization'] = 'FOST %s:%s' % (authn_name, signature)
     headers['X-FOST-Timestamp'] = now
     headers['X-FOST-Headers'] = ' '.join(['X-FOST-Headers'] + to_sign.keys())
     for key, value in to_sign.items():
         headers[key] = value
-    logging.debug("_calculate_signature adding headers: %s", headers)
+    logging.debug("_calculate_signature %s adding headers: %s", method, headers)
     if for_fake_client:
         return dict([('HTTP_' + k.upper().replace('-', '_'), v)
             for k, v in headers.items()])
@@ -77,14 +77,17 @@ def _calculate_signature(service, method, url, body, username, for_fake_client=F
         return headers
 
 
-def _sign_request(method, url, body = ''):
+def _sign_request(method, url, body, for_fake_client):
     """Calculate the request headers that need to be added so that the
     request is properly signed and the Slumber server will consider
     the current user to be authenticated.
     """
-    service = get_slumber_service()
-    if service:
-        return _calculate_signature(service, method, url, body, None)
+    # import here avoids circular import
+    from slumber.connector import get_slumber_authn_name
+    authn_name = get_slumber_authn_name()
+    if authn_name:
+        return _calculate_signature(
+            authn_name, method, url, body, None, for_fake_client)
     else:
         return {}
 
@@ -97,8 +100,7 @@ def get(url, ttl = 0):
     url_fragment = _use_fake(url)
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
-        headers = dict([(k.upper().replace('-', '_'), v)
-            for k, v in _sign_request('GET', file_spec).items()])
+        headers = _sign_request('GET', file_spec, '', True)
         response = _fake.get(file_spec, query,
             HTTP_HOST='localhost:8000', **headers)
         if response.status_code in [301, 302]:
@@ -113,8 +115,9 @@ def get(url, ttl = 0):
             _, _, path, _, query, _ = urlparse(url)
             to_sign = path + ('' if not query else '?' + query)
             for _ in range(0, 3):
+                headers = _sign_request('GET', to_sign, '', False)
                 response, content = Http().request(
-                    url, headers=_sign_request('GET', to_sign))
+                    url, headers=headers)
                 if response.status == 200:
                     break
             assert response.status == 200, (url, response.status)
@@ -134,14 +137,14 @@ def post(url, data):
     url_fragment = _use_fake(url)
     if url_fragment:
         response = _fake.post(url_fragment, data,
-            HTTP_HOST='localhost:8000', **_sign_request('POST', url, data))
+            HTTP_HOST='localhost:8000', **_sign_request('POST', url, data, True))
         assert response.status_code == 200, \
             (url_fragment, response, response.content)
         content = response.content
     else:
         body = urlencode(data)
         response, content = Http().request(url, "POST", body=body,
-            headers = _sign_request('POST', url, data))
+            headers = _sign_request('POST', url, data, False))
         assert response.status == 200, content
     return response, loads(content)
 

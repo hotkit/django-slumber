@@ -108,7 +108,7 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
     def test_signing_function_signs(self):
         headers = {}
         def check_request(request):
-            for k, v in _sign_request('GET', '/').items():
+            for k, v in _sign_request('GET', '/', '', False).items():
                 headers[k] = v
             return HttpResponse('ok', 'text/plain')
         with patch('slumber_examples.views._ok_text', check_request):
@@ -120,7 +120,7 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
         self.user.save()
         headers = {}
         def check_request(request):
-            for k, v in _sign_request('GET', '/').items():
+            for k, v in _sign_request('GET', '/', '', False).items():
                 headers[k] = v
             return HttpResponse('ok', 'text/plain')
         with patch('slumber_examples.views._ok_text', check_request):
@@ -283,8 +283,7 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
         return HttpResponse('ok')
 
     def signed_get(self, username):
-        headers = dict([('HTTP_' + k.upper().replace('-', '_'), v)
-            for k, v in _calculate_signature('service', 'GET', '/', '', username).items()])
+        headers = _calculate_signature('service', 'GET', '/', '', username, True)
         self.client.get('/', **headers)
 
     @mock_client()
