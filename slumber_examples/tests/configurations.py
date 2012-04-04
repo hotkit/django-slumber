@@ -20,7 +20,7 @@ class ConfigureUser(object):
 
     def signed_get(self,  username, url='/'):
         headers = _calculate_signature('service', 'GET', url, '', username, True)
-        self.client.get('/', **headers)
+        return self.client.get(url, **headers)
 
 
 class ConfigureAuthnBackend(ConfigureUser):

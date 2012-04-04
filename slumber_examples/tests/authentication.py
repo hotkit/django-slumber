@@ -40,8 +40,8 @@ class TestAuthnRequired(ConfigureUser, TestCase):
             'FOST Realm="Slumber"')
 
     def test_authenticated(self):
-        response = self.client.get('/slumber/slumber_examples/Pizza/data/234234/',
-            REMOTE_ADDR='127.0.0.1')
+        response = self.signed_get(None,
+            '/slumber/slumber_examples/Pizza/data/234234/')
         self.assertEqual(response.status_code, 404)
         json = loads(response.content)
         self.assertEqual(json["error"], "Pizza matching query does not exist.")
