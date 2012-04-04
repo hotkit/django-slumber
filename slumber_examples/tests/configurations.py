@@ -16,7 +16,14 @@ class ConfigureUser(object):
         self.service = User(username='service', is_active=True, is_staff=True,
             is_superuser=True, password=settings.SECRET_KEY)
         self.service.save()
+        self.__patchers = [
+            patch('slumber.connector._get_slumber_authn_name', lambda: 'service'),
+        ]
+        [p.start() for p in self.__patchers]
         super(ConfigureUser, self).setUp()
+    def tearDown(self):
+        super(ConfigureUser, self).tearDown()
+        [p.stop() for p in self.__patchers]
 
     def signed_get(self,  username, url='/'):
         headers = _calculate_signature('service', 'GET', url, '', username, True)

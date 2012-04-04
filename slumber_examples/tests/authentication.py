@@ -166,134 +166,118 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.backend = Backend()
 
     def test_remote_user(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = client.auth.django.contrib.auth.User.get(username='user')
-            for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
-                    'first_name', 'last_name', 'email', 'username']:
-                self.assertTrue(hasattr(user, attr), user.__dict__.keys())
+        user = client.auth.django.contrib.auth.User.get(username='user')
+        for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
+                'first_name', 'last_name', 'email', 'username']:
+            self.assertTrue(hasattr(user, attr), user.__dict__.keys())
 
     def test_delegated_login(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.authenticate(x_fost_user=self.user.username)
-            self.assertTrue(user)
-            self.assertEqual(user.username, self.user.username)
+        user = self.backend.authenticate(x_fost_user=self.user.username)
+        self.assertTrue(user)
+        self.assertEqual(user.username, self.user.username)
 
     def test_remote_login(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.authenticate(username=self.user.username, password='pass')
-            self.assertEqual(user.username, self.user.username)
+        user = self.backend.authenticate(username=self.user.username, password='pass')
+        self.assertEqual(user.username, self.user.username)
 
     def test_remote_login_with_wrong_password(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.authenticate(username=self.user.username, password='xxxx')
-            self.assertIsNone(user)
+        user = self.backend.authenticate(username=self.user.username, password='xxxx')
+        self.assertIsNone(user)
 
     def test_get_user(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.get_user(self.user.username, 'username')
-            self.assertEqual(user.username, self.user.username)
-            self.assertTrue(user.is_active)
-            self.assertTrue(user.is_staff)
-            self.assertFalse(user.is_superuser)
-            self.assertTrue(hasattr(user, 'remote_user'))
-            self.assertEqual(user.username, user.remote_user.username)
-            self.assertEqual(user.is_active, user.remote_user.is_active)
-            self.assertEqual(user.is_staff, user.remote_user.is_staff)
-            self.assertEqual(user.is_superuser, user.remote_user.is_superuser)
+        user = self.backend.get_user(self.user.username, 'username')
+        self.assertEqual(user.username, self.user.username)
+        self.assertTrue(user.is_active)
+        self.assertTrue(user.is_staff)
+        self.assertFalse(user.is_superuser)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertEqual(user.username, user.remote_user.username)
+        self.assertEqual(user.is_active, user.remote_user.is_active)
+        self.assertEqual(user.is_staff, user.remote_user.is_staff)
+        self.assertEqual(user.is_superuser, user.remote_user.is_superuser)
 
     def test_cache_ttl(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.get_user(self.user.username, 'username')
-            self.assertEqual(user.remote_user._CACHE_TTL, 120)
+        user = self.backend.get_user(self.user.username, 'username')
+        self.assertEqual(user.remote_user._CACHE_TTL, 120)
 
     def test_group_permissions(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.get_user(self.user.username, 'username')
-            self.assertTrue(hasattr(user, 'remote_user'))
-            perms = self.backend.get_group_permissions(user)
-            self.assertEqual(perms, self.user.get_group_permissions())
+        user = self.backend.get_user(self.user.username, 'username')
+        self.assertTrue(hasattr(user, 'remote_user'))
+        perms = self.backend.get_group_permissions(user)
+        self.assertEqual(perms, self.user.get_group_permissions())
 
     def test_all_permissions(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.get_user(self.user.username, 'username')
-            self.assertTrue(hasattr(user, 'remote_user'))
-            perms = self.backend.get_all_permissions(user)
-            self.assertEqual(perms, self.user.get_all_permissions())
+        user = self.backend.get_user(self.user.username, 'username')
+        self.assertTrue(hasattr(user, 'remote_user'))
+        perms = self.backend.get_all_permissions(user)
+        self.assertEqual(perms, self.user.get_all_permissions())
 
     def test_module_perms(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.get_user(self.user.username, 'username')
-            self.assertTrue(hasattr(user, 'remote_user'))
-            self.assertFalse(self.backend.has_module_perms(user, 'slumber_examples'))
+        user = self.backend.get_user(self.user.username, 'username')
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertFalse(self.backend.has_module_perms(user, 'slumber_examples'))
 
     def test_existing_permission(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            self.assertTrue(bool(ContentType.objects.all().count()))
-            content_type = ContentType.objects.get(
-                app_label='slumber_examples', model='pizza')
-            permission = Permission.objects.get(
-                codename='add_pizza', content_type=content_type)
-            user = self.backend.get_user(self.user.username)
-            self.assertTrue(hasattr(user, 'remote_user'))
-            self.assertFalse(self.backend.has_perm(user, 'slumber_examples.add_pizza'))
+        self.assertTrue(bool(ContentType.objects.all().count()))
+        content_type = ContentType.objects.get(
+            app_label='slumber_examples', model='pizza')
+        permission = Permission.objects.get(
+            codename='add_pizza', content_type=content_type)
+        user = self.backend.get_user(self.user.username)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertFalse(self.backend.has_perm(user, 'slumber_examples.add_pizza'))
 
     def test_existing_permission(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            self.assertTrue(bool(ContentType.objects.all().count()))
-            content_type = ContentType.objects.get(
-                app_label='slumber_examples', model='pizza')
-            permission = Permission.objects.get(
-                codename='add_pizza', content_type=content_type)
-            self.user.user_permissions.add(permission)
-            user = self.backend.get_user(self.user.username, 'username')
-            self.assertTrue(hasattr(user, 'remote_user'))
-            self.assertTrue(self.backend.has_perm(user, 'slumber_examples.add_pizza'))
+        self.assertTrue(bool(ContentType.objects.all().count()))
+        content_type = ContentType.objects.get(
+            app_label='slumber_examples', model='pizza')
+        permission = Permission.objects.get(
+            codename='add_pizza', content_type=content_type)
+        self.user.user_permissions.add(permission)
+        user = self.backend.get_user(self.user.username, 'username')
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertTrue(self.backend.has_perm(user, 'slumber_examples.add_pizza'))
 
     def test_missing_permission(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.get_user(self.user.username, 'username')
-            self.assertTrue(hasattr(user, 'remote_user'))
-            self.assertFalse(self.backend.has_perm(user, 'slumber_examples.not-a-perm'))
-            perm = Permission.objects.get(codename='not-a-perm',
-                content_type__app_label='slumber_examples')
-            self.assertEqual(perm.codename, 'not-a-perm')
-            self.assertEqual(perm.name, perm.codename)
-            self.assertEqual(perm.content_type.app_label, 'slumber_examples')
-            self.assertEqual(perm.content_type.model, 'unknown')
+        user = self.backend.get_user(self.user.username, 'username')
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertFalse(self.backend.has_perm(user, 'slumber_examples.not-a-perm'))
+        perm = Permission.objects.get(codename='not-a-perm',
+            content_type__app_label='slumber_examples')
+        self.assertEqual(perm.codename, 'not-a-perm')
+        self.assertEqual(perm.name, perm.codename)
+        self.assertEqual(perm.content_type.app_label, 'slumber_examples')
+        self.assertEqual(perm.content_type.model, 'unknown')
 
     def test_permission_with_new_app(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.get_user(self.user.pk)
-            self.assertTrue(hasattr(user, 'remote_user'))
-            self.assertFalse(self.backend.has_perm(user, 'not-an-app.not-a-perm'))
-            perm = Permission.objects.get(codename='not-a-perm',
-                content_type__app_label='not-an-app')
-            self.assertEqual(perm.codename, 'not-a-perm')
-            self.assertEqual(perm.name, perm.codename)
-            self.assertEqual(perm.content_type.app_label, 'not-an-app')
-            self.assertEqual(perm.content_type.model, 'unknown')
+        user = self.backend.get_user(self.user.pk)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertFalse(self.backend.has_perm(user, 'not-an-app.not-a-perm'))
+        perm = Permission.objects.get(codename='not-a-perm',
+            content_type__app_label='not-an-app')
+        self.assertEqual(perm.codename, 'not-a-perm')
+        self.assertEqual(perm.name, perm.codename)
+        self.assertEqual(perm.content_type.app_label, 'not-an-app')
+        self.assertEqual(perm.content_type.model, 'unknown')
 
     def test_permission_with_invalid_name(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.get_user(self.user.pk)
-            self.assertTrue(hasattr(user, 'remote_user'))
-            self.assertFalse(self.backend.has_perm(user, 'not-a-perm'))
-            self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))
+        user = self.backend.get_user(self.user.pk)
+        self.assertTrue(hasattr(user, 'remote_user'))
+        self.assertFalse(self.backend.has_perm(user, 'not-a-perm'))
+        self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))
 
     def test_user_profile_when_no_profile(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            user = self.backend.get_user(self.user.pk)
-            with self.assertRaises(AssertionError):
-                profile = user.get_profile()
+        user = self.backend.get_user(self.user.pk)
+        with self.assertRaises(AssertionError):
+            profile = user.get_profile()
 
     def test_user_profile_when_there_is_a_profile(self):
-        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            profile = Profile(user=self.user)
-            profile.save()
-            user = self.backend.get_user(self.user.pk)
-            remote_profile = user.get_profile()
-            self.assertEqual(remote_profile.id, profile.id)
-            self.assertEqual(remote_profile.user.id, self.user.id)
+        profile = Profile(user=self.user)
+        profile.save()
+        user = self.backend.get_user(self.user.pk)
+        remote_profile = user.get_profile()
+        self.assertEqual(remote_profile.id, profile.id)
+        self.assertEqual(remote_profile.user.id, self.user.id)
 
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):
