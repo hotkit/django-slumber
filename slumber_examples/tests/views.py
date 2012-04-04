@@ -472,7 +472,7 @@ class UserViews(ViewTests):
             {'pk': self.user.pk, 'display_name': 'test-user'},
             json['user'])
         self.assertTrue(
-            json['user']['url'].endswith('/django/contrib/auth/User/data/2/'),
+            json['user']['url'].endswith('/django/contrib/auth/User/data/3/'),
             json['user']['url'])
 
     def test_user_permission_no_permission(self):
