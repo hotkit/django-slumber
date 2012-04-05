@@ -168,13 +168,9 @@ class TestBackend(PatchForAuthnService, TestCase):
                 'first_name', 'last_name', 'email', 'username']:
             self.assertTrue(hasattr(user, attr), user.__dict__.keys())
 
-    def test_delegated_login(self):
-        user = self.backend.authenticate(x_fost_user=self.user.username)
-        self.assertTrue(user)
-        self.assertEqual(user.username, self.user.username)
-
     def test_remote_login(self):
         user = self.backend.authenticate(username=self.user.username, password='pass')
+        self.assertTrue(user)
         self.assertEqual(user.username, self.user.username)
 
     def test_remote_login_with_wrong_password(self):
@@ -182,7 +178,7 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertIsNone(user)
 
     def test_get_user(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertEqual(user.username, self.user.username)
         self.assertTrue(user.is_active)
         self.assertTrue(user.is_staff)
@@ -194,23 +190,23 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertEqual(user.is_superuser, user.remote_user.is_superuser)
 
     def test_cache_ttl(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertEqual(user.remote_user._CACHE_TTL, 120)
 
     def test_group_permissions(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         perms = self.backend.get_group_permissions(user)
         self.assertEqual(perms, self.user.get_group_permissions())
 
     def test_all_permissions(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         perms = self.backend.get_all_permissions(user)
         self.assertEqual(perms, self.user.get_all_permissions())
 
     def test_module_perms(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_module_perms(user, 'slumber_examples'))
 
@@ -231,12 +227,12 @@ class TestBackend(PatchForAuthnService, TestCase):
         permission = Permission.objects.get(
             codename='add_pizza', content_type=content_type)
         self.user.user_permissions.add(permission)
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertTrue(self.backend.has_perm(user, 'slumber_examples.add_pizza'))
 
     def test_missing_permission(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_perm(user, 'slumber_examples.not-a-perm'))
         perm = Permission.objects.get(codename='not-a-perm',
