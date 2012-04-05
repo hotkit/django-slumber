@@ -1,5 +1,4 @@
 from datetime import datetime
-from fost_authn.authentication import FostBackend
 import logging
 from mock import patch
 from simplejson import loads
@@ -9,6 +8,8 @@ from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.test import TestCase
+
+from fost_authn.authentication import FostBackend
 
 from slumber import client
 from slumber._caches import PER_THREAD

@@ -39,20 +39,14 @@ class ConfigureAuthnBackend(ConfigureUser):
         self.assertFalse(hasattr(settings, 'SLUMBER_DIRECTORY'))
         self.assertFalse(hasattr(settings, 'SLUMBER_SERVICE'))
         self.__backends = settings.AUTHENTICATION_BACKENDS
-        settings.AUTHENTICATION_BACKENDS = (
-            'django.contrib.auth.backends.ModelBackend',
-            'fost_authn.FostBackend',
+        settings.AUTHENTICATION_BACKENDS = [
             'slumber.connector.authentication.Backend',
-        )
-        settings.MIDDLEWARE_CLASSES.append(
-            'slumber.connector.middleware.Authentication')
+        ]
         super(ConfigureAuthnBackend, self).setUp()
 
     def tearDown(self):
         super(ConfigureAuthnBackend, self).tearDown()
         settings.AUTHENTICATION_BACKENDS = self.__backends
-        settings.MIDDLEWARE_CLASSES.remove(
-            'slumber.connector.middleware.Authentication')
 
 
 class PatchForAuthnService(ConfigureUser):
