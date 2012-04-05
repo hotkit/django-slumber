@@ -53,6 +53,7 @@ class Backend(FostBackend):
     def authenticate(self, **kwargs):
         """Authenticate the user when the middleware passes it in.
         """
+        _assert_properly_configured()
         user = super(Backend, self).authenticate(**kwargs)
         if user:
             PER_THREAD.username = user.username
