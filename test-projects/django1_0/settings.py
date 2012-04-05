@@ -64,19 +64,12 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django_ip_authn.authentication.Middleware',
+    'fost_authn.Middleware',
 ]
-
-# Configure the authentication backends
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'django_ip_authn.authentication.Authenticate',
+    'fost_authn.FostBackend',
 )
-
-# Auto login IP numbers
-VALID_IP_NUMBERS = [
-    '127.0.0.1', '127.0.1.1', # Allow only localhost IP numbers
-]
 
 ROOT_URLCONF = 'django1_0.urls'
 

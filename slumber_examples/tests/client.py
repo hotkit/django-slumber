@@ -86,12 +86,8 @@ class TestLoads(ConfigureUser, TestCase):
 
 
 class TestAuth(ConfigureUser, TestCase):
-    def setUp(self):
-        self.u = User(username='user')
-        self.u.save()
-
     def test_has_attributes(self):
-        user = client.django.contrib.auth.User.get(pk=self.u.pk)
+        user = client.django.contrib.auth.User.get(pk=self.user.pk)
         for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
                 'first_name', 'last_name', 'email', 'username']:
             self.assertTrue(hasattr(user, attr), user.__dict__.keys())

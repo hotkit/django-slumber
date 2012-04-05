@@ -1,5 +1,4 @@
 from datetime import datetime
-from fost_authn.authentication import FostBackend
 import logging
 from mock import patch
 from simplejson import loads
@@ -10,11 +9,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.test import TestCase
 
+from fost_authn.authentication import FostBackend
+
 from slumber import client
 from slumber._caches import PER_THREAD
 from slumber.connector.authentication import Backend, \
     ImproperlyConfigured
-from slumber.connector.ua import _sign_request, get
+from slumber.connector.ua import  _sign_request, get
 from slumber.test import mock_client
 from slumber_examples.models import Pizza, Profile
 from slumber_examples.tests.configurations import ConfigureUser, \
@@ -28,58 +29,60 @@ class TestAuthnRequired(ConfigureUser, TestCase):
         super(TestAuthnRequired, self).setUp()
 
     def test_directory_works_when_not_authenticated(self):
-        response = self.client.get('/slumber/',
-            REMOTE_ADDR='10.75.195.3')
+        response = self.client.get('/slumber/')
         self.assertEqual(response.status_code, 200)
 
     def test_model_requires_authentication(self):
-        response = self.client.get('/slumber/slumber_examples/Pizza/data/%s/' % self.pizza.pk,
-            REMOTE_ADDR='10.75.195.3')
+        response = self.client.get('/slumber/slumber_examples/Pizza/data/%s/' % self.pizza.pk)
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.get('WWW-Authenticate', None),
             'FOST Realm="Slumber"')
 
     def test_authenticated(self):
-        response = self.client.get('/slumber/slumber_examples/Pizza/data/234234/',
-            REMOTE_ADDR='127.0.0.1')
+        response = self.signed_get(None,
+            '/slumber/slumber_examples/Pizza/data/234234/')
         self.assertEqual(response.status_code, 404)
         json = loads(response.content)
         self.assertEqual(json["error"], "Pizza matching query does not exist.")
 
     def test_model_create_requires_permission(self):
-        response = self.client.post('/slumber/slumber_examples/Pizza/create/',
-            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(self.user.username,
+            '/slumber/slumber_examples/Pizza/create/',
+            {'name': 'new test pizza'})
         self.assertEqual(response.status_code, 403)
 
     def test_model_create_checks_correct_permission(self):
         permission = Permission.objects.get(codename="add_pizza")
         self.user.user_permissions.add(permission)
-        response = self.client.post('/slumber/slumber_examples/Pizza/create/',
-            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(None,
+            '/slumber/slumber_examples/Pizza/create/',
+            {'name': 'new test pizza'})
         self.assertEqual(response.status_code, 200, response.content)
 
     def test_model_update_requires_permission(self):
-        response = self.client.post('/slumber/slumber_examples/Pizza/update/%s/' % self.pizza.pk,
-            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(self.user.username,
+            '/slumber/slumber_examples/Pizza/update/%s/' % self.pizza.pk,
+            {'name': 'new test pizza'})
         self.assertEqual(response.status_code, 403)
 
     def test_model_update_checks_correct_permission(self):
         permission = Permission.objects.get(codename="change_pizza")
         self.user.user_permissions.add(permission)
-        response = self.client.post('/slumber/slumber_examples/Pizza/update/%s/' % self.pizza.pk,
-            {'name': 'new test pizza'}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(self.user.username,
+            '/slumber/slumber_examples/Pizza/update/%s/' % self.pizza.pk,
+            {'name': 'new test pizza'})
         self.assertEqual(response.status_code, 302, response.content)
 
     def test_model_delete_requires_permission(self):
-        response = self.client.post('/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk,
-            {}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(self.user.username,
+            '/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk, {})
         self.assertEqual(response.status_code, 403)
 
     def test_model_delete_checks_correct_permission(self):
         permission = Permission.objects.get(codename="delete_pizza")
         self.user.user_permissions.add(permission)
-        response = self.client.post('/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk,
-            {}, REMOTE_ADDR='127.0.0.1')
+        response = self.signed_post(self.user.username,
+            '/slumber/slumber_examples/Pizza/delete/%s/' % self.pizza.pk, {})
         self.assertEqual(response.status_code, 200, response.content)
 
 
@@ -106,7 +109,7 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
     def test_signing_function_signs(self):
         headers = {}
         def check_request(request):
-            for k, v in _sign_request('GET', '/').items():
+            for k, v in _sign_request('GET', '/', '', False).items():
                 headers[k] = v
             return HttpResponse('ok', 'text/plain')
         with patch('slumber_examples.views._ok_text', check_request):
@@ -118,15 +121,14 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
         self.user.save()
         headers = {}
         def check_request(request):
-            for k, v in _sign_request('GET', '/').items():
+            for k, v in _sign_request('GET', '/', '', False).items():
                 headers[k] = v
             return HttpResponse('ok', 'text/plain')
         with patch('slumber_examples.views._ok_text', check_request):
-            self.client.get('/', REMOTE_ADDR='127.0.0.1')
+            self.signed_get(self.user.username)
         self.assertTrue(headers.has_key('Authorization'), headers)
-        self.assertTrue(
-            headers['Authorization'].startswith('FOST my%3Aname:'),
-            headers)
+        self.assertTrue(headers.has_key('X-FOST-User'), headers)
+        self.assertEqual(headers['X-FOST-User'], self.user.username)
 
     def test_authentication_backend_accepts_signature(self):
         def check_request(request):
@@ -136,8 +138,8 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
             def _request(_self, url, headers={}):
                 backend = FostBackend()
                 authz = headers['Authorization']
-                key = authz[5:5+len(self.user.username)]
-                signature = authz[6+len(self.user.username):]
+                key = authz[5:5+len(self.service.username)]
+                signature = authz[6+len(self.service.username):]
                 logging.info('Authorization %s %s', key, signature)
                 request.META['HTTP_X_FOST_TIMESTAMP'] = headers[
                     'X-FOST-Timestamp']
@@ -152,7 +154,7 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
                 response, json = get('http://example.com/')
             return HttpResponse(response.content, 'text/plain')
         with patch('slumber_examples.views._ok_text', check_request):
-            self.client.get('/', REMOTE_ADDR='127.0.0.1')
+            self.signed_get(self.user.username)
 
 
 class TestBackend(PatchForAuthnService, TestCase):
@@ -166,20 +168,21 @@ class TestBackend(PatchForAuthnService, TestCase):
                 'first_name', 'last_name', 'email', 'username']:
             self.assertTrue(hasattr(user, attr), user.__dict__.keys())
 
-    def test_delegated_login(self):
-        user = self.backend.authenticate(x_fost_user=self.user.username)
-        self.assertEqual(user.username, self.user.username)
-
     def test_remote_login(self):
         user = self.backend.authenticate(username=self.user.username, password='pass')
+        self.assertTrue(user)
         self.assertEqual(user.username, self.user.username)
 
     def test_remote_login_with_wrong_password(self):
         user = self.backend.authenticate(username=self.user.username, password='xxxx')
         self.assertIsNone(user)
 
+    def test_login_type_not_recognised(self):
+        user = self.backend.authenticate(made_up=True)
+        self.assertIsNone(user)
+
     def test_get_user(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertEqual(user.username, self.user.username)
         self.assertTrue(user.is_active)
         self.assertTrue(user.is_staff)
@@ -190,24 +193,32 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertEqual(user.is_staff, user.remote_user.is_staff)
         self.assertEqual(user.is_superuser, user.remote_user.is_superuser)
 
+    def test_get_user_with_id(self):
+        user = self.backend.get_user(self.user.pk)
+        self.assertTrue(user)
+
+    def test_get_user_with_id_str(self):
+        user = self.backend.get_user(str(self.user.pk))
+        self.assertTrue(user)
+
     def test_cache_ttl(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertEqual(user.remote_user._CACHE_TTL, 120)
 
     def test_group_permissions(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         perms = self.backend.get_group_permissions(user)
         self.assertEqual(perms, self.user.get_group_permissions())
 
     def test_all_permissions(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         perms = self.backend.get_all_permissions(user)
         self.assertEqual(perms, self.user.get_all_permissions())
 
     def test_module_perms(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_module_perms(user, 'slumber_examples'))
 
@@ -228,12 +239,12 @@ class TestBackend(PatchForAuthnService, TestCase):
         permission = Permission.objects.get(
             codename='add_pizza', content_type=content_type)
         self.user.user_permissions.add(permission)
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertTrue(self.backend.has_perm(user, 'slumber_examples.add_pizza'))
 
     def test_missing_permission(self):
-        user = self.backend.get_user(self.user.username, 'username')
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_perm(user, 'slumber_examples.not-a-perm'))
         perm = Permission.objects.get(codename='not-a-perm',
@@ -244,7 +255,7 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertEqual(perm.content_type.model, 'unknown')
 
     def test_permission_with_new_app(self):
-        user = self.backend.get_user(self.user.pk)
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_perm(user, 'not-an-app.not-a-perm'))
         perm = Permission.objects.get(codename='not-a-perm',
@@ -255,20 +266,20 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertEqual(perm.content_type.model, 'unknown')
 
     def test_permission_with_invalid_name(self):
-        user = self.backend.get_user(self.user.pk)
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_perm(user, 'not-a-perm'))
         self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))
 
     def test_user_profile_when_no_profile(self):
-        user = self.backend.get_user(self.user.pk)
+        user = self.backend.get_user(self.user.username)
         with self.assertRaises(AssertionError):
             profile = user.get_profile()
 
     def test_user_profile_when_there_is_a_profile(self):
         profile = Profile(user=self.user)
         profile.save()
-        user = self.backend.get_user(self.user.pk)
+        user = self.backend.get_user(self.user.username)
         remote_profile = user.get_profile()
         self.assertEqual(remote_profile.id, profile.id)
         self.assertEqual(remote_profile.user.id, self.user.id)
@@ -279,18 +290,12 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
         self.user = request.user
         return HttpResponse('ok')
 
-    @mock_client()
-    def test_isnt_authenticated(self):
-        with patch('slumber_examples.views._ok_text', self.save_user):
-            self.client.get('/')
-        self.assertFalse(self.user.is_authenticated())
-
     @mock_client(
-        django__contrib__auth__User = [],
+        django__contrib__auth__User = []
     )
     def test_improperly_configured(self):
         with self.assertRaises(ImproperlyConfigured):
-            self.client.get('/', HTTP_X_FOST_USER='testuser')
+            self.signed_get('testuser')
 
     @mock_client(
         auth__django__contrib__auth__User = [
@@ -301,8 +306,9 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
     )
     def test_is_authenticated(self):
         with patch('slumber_examples.views._ok_text', self.save_user):
-            self.client.get('/', HTTP_X_FOST_USER='testuser')
+            self.signed_get('testuser')
         self.assertTrue(self.user.is_authenticated())
+        self.assertEqual(self.user.username, 'testuser')
 
     @mock_client(
         auth__django__contrib__auth__User = [
@@ -312,12 +318,12 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
                     email='test@example.com')],
     )
     def test_created_user_sees_changes(self):
-        self.client.get('/', HTTP_X_FOST_USER='testuser')
+        self.signed_get('testuser')
         remote_user = client.auth.django.contrib.auth.User.get(
             username='testuser')
         remote_user.is_staff = True
         with patch('slumber_examples.views._ok_text', self.save_user):
-            self.client.get('/', HTTP_X_FOST_USER='testuser')
+            self.signed_get('testuser')
         self.assertTrue(self.user.is_staff)
 
     @mock_client(
@@ -331,7 +337,7 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
         admin = User(username='admin')
         admin.save()
         with patch('slumber_examples.views._ok_text', self.save_user):
-            self.client.get('/', HTTP_X_FOST_USER=admin.username)
+            self.signed_get(admin.username)
         self.assertTrue(self.user.is_authenticated())
         self.assertEqual(admin, self.user)
 

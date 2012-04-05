@@ -2,7 +2,7 @@
 simplejson
 httplib2
 
-django-fost-authn >= 0.3.1
+django-fost-authn >= 0.3.4
 django_ip_authn
 
 # Used for testing

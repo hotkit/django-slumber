@@ -7,6 +7,7 @@ from django.db import connection
 from django.test import TestCase
 
 from slumber import Client
+from slumber.connector.ua import _calculate_signature
 from slumber_examples.models import Pizza, PizzaPrice, Order
 from slumber_examples.tests.configurations import ConfigureUser
 
@@ -14,8 +15,9 @@ from slumber_examples.tests.configurations import ConfigureUser
 def _perform(client, method, url, data):
     def method_wrapper(*a, **kw):
         return client.get(*a, REQUEST_METHOD=method.upper(), **kw)
-    response = getattr(client, method, method_wrapper)(url, data,
-        HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+    headers = _calculate_signature('service', method.upper(), url, data, None, True)
+    response = getattr(client, method, method_wrapper)(
+        url, data, **headers)
     if response.status_code == 200:
         return response, loads(response.content)
     else:
@@ -98,8 +100,7 @@ class ViewErrorsPlain(ConfigureUser, ViewErrors, PlainTests, TestCase):
     pass
 class ViewErrorsService(ConfigureUser, ViewErrors, ServiceTests, TestCase):
     def test_invalid_service(self):
-        response = self.client.get('/slumber/not-a-service/',
-            HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+        response = self.client.get('/slumber/not-a-service/')
         self.assertEquals(response.status_code, 404, response.content)
 
 
@@ -272,7 +273,7 @@ class BasicViews(ViewTests):
         response, json = self.do_get('/slumber_examples/Pizza/data/%s/' % s.pk)
         self.maxDiff = None
         self.assertEquals(json, dict(
-            _meta={'message': 'OK', 'status': 200, 'username': 'user'},
+            _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/Pizza/'),
             identity=self.url('/slumber_examples/Pizza/data/1/'),
             display='S1',
@@ -297,7 +298,7 @@ class BasicViews(ViewTests):
         p.save()
         response, json = self.do_get('/slumber_examples/PizzaPrice/data/%s/' % p.pk)
         self.assertEquals(json, dict(
-            _meta={'message': 'OK', 'status': 200, 'username': 'user'},
+            _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/PizzaPrice/'),
             identity=self.url('/slumber_examples/PizzaPrice/data/1/'),
             display="PizzaPrice object",
@@ -470,7 +471,7 @@ class UserViews(ViewTests):
             {'pk': self.user.pk, 'display_name': 'test-user'},
             json['user'])
         self.assertTrue(
-            json['user']['url'].endswith('/django/contrib/auth/User/data/2/'),
+            json['user']['url'].endswith('/django/contrib/auth/User/data/3/'),
             json['user']['url'])
 
     def test_user_permission_no_permission(self):
