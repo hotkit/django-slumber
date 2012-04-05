@@ -74,15 +74,15 @@ class Backend(FostBackend):
         """Return the user associated with the user_id specified.
         """
         _assert_properly_configured()
-        try:
-            remote_user = \
-                client.auth.django.contrib.auth.User.get(
-                    **{'username':user_id})
-        except AssertionError:
+        if isinstance(user_id, int):
             local_user = User.objects.get(id=user_id)
             remote_user = \
                 client.auth.django.contrib.auth.User.get(
                     **{'username':local_user.username})
+        else:
+            remote_user = \
+                client.auth.django.contrib.auth.User.get(
+                    **{'username':user_id})
         return attach_to_local_user(remote_user)
 
     def get_group_permissions(self, user_obj, _obj=None):
