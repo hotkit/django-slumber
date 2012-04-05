@@ -1,10 +1,6 @@
 """
     Middleware to help manage the Slumber client.
 """
-import logging
-
-from django.contrib.auth import authenticate
-
 from slumber import client
 from slumber._caches import CLIENT_INSTANCE_CACHE, PER_THREAD
 
