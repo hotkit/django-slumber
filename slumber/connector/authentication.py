@@ -2,7 +2,7 @@
     Authentication backend that sends all of the permissions checks
     to a remote service.
 """
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
 from fost_authn.authentication import FostBackend
@@ -56,6 +56,12 @@ class Backend(FostBackend):
         user = super(Backend, self).authenticate(**kwargs)
         if user:
             PER_THREAD.username = user.username
+        else:
+            username = kwargs.get('username', None)
+            password = kwargs.get('password', None)
+            if username and password:
+                user = client.auth.django.contrib.auth.User.authenticate(
+                    username=username, password=password)
         return user
 
 
