@@ -177,6 +177,10 @@ class TestBackend(PatchForAuthnService, TestCase):
         user = self.backend.authenticate(username=self.user.username, password='xxxx')
         self.assertIsNone(user)
 
+    def test_login_type_not_recognised(self):
+        user = self.backend.authenticate(made_up=True)
+        self.assertIsNone(user)
+
     def test_get_user(self):
         user = self.backend.get_user(self.user.username)
         self.assertEqual(user.username, self.user.username)
