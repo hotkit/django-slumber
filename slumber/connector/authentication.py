@@ -2,7 +2,7 @@
     Authentication backend that sends all of the permissions checks
     to a remote service.
 """
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
 
 from fost_authn.authentication import FostBackend
@@ -73,8 +73,15 @@ class Backend(FostBackend):
         """Return the user associated with the user_id specified.
         """
         _assert_properly_configured()
-        remote_user = \
-            client.auth.django.contrib.auth.User.get(**{'username':user_id})
+        try:
+            remote_user = \
+                client.auth.django.contrib.auth.User.get(
+                    **{'username':user_id})
+        except AssertionError:
+            local_user = User.objects.get(id=user_id)
+            remote_user = \
+                client.auth.django.contrib.auth.User.get(
+                    **{'username':local_user.username})
         return attach_to_local_user(remote_user)
 
     def get_group_permissions(self, user_obj, _obj=None):
