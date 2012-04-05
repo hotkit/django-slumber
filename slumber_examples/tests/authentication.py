@@ -293,33 +293,34 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
         with self.assertRaises(ImproperlyConfigured):
             self.signed_get('testuser')
 
-    #@mock_client(
-        #auth__django__contrib__auth__User = [
-            #dict(username='testuser', is_active=True, is_staff=True,
-                #date_joined=datetime.now(), is_superuser=False,
-                    #first_name='Test', last_name='User',
-                    #email='test@example.com')],
-    #)
-    #def test_is_authenticated(self):
-        #with patch('slumber_examples.views._ok_text', self.save_user):
-            #self.signed_get('testuser')
-        #self.assertTrue(self.user.is_authenticated())
+    @mock_client(
+        auth__django__contrib__auth__User = [
+            dict(username='testuser', is_active=True, is_staff=True,
+                date_joined=datetime.now(), is_superuser=False,
+                    first_name='Test', last_name='User',
+                    email='test@example.com')],
+    )
+    def test_is_authenticated(self):
+        with patch('slumber_examples.views._ok_text', self.save_user):
+            self.signed_get('testuser')
+        self.assertTrue(self.user.is_authenticated())
+        self.assertEqual(self.user.username, 'testuser')
 
-    #@mock_client(
-        #auth__django__contrib__auth__User = [
-            #dict(username='testuser', is_active=True, is_staff=False,
-                #date_joined=datetime.now(), is_superuser=False,
-                    #first_name='Test', last_name='User',
-                    #email='test@example.com')],
-    #)
-    #def test_created_user_sees_changes(self):
-        #self.signed_get('testuser')
-        #remote_user = client.auth.django.contrib.auth.User.get(
-            #username='testuser')
-        #remote_user.is_staff = True
-        #with patch('slumber_examples.views._ok_text', self.save_user):
-            #self.signed_get('testuser')
-        #self.assertTrue(self.user.is_staff)
+    @mock_client(
+        auth__django__contrib__auth__User = [
+            dict(username='testuser', is_active=True, is_staff=False,
+                date_joined=datetime.now(), is_superuser=False,
+                    first_name='Test', last_name='User',
+                    email='test@example.com')],
+    )
+    def test_created_user_sees_changes(self):
+        self.signed_get('testuser')
+        remote_user = client.auth.django.contrib.auth.User.get(
+            username='testuser')
+        remote_user.is_staff = True
+        with patch('slumber_examples.views._ok_text', self.save_user):
+            self.signed_get('testuser')
+        self.assertTrue(self.user.is_staff)
 
     @mock_client(
         auth__django__contrib__auth__User = [
