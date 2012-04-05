@@ -22,7 +22,7 @@ def _assert_properly_configured():
     if not hasattr(client, 'auth'):
         raise ImproperlyConfigured("If using the Slumber client's "
             "authentication backend then you must also use the full "
-            "service based Slumber confiuration and include a service "
+            "service based Slumber configuration and include a service "
             "called 'auth' which points to the service which will "
             "handle all authentication and authorization.")
 
