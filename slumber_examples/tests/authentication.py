@@ -243,7 +243,7 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertEqual(perm.content_type.model, 'unknown')
 
     def test_permission_with_new_app(self):
-        user = self.backend.get_user(self.user.pk)
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_perm(user, 'not-an-app.not-a-perm'))
         perm = Permission.objects.get(codename='not-a-perm',
@@ -254,20 +254,20 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertEqual(perm.content_type.model, 'unknown')
 
     def test_permission_with_invalid_name(self):
-        user = self.backend.get_user(self.user.pk)
+        user = self.backend.get_user(self.user.username)
         self.assertTrue(hasattr(user, 'remote_user'))
         self.assertFalse(self.backend.has_perm(user, 'not-a-perm'))
         self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))
 
     def test_user_profile_when_no_profile(self):
-        user = self.backend.get_user(self.user.pk)
+        user = self.backend.get_user(self.user.username)
         with self.assertRaises(AssertionError):
             profile = user.get_profile()
 
     def test_user_profile_when_there_is_a_profile(self):
         profile = Profile(user=self.user)
         profile.save()
-        user = self.backend.get_user(self.user.pk)
+        user = self.backend.get_user(self.user.username)
         remote_profile = user.get_profile()
         self.assertEqual(remote_profile.id, profile.id)
         self.assertEqual(remote_profile.user.id, self.user.id)
