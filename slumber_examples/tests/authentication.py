@@ -281,18 +281,12 @@ class AuthenticationTests(ConfigureAuthnBackend, TestCase):
         self.user = request.user
         return HttpResponse('ok')
 
-    @mock_client()
-    def test_isnt_authenticated(self):
-        with patch('slumber_examples.views._ok_text', self.save_user):
-            self.client.get('/')
-        self.assertFalse(self.user.is_authenticated())
-
     #@mock_client(
-        #django__contrib__auth__User = [],
+        #auth__django__contrib__auth__User = []
     #)
     #def test_improperly_configured(self):
         #with self.assertRaises(ImproperlyConfigured):
-            #self.client.get('/', HTTP_X_FOST_USER='testuser')
+            #self.signed_get('testuser')
 
     #@mock_client(
         #auth__django__contrib__auth__User = [
