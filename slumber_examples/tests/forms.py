@@ -7,9 +7,10 @@ from slumber.connector.api import get_instance_from_url
 from slumber.forms import RemoteForeignKeyField
 
 from slumber_examples.models import Order
+from slumber_examples.tests.configurations import ConfigureUser
 
 
-class WidgetTest(TestCase):
+class WidgetTest(ConfigureUser, TestCase):
     class Form(forms.Form):
         rfk = RemoteForeignKeyField(required=True)
     class OptionalForm(forms.Form):
@@ -19,6 +20,12 @@ class WidgetTest(TestCase):
             model = Order
     class AdminForm(forms.Form):
         rfk = RemoteForeignKeyField(widget=AdminURLFieldWidget)
+
+    def setUp(self):
+        super(WidgetTest, self).setUp()
+        self.user.is_superuser = True
+        self.user.save()
+
 
     def test_default_formfield(self):
         form = WidgetTest.Form()

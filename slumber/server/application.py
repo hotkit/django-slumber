@@ -18,3 +18,6 @@ class DjangoApp(object):
                 if hasattr(potential, '_meta'):
                     model = DjangoModel(self, potential)
                     self.models[name] = model
+
+    def __repr__(self):
+        return self.name

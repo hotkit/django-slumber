@@ -1,23 +1,35 @@
 from datetime import date
+from simplejson import loads
 from mock import patch
-from unittest2 import TestCase
 
+from django.test import TestCase
+
+from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.server import get_slumber_services, get_slumber_local_url_prefix, \
     NoServiceSpecified, AbsoluteURIRequired
 from slumber.server.http import view_handler
 from slumber.server.meta import get_application
 
+from slumber_examples.models import Pizza
+
 
 class TestJSON(TestCase):
     def test_unicode_attributes(self):
         d = date.today()
+        class Request(object):
+            class user(object):
+                @classmethod
+                def is_authenticated(cls):
+                    return True
+                username = 'testuser'
         @view_handler
         def view(request, response):
             response['u'] = d
-        http_response = view({})
-        self.assertEquals(http_response.content,
-            """{\n    "u": "%s",\n    "_meta": {\n        "status": 200,\n        "message": "OK"\n    }\n}""" %
-                d)
+        http_response = view(Request())
+        content = loads(http_response.content)
+        self.assertEquals(content, dict(
+            u = str(d),
+            _meta = dict(status = 200, message = "OK", username = "testuser")))
 
 
 class InternalAPIs(TestCase):
@@ -79,3 +91,8 @@ class InternalAPIs(TestCase):
                 with self.assertRaises(AbsoluteURIRequired):
                     self.assertEqual(get_slumber_local_url_prefix(),
                     'http://localhost:8000:/')
+
+    def test_application_repr(self):
+        model = DJANGO_MODEL_TO_SLUMBER_MODEL[Pizza]
+        self.assertEqual(str(model), "slumber_examples.Pizza")
+        self.assertEqual(str(model.app), "slumber_examples")

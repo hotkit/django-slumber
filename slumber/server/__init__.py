@@ -19,6 +19,18 @@ class NoServiceSpecified(Exception):
     """
     pass
 
+class NotAuthorised(Exception):
+    """Thrown when an anonymous user tries to access an operation, model or
+    application data.
+    """
+    pass
+
+class Forbidden(Exception):
+    """Thrown when a user tries to access an operation for which they don't
+    have permission.
+    """
+    pass
+
 
 def _get_slumber_service():
     """Implementation for get_slumber_service which allows a single

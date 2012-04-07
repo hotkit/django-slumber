@@ -7,12 +7,17 @@ from django.db import connection
 from django.test import TestCase
 
 from slumber import Client
+from slumber.connector.ua import _calculate_signature
 from slumber_examples.models import Pizza, PizzaPrice, Order
+from slumber_examples.tests.configurations import ConfigureUser
 
 
 def _perform(client, method, url, data):
-    response = getattr(client, method)(url, data,
-        HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+    def method_wrapper(*a, **kw):
+        return client.get(*a, REQUEST_METHOD=method.upper(), **kw)
+    headers = _calculate_signature('service', method.upper(), url, data, None, True)
+    response = getattr(client, method, method_wrapper)(
+        url, data, **headers)
     if response.status_code == 200:
         return response, loads(response.content)
     else:
@@ -27,6 +32,9 @@ class ViewTests(object):
 
     def do_post(self, url, body):
         return _perform(self.client, 'post', self.url(url), body)
+
+    def do_options(self, url):
+        return _perform(self.client, 'options', self.url(url), {})
 
     def url(self, path):
         if not path.startswith(self.PREFIX + '/'):
@@ -64,13 +72,15 @@ class ViewErrors(ViewTests):
 
     def test_method_error(self):
         response, json = self.do_post('/slumber_examples/Pizza/instances/', {})
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 405)
+        self.assertEquals(response['Allow'], 'GET, OPTIONS')
 
     def test_invalid_method(self):
         url = self.url('/slumber_examples/Pizza/instances/')
         response = self.client.get(url, REQUEST_METHOD='PURGE',
             HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
-        self.assertEquals(response.status_code, 403, response.content)
+        self.assertEquals(response.status_code, 405, response.content)
+        self.assertEquals(response['Allow'], 'GET, OPTIONS')
 
     def test_missing_slash(self):
         response, json = self.do_get('/slumber_examples')
@@ -86,18 +96,19 @@ class ViewErrors(ViewTests):
         response, json = self.do_get('/slumber_examples/Pizza/not-an-operation/')
         self.assertEquals(response.status_code, 404)
 
-class ViewErrorsPlain(ViewErrors, PlainTests, TestCase):
+class ViewErrorsPlain(ConfigureUser, ViewErrors, PlainTests, TestCase):
     pass
-class ViewErrorsService(ViewErrors, ServiceTests, TestCase):
+class ViewErrorsService(ConfigureUser, ViewErrors, ServiceTests, TestCase):
     def test_invalid_service(self):
-        response = self.client.get('/slumber/not-a-service/',
-            HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
+        response = self.client.get('/slumber/not-a-service/')
         self.assertEquals(response.status_code, 404, response.content)
 
 
 class BasicViews(ViewTests):
 
     def test_applications(self):
+        self.assertTrue(bool(self.user))
+        self.assertEqual(self.user.pk, 1)
         response, json = self.do_get('/')
         apps = json['apps']
         self.assertEquals(apps['slumber_examples'], self.url('/slumber_examples/'))
@@ -209,9 +220,17 @@ class BasicViews(ViewTests):
 
     def test_instance_creation_get(self):
         response, json = self.do_get('/slumber_examples/Pizza/create/')
-        self.assertEquals(response.status_code, 403, response.content)
+        self.assertEquals(response.status_code, 405, response.content)
+        self.assertEquals(response['Allow'], 'OPTIONS, POST')
+
+    def test_instance_creation_options(self):
+        response, json = self.do_options('/slumber_examples/Pizza/create/')
+        self.assertEquals(response.status_code, 200, response.content)
+        self.assertEquals(response['Allow'], 'OPTIONS, POST')
 
     def test_instance_creation_post(self):
+        self.user.is_superuser = True
+        self.user.save()
         response, json = self.do_post('/slumber_examples/Pizza/create/',
             {'name': 'Test Pizza', 'for_sale': ''})
         self.assertTrue(json.get('identity', '').endswith(
@@ -222,6 +241,8 @@ class BasicViews(ViewTests):
 
 
     def test_update_instance(self):
+        self.user.is_superuser = True
+        self.user.save()
         s = Pizza(name='S1', for_sale=True)
         s.save()
         response, json = self.do_post('/slumber_examples/Pizza/update/1/', {
@@ -252,7 +273,7 @@ class BasicViews(ViewTests):
         response, json = self.do_get('/slumber_examples/Pizza/data/%s/' % s.pk)
         self.maxDiff = None
         self.assertEquals(json, dict(
-            _meta={'message': 'OK', 'status': 200},
+            _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/Pizza/'),
             identity=self.url('/slumber_examples/Pizza/data/1/'),
             display='S1',
@@ -277,7 +298,7 @@ class BasicViews(ViewTests):
         p.save()
         response, json = self.do_get('/slumber_examples/PizzaPrice/data/%s/' % p.pk)
         self.assertEquals(json, dict(
-            _meta={'message': 'OK', 'status': 200},
+            _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/PizzaPrice/'),
             identity=self.url('/slumber_examples/PizzaPrice/data/1/'),
             display="PizzaPrice object",
@@ -318,6 +339,8 @@ class BasicViews(ViewTests):
 
 
     def test_delete_instance(self):
+        self.user.is_superuser = True
+        self.user.save()
         s = Pizza(name='P')
         s.save()
         response, json = self.do_get('/slumber_examples/Pizza/data/%s/' % s.pk)
@@ -328,8 +351,10 @@ class BasicViews(ViewTests):
         with self.assertRaises(Pizza.DoesNotExist):
             Pizza.objects.get(pk=s.pk)
 
-class BasicViewsPlain(BasicViews, PlainTests, TestCase):
+class BasicViewsPlain(ConfigureUser, BasicViews, PlainTests, TestCase):
     def test_service_configuration_missing_for_remoteforeignkey(self):
+        self.user.is_superuser = True
+        self.user.save()
         client = Client()
         shop = client.slumber_examples.Shop.create(name="Home", slug='home')
         order = Order(shop=shop)
@@ -346,7 +371,7 @@ class BasicViewsPlain(BasicViews, PlainTests, TestCase):
         self.assertEquals(unicode(order2.shop), unicode(order.shop))
         self.assertEquals(order2.shop.id, order.shop.id)
 
-class BasicViewsService(BasicViews, ServiceTests, TestCase):
+class BasicViewsService(ConfigureUser, BasicViews, ServiceTests, TestCase):
     def test_services_with_directory(self):
         with patch('slumber.server.get_slumber_directory', lambda: {
                 'pizzas': 'http://localhost:8000:/slumber/pizzas/',
@@ -368,6 +393,8 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
         self.assertEqual(json['services'].get('pizzas', None), '/slumber/pizzas/', json)
 
     def test_service_configuration_works_for_remoteforeignkey(self):
+        self.user.is_superuser = True
+        self.user.save()
         client = Client()
         shop = client.pizzas.slumber_examples.Shop.create(name="Home", slug='home')
         order = Order(shop=shop)
@@ -383,9 +410,11 @@ class BasicViewsService(BasicViews, ServiceTests, TestCase):
         self.assertEquals(unicode(order2.shop), unicode(order.shop))
         self.assertEquals(order2.shop.id, order.shop.id)
 
-class BasicViewsWithServiceDirectory(BasicViews,
+class BasicViewsWithServiceDirectory(ConfigureUser, BasicViews,
         ServiceTestsWithDirectory, TestCase):
     def test_service_configuration_works_for_remoteforeignkey(self):
+        self.user.is_superuser = True
+        self.user.save()
         client = Client()
         shop = client.pizzas.slumber_examples.Shop.create(name="Home", slug='home')
         order = Order(shop=shop)
@@ -442,7 +471,7 @@ class UserViews(ViewTests):
             {'pk': self.user.pk, 'display_name': 'test-user'},
             json['user'])
         self.assertTrue(
-            json['user']['url'].endswith('/django/contrib/auth/User/data/1/'),
+            json['user']['url'].endswith('/django/contrib/auth/User/data/3/'),
             json['user']['url'])
 
     def test_user_permission_no_permission(self):
@@ -473,8 +502,8 @@ class UserViews(ViewTests):
         self.assertItemsEqual(json['group_permissions'], [])
 
 
-class UserViewsPlain(UserViews, PlainTests, TestCase):
+class UserViewsPlain(ConfigureUser, UserViews, PlainTests, TestCase):
     pass
-class UserViewsService(UserViews, ServiceTests, TestCase):
+class UserViewsService(ConfigureUser, UserViews, ServiceTests, TestCase):
     pass
 

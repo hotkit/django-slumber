@@ -1,3 +1,27 @@
+2012-04-05  Kirit Saelensminde  <kirit@felspar.com>
+ The authentication forwarding backend is now properly compatible with the real Fost authn request signing.
+ The type of the user_id that we see is important as it tells us what we need to look it up with.
+
+2012-04-02  Kirit Saelensminde  <kirit@felspar.com>
+ Requests are now signed when going back to another service.
+ Added a Realm to the WWW-Authentication header.
+ Added django-fost-authn to the setup.py requirements.
+
+2012-03-30  Kirit Saelensminde  <kirit@felspar.com>
+ Client side proxies are now loaded via the new SLUMBER_CLIENT_APPS setting.
+
+2012-03-28  Kirit Saelensminde  <kirit@felspar.com>
+ Permissions are now checked on several of the default operations.
+
+2012-03-27  Kirit Saelensminde  <kirit@felspar.com>
+ Better error responses are returned to the client based on a number of exceptions that might be thrown.
+
+2012-03-23  Kirit Saelensminde  <kirit@felspar.com>
+ Added a form field and basic widget for the RemoteForeignKey model field type.
+
+2012-03-20  Kirit Saelensminde  <kirit@felspar.com>
+ The server side operations can now be added to.
+
 2012-02-23  Kirit Saelensminde  <kirit@felspar.com>
  Added a form field and basic widget for the RemoteForeignKey model field type.
 

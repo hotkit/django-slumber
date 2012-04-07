@@ -98,10 +98,15 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'fost_authn.Middleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'fost_authn.FostBackend',
+)
 
 ROOT_URLCONF = 'django1_4.urls'
 
@@ -135,6 +140,7 @@ INSTALLED_APPS = (
     'slumber_examples.nested1.nested2',
     'slumber_examples.no_models',
 )
+SLUMBER_CLIENT_APPS = ['slumber_examples']
 
 AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
 

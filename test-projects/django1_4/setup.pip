@@ -1,2 +1,3 @@
-http://www.djangoproject.com/download/1.4-beta-1/tarball/
+django
 django-nose
+git+git://github.com/nose-devs/nose.git

@@ -64,7 +64,12 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'fost_authn.Middleware',
 ]
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'fost_authn.FostBackend',
+)
 
 ROOT_URLCONF = 'django1_0.urls'
 
@@ -87,5 +92,6 @@ INSTALLED_APPS = (
     'slumber_examples.nested1.nested2',
     'slumber_examples.no_models',
 )
+SLUMBER_CLIENT_APPS = ['slumber_examples']
 
 AUTH_PROFILE_MODULE = 'slumber_examples.Profile'

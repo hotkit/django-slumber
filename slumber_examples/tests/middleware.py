@@ -5,6 +5,7 @@ from slumber import client
 from slumber.connector.middleware import Cache
 
 from slumber_examples.tests.client import TestsWithPizza
+from slumber_examples.tests.configurations import ConfigureUser
 
 from mock import patch
 
@@ -13,7 +14,7 @@ class _FailingMiddleware:
     def process_request(self, request):
         assert False, "This middleware is meant to fail."
 
-class TestAddMiddleware(TestCase):
+class TestAddMiddleware(ConfigureUser, TestCase):
     def setUp(self):
         settings.MIDDLEWARE_CLASSES.append(
             'slumber_examples.tests.middleware._FailingMiddleware')
@@ -50,7 +51,7 @@ class TestMiddleware(TestsWithPizza):
         self.assertEqual(m1.attr, m2.attr)
 
 
-class TestSetting(TestCase):
+class TestSetting(ConfigureUser, TestCase):
     def test_request(self):
         called = []
         def flush_cache(*a):

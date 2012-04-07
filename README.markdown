@@ -19,6 +19,8 @@ In order to start to use Slumber on the server side you simply need to include i
 
     (r'^slumber/', include('slumber.urls'))
 
+Note that slumber will not accept any anonymous requests. These will always result in 401 responses. The simplest to configure option is to make use of local IP based authentication. This is not recommended for production use, but is useful for development.
+
 ## The Slumber data client ##
 
 The data client is to be found at `slumber.client`. It must be configured to be told the location of the directory server.
@@ -114,12 +116,36 @@ When dealing with operations that create and modify data it's important to remem
 
 ### create (model) ###
 
-Creates a new instance of the model type on the slumber server.
+Creates a new instance of the model type on the slumber server. In order to use this the user must have the standard `app.add_model` permission.
+
+### delete (instance) ###
+
+Uses a POST request to delete the instance. The user requires the `app.delete_model` permission.
+
+### data (instance) ###
+
+Returns the instance attributes and provides links to related data. Only authenticated users may get instance data.
+
+#### Customising Slumber data ####
+
+When Slumber loads the applications you have defined in your `settings.py` it will also try to load a module called `slumber_conf` from the same place as your models. This can be used to customise how models appear on the Slumber server.
+
+    from models import Shop
+    from slumber import configure
+
+    configure(Shop,
+        properties_ro = ['web_site'])
+
+This will make a new read-only property `web_site` available in the data about instances populated from the `web_site` property on that model.
+
+### update (instance) ###
+
+Allows the instance attributes to be changed. The user must have the `app.change_model` permission.
 
 
 ## Customising Slumber operations ##
 
-New operations can be added to a model through the configure call.
+New operations can be added to a model through the configure call. This should be placed in your `slumber_server` file (in `slumber_server.py` in your application folder).
 
     from slumber import configure
 
@@ -129,9 +155,60 @@ New operations can be added to a model through the configure call.
 You need to a pass a list of binary tuples which contain the operation implementation and the name of the operation.
 
 
+## Customising the Slumber client ##
+
+Operations that you wish to expose on the client side can be added to a proxy that implements the binding in any way you choose. Proxies come in two types: model proxies and instance proxies.
+
+When the client creates a model instance to connect to a remote model it will look for a user defined proxy class and use that as a mix-in super class for the model type it builds. This allows you to place methods on the proxy and have them used by your client code.
+
+    class ShopProxy(object):
+        def has_shop_proxy(self):
+            return True
+
+This proxy can be set up by configuring it in your `slumber_client.py` file:
+
+    configure('/slumber_examples/Shop/',
+        model_proxy = ShopProxy)
+
+For the model URL we need to specify enough of the model URL that it will be unique. Normally just the application and model name are needed, but sometimes you will want to include service names if you want to have the same model use different proxies depending on the service it's connected to.
+
+Note that although this is a model proxy the method on the proxy is still an instance method and not a class method or static.
+
+Instance proxies are done in exactly the same way, but the configuration is done via `instance_proxy` instead.
+
+    class PizzaProxy(object):
+        def has_pizza_proxy(self):
+            return True
+
+    configure('/slumber_examples/Pizza/',
+        instance_proxy = PizzaProxy)
+
+If your proxy needs to find an operation URL then they will appear in `self._operations`, which is a dict keyed on the operation name given on the server.
+
+    from slumber.connector.ua import get
+
+    def Example(object):
+        def proxy_operation(self):
+            json = get(self._operations['operation-name'])
+
+This would expect to find an operation name `operation-name` on the server and will issue a GET against it.
+
+Slumber will automatically load the proxies for you when the client is first used. The packages that contain `slumber_client` modules will need to be listed in the `SLUMBER_CLIENT_APPS` setting. I.e.:
+
+    SLUMBER_CLIENT_APPS = ['slumber_examples']
+
+This will cause the client to do an import of `slumber_examples.slumber_client`.
+
+
 ## Slumber remote authentication and authorization ##
 
 Slumber is also able to help you manage centralised authentication and authorization across RESTful services. This allows you to make use of `django.contrib.auth` on one service to handle permissions on another.
+
+In order to make use of remote authentication you will need to add an authentication backend. The default Django settings don't include `AUTHENTICATION_BACKENDS` so you will need to add this. Typically you will want to turn off Django's normal authentication back end.
+
+    AUTHENTICATION_BACKENDS = [
+        'slumber.connector.authentication.Backend',
+    ]
 
 Any server can be used as the central store, but to get Slumber to make use of it Slumber must be properly configured. Continuing our pizza example from earlier and assuming that we have a Slumber server exposed at `http://auth.example.com/slumber/` we would configure our pizza service as follows.
 
@@ -153,6 +230,8 @@ To use this as the `auth` service from elsewhere we would now need to give the a
         'pizzas': 'http://localhost:8000/'
     }
 
+If Slumber needs to pass authenticated requests to another service then the `slumber.connector.middleware.ForwardAuthentication` middleware needs to be installed.
+
 
 ## Caching of requests ##
 
@@ -163,19 +242,6 @@ If you include your own GET requests to the user agent in a proxy then you shoul
     ua.get(url, self._CACHE_TTL)
 
 See the file `slumber/connector/proxies.py` for examples on the User object.
-
-
-## Customising Slumber data ##
-
-When Slumber loads the applications you have defined in your `settings.py` it will also try to load a module called `slumber` from the same place as your models. This can be used to customise how models appear on the Slumber server.
-
-    from models import Shop
-    from slumber import configure
-
-    configure(Shop,
-        properties_ro = ['web_site'])
-
-This will make a new read-only property `web_site` available in the data about instances populated from the `web_site` property on that model.
 
 
 # Doing development #
