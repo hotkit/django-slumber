@@ -91,6 +91,8 @@ INSTALLED_APPS = (
     'slumber_examples.nested1',
     'slumber_examples.nested1.nested2',
     'slumber_examples.no_models',
+
+    'slumber_ex_shop',
 )
 SLUMBER_CLIENT_APPS = ['slumber_examples']
 
