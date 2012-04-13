@@ -1,3 +1,6 @@
+2012-04-13  Kirit Saelensminde  <kirit@felspar.com>
+ Try to be much stricter about which applications get which models. This fixes a problem where models were associated with applications that made use of them, rather than just the one that defined them.
+
 2012-04-05  Kirit Saelensminde  <kirit@felspar.com>
  The authentication forwarding backend is now properly compatible with the real Fost authn request signing.
  The type of the user_id that we see is important as it tells us what we need to look it up with.
