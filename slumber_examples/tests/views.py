@@ -144,6 +144,11 @@ class BasicViews(ViewTests):
     def test_doubly_nested_application(self):
         response, json = self.do_get('/slumber_examples/nested1/nested2/')
         self.assertEquals(response.status_code, 200, 'slumber_examples.nested1.nested2')
+    def test_models_across_apps(self):
+        response, json = self.do_get('/slumber_ex_shop/NestedModel/')
+        self.assertEquals(response.status_code, 200, 'slumber_ex_shop.NestedModel')
+        response, json = self.do_get('/slumber_ex_shop/Pizza/')
+        self.assertEquals(response.status_code, 404, 'slumber_ex_shop.Pizza')
 
 
     def test_instance_metadata_pizza(self):

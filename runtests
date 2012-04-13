@@ -13,7 +13,7 @@ function check_worked {
 workon slumber1-3
 cd test-projects/django1_3
 echo Django 1.3
-check_worked python manage.py test slumber_examples
+check_worked python -tt manage.py test slumber_examples
 
 cd ../..
 check_worked pylint --rcfile=pylintrc --output-format=colorized slumber
