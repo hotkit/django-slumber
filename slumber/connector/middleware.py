@@ -36,13 +36,12 @@ class ForwardAuthentication(object):
         """Save the request in thread local storage so it can be retrieved
         by the user agent when it makes requests.
         """
-        PER_THREAD.request = request
+        if request.user.is_authenticated():
+            PER_THREAD.username = request.user.username
 
-    def process_response(self, request, response):
+    def process_response(self, _request, response):
         """Forget the request, but do an assert to make sure nothing horrible
         has happened to it first.
         """
-        assert PER_THREAD.request is request
-        PER_THREAD.request = None
         PER_THREAD.username = None
         return response
