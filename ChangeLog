@@ -1,3 +1,6 @@
+2012-04-18  Kirit Saelensminde  <kirit@felspar.com>
+ Fixed a problem where forwarded authentication could lead to an infinite recursion error.
+
 2012-04-13  Kirit Saelensminde  <kirit@felspar.com>
  Try to be much stricter about which applications get which models. This fixes a problem where models were associated with applications that made use of them, rather than just the one that defined them.
 
