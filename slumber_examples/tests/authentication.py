@@ -96,16 +96,6 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
         settings.MIDDLEWARE_CLASSES.remove(
             'slumber.connector.middleware.ForwardAuthentication')
 
-    def test_request_is_saved(self):
-        called = []
-        def check_request(request):
-            called.append(True)
-            self.assertEqual(request, PER_THREAD.request)
-            return HttpResponse('ok', 'text/plain')
-        with patch('slumber_examples.views._ok_text', check_request):
-            self.client.get('/')
-        self.assertTrue(called)
-
     def test_signing_function_signs(self):
         headers = {}
         def check_request(request):

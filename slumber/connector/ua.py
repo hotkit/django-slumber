@@ -96,9 +96,7 @@ def _sign_request(method, url, body, for_fake_client):
     from slumber.connector import get_slumber_authn_name
     authn_name = get_slumber_authn_name()
     if authn_name:
-        request, username = getattr(PER_THREAD, 'request', None), None
-        if request and request.user.is_authenticated():
-            username = request.user.username
+        username = getattr(PER_THREAD, 'username', None)
         return _calculate_signature(
             authn_name, method, url, body, username, for_fake_client)
     else:

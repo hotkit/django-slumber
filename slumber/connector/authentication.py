@@ -8,7 +8,6 @@ from django.contrib.contenttypes.models import ContentType
 from fost_authn.authentication import FostBackend
 
 from slumber import client
-from slumber._caches import PER_THREAD
 from slumber.connector.proxies import attach_to_local_user
 
 
@@ -29,19 +28,6 @@ def _assert_properly_configured():
             "handle all authentication and authorization.")
 
 
-def _save_authenticated_username(method):
-    """Wrapper to make the logic for saving the request simpler.
-    """
-    def decorated(self, **kwargs):
-        """Save the request.
-        """
-        user = method(self, **kwargs)
-        if user:
-            PER_THREAD.username = user.username
-        return user
-    return decorated
-
-
 class Backend(FostBackend):
     """An authentication backend which delegates user permissions to another
     Slumber service.
@@ -49,15 +35,12 @@ class Backend(FostBackend):
     Currently this backend does not support object permissions.
     """
 
-    @_save_authenticated_username
     def authenticate(self, **kwargs):
         """Authenticate the user when the middleware passes it in.
         """
         _assert_properly_configured()
         user = super(Backend, self).authenticate(**kwargs)
-        if user:
-            PER_THREAD.username = user.username
-        else:
+        if not user:
             username = kwargs.get('username', None)
             password = kwargs.get('password', None)
             if username and password:
@@ -68,8 +51,6 @@ class Backend(FostBackend):
 
     # Django defines the following as methods
     # pylint: disable=R0201
-
-
     def get_user(self, user_id):
         """Return the user associated with the user_id specified.
         """
