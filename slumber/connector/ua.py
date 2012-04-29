@@ -146,6 +146,8 @@ def get(url, ttl = 0):
 def post(url, data):
     """Perform a POST request against a Slumber server.
     """
+    # Pylint gets confused by the urlparse return type
+    # pylint: disable=E1101
     # Pylint gets confused by the fake HTTP client
     # pylint: disable=E1103
     url_fragment = _use_fake(url)
