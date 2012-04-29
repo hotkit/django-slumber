@@ -158,8 +158,10 @@ def post(url, data):
         content = response.content
     else:
         body = urlencode(data)
+        headers = _sign_request('POST', url, body, False)
+        headers['Content-Type'] = 'application/json'
         response, content = Http().request(url, "POST", body=body,
-            headers = _sign_request('POST', url, body, False))
+            headers = headers)
         assert response.status == 200, content
     return response, loads(content)
 
