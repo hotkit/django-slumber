@@ -11,7 +11,7 @@ from slumber.server.http import require_permission
 class UpdateInstance(InstanceOperation):
     """Update the attributes of a given instance.
     """
-    def post(self, request, _, appname, modelname, pk):
+    def post(self, request, response, appname, modelname, pk):
         """Perform the update.
         """
         @require_permission('%s.change_%s' % (appname, modelname.lower()))
@@ -23,7 +23,6 @@ class UpdateInstance(InstanceOperation):
             for k, v in request.POST.items():
                 setattr(instance, k, v)
             instance.save()
-            return HttpResponseRedirect(
-                get_slumber_root() + self.model.path + 'data/%s/'
-                    % instance.pk)
+            response['self'] = dict(url=get_slumber_root() +
+                self.model.path + 'data/%s/' % instance.pk)
         return do_update(self, request)

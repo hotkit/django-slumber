@@ -252,7 +252,7 @@ class BasicViews(ViewTests):
         s.save()
         response, json = self.do_post('/slumber_examples/Pizza/update/1/', {
             'name': 'New pizza'})
-        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.status_code, 200)
         n = Pizza.objects.get(pk=1)
         self.assertEquals(n.name, "New pizza")
 

@@ -71,7 +71,7 @@ class TestAuthnRequired(ConfigureUser, TestCase):
         response = self.signed_post(self.user.username,
             '/slumber/slumber_examples/Pizza/update/%s/' % self.pizza.pk,
             {'name': 'new test pizza'})
-        self.assertEqual(response.status_code, 302, response.content)
+        self.assertEqual(response.status_code, 200, response.content)
 
     def test_model_delete_requires_permission(self):
         response = self.signed_post(self.user.username,
