@@ -12,7 +12,7 @@ from datetime import datetime
 from fost_authn.signature import fost_hmac_request_signature
 from httplib2 import Http
 import logging
-from simplejson import dumps, loads
+from simplejson import dumps, JSONDecodeError, loads
 from urllib import urlencode
 from urlparse import parse_qs, urlparse
 
@@ -143,7 +143,7 @@ def get(url, ttl = 0):
     return response, loads(content)
 
 
-def post(url, data):
+def post(url, data, codes=None):
     """Perform a POST request against a Slumber server.
     """
     # Pylint gets confused by the urlparse return type
@@ -155,7 +155,7 @@ def post(url, data):
         response = _fake.post(url_fragment, data,
             HTTP_HOST='localhost:8000',
             **_sign_request('POST', url_fragment, data, True))
-        assert response.status_code == 200, \
+        assert response.status_code in (codes or [200]), \
             (url_fragment, response, response.content)
         content = response.content
     else:
@@ -164,6 +164,10 @@ def post(url, data):
         headers['Content-Type'] = 'application/json'
         response, content = Http().request(url, "POST", body=body,
             headers = headers)
-        assert response.status == 200, content
-    return response, loads(content)
+        assert response.status in (codes or [200]), \
+            (url, response, content)
+    try:
+        return response, loads(content)
+    except JSONDecodeError:
+        return response, {}
 

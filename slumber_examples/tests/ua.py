@@ -35,6 +35,10 @@ class TestPost(TestCase):
                 'data': 23})
         self.assertEqual(json, 123)
 
+    def test_404_allowed_for_fake(self):
+        response, json = post('/slumber/does-not-exist/', {}, [404])
+        self.assertEqual(response.status_code, 404)
+
 
 class TestGet(TestCase):
     def setUp(self):
