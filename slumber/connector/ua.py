@@ -159,7 +159,7 @@ def post(url, data):
     else:
         body = urlencode(data)
         response, content = Http().request(url, "POST", body=body,
-            headers = _sign_request('POST', url, data, False))
+            headers = _sign_request('POST', url, body, False))
         assert response.status == 200, content
     return response, loads(content)
 
