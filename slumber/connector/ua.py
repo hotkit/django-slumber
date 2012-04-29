@@ -12,7 +12,7 @@ from datetime import datetime
 from fost_authn.signature import fost_hmac_request_signature
 from httplib2 import Http
 import logging
-from simplejson import loads
+from simplejson import dumps, loads
 from urllib import urlencode
 from urlparse import parse_qs, urlparse
 
@@ -157,7 +157,7 @@ def post(url, data):
             (url_fragment, response, response.content)
         content = response.content
     else:
-        body = urlencode(data)
+        body = dumps(data)
         headers = _sign_request('POST', url, body, False)
         headers['Content-Type'] = 'application/json'
         response, content = Http().request(url, "POST", body=body,

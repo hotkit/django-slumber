@@ -28,7 +28,7 @@ class TestPost(TestCase):
 
     def test_real(self):
         def _request(_self, url, method, body, headers={}):
-            self.assertEqual(body, "data=23")
+            self.assertEqual(body, '{"data": 23}')
             return _response_httplib2(), "123"
         with patch('slumber.connector.ua.Http.request', _request):
             response, json = post('http://example.com/', {
