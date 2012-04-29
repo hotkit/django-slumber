@@ -158,7 +158,7 @@ def post(url, data):
         content = response.content
     else:
         body = dumps(data)
-        headers = _sign_request('POST', url, body, False)
+        headers = _sign_request('POST', urlparse(url).path, body, False)
         headers['Content-Type'] = 'application/json'
         response, content = Http().request(url, "POST", body=body,
             headers = headers)
