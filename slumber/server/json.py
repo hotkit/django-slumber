@@ -8,6 +8,7 @@ from slumber.server import get_slumber_root
 DATA_MAPPING = {
         'django.db.models.fields.AutoField': lambda m, i, fm, v: v,
         'django.db.models.fields.BooleanField': lambda m, i, fm, v: v,
+        'django.db.models.fields.NullBooleanField': lambda m, i, fm, v: v,
     }
 
 
