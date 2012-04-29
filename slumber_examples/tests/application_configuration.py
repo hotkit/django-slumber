@@ -41,7 +41,7 @@ class TestSlumberConfiguration(ConfigureUser, TestCase):
         configure(Shop,
             to_json = {
                 'slumber_examples.Shop.web_address':
-                    lambda r, m, i, fm, v: v.replace('http:', 'https:')
+                    lambda m, i, fm, v: v.replace('http:', 'https:')
                 })
         rshop = client.slumber_examples.Shop.get(pk=shop.pk)
         self.assertEquals(rshop.slug, 'test')
