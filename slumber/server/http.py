@@ -3,7 +3,7 @@
     data.
 """
 import logging
-from simplejson import dumps, JSONEncoder
+from simplejson import dumps, JSONEncoder, loads
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
@@ -64,6 +64,8 @@ def view_handler(view):
     def wrapper(request, *args, **kwargs):
         """The decorated implementation.
         """
+        if request.META.get('CONTENT_TYPE') == 'application/json':
+            request.POST = loads(request.raw_post_data)
         response = {'_meta': dict(status=200, message='OK')}
         try:
             http_response = view(request, response, *args, **kwargs)

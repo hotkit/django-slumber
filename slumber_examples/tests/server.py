@@ -17,6 +17,7 @@ class TestJSON(TestCase):
     def test_unicode_attributes(self):
         d = date.today()
         class Request(object):
+            META = {}
             class user(object):
                 @classmethod
                 def is_authenticated(cls):

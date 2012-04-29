@@ -39,6 +39,8 @@ def service_root(request, response):
         for app in apps:
             if not application or len(app.path) > len(application.path):
                 application = app
+        if not application:
+            return HttpResponseNotFound()
         remaining_path = path[len(application.path)+1:]
         if not remaining_path:
             return get_models(request, response, application)

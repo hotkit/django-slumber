@@ -12,7 +12,7 @@ from datetime import datetime
 from fost_authn.signature import fost_hmac_request_signature
 from httplib2 import Http
 import logging
-from simplejson import loads
+from simplejson import dumps, JSONDecodeError, loads
 from urllib import urlencode
 from urlparse import parse_qs, urlparse
 
@@ -143,9 +143,11 @@ def get(url, ttl = 0):
     return response, loads(content)
 
 
-def post(url, data):
+def post(url, data, codes=None):
     """Perform a POST request against a Slumber server.
     """
+    # Pylint gets confused by the urlparse return type
+    # pylint: disable=E1101
     # Pylint gets confused by the fake HTTP client
     # pylint: disable=E1103
     url_fragment = _use_fake(url)
@@ -153,13 +155,19 @@ def post(url, data):
         response = _fake.post(url_fragment, data,
             HTTP_HOST='localhost:8000',
             **_sign_request('POST', url_fragment, data, True))
-        assert response.status_code == 200, \
+        assert response.status_code in (codes or [200]), \
             (url_fragment, response, response.content)
         content = response.content
     else:
-        body = urlencode(data)
+        body = dumps(data)
+        headers = _sign_request('POST', urlparse(url).path, body, False)
+        headers['Content-Type'] = 'application/json'
         response, content = Http().request(url, "POST", body=body,
-            headers = _sign_request('POST', url, data, False))
-        assert response.status == 200, content
-    return response, loads(content)
+            headers = headers)
+        assert response.status in (codes or [200]), \
+            (url, response, content)
+    try:
+        return response, loads(content)
+    except JSONDecodeError:
+        return response, {}
 

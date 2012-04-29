@@ -20,6 +20,6 @@ class CreateInstance(ModelOperation):
             instance = self.model.model(**dict([(k, str(v))
                 for k, v in request.POST.items()]))
             instance.save()
-            return instance_data(request, response, self.model, instance)
+            return instance_data(response, self.model, instance)
         return do_create(self, request)
 

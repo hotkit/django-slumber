@@ -1,3 +1,11 @@
+2012-04-29  Kirit Saelensminde  <kirit@felspar.com>
+ The conversion of types to JSON no longer takes a request as the first parameter. This allows objects to be converted without having to do it within the context of a request.
+ Added JSON handler for the server side of the field type NullBooleanField.
+ Fixed a bug where the user agent would sign the wrong POST data.
+ The update operation no longer returns a redirect.
+ Many to many fields now appear in the data arrays section of the instance fields rather than with the other fields.
+ The user agent POST requester can now be provided with a list of status codes that it will accept as successful and if it cannot parse the JSON body it will return an empty dict.
+
 2012-04-18  Kirit Saelensminde  <kirit@felspar.com>
  Fixed a problem where forwarded authentication could lead to an infinite recursion error.
 

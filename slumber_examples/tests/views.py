@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from slumber import Client
 from slumber.connector.ua import _calculate_signature
-from slumber_examples.models import Pizza, PizzaPrice, Order
+from slumber_examples.models import Order, Pizza, PizzaPrice, Shop
 from slumber_examples.tests.configurations import ConfigureUser
 
 
@@ -175,6 +175,8 @@ class BasicViews(ViewTests):
         self.assertTrue(json['operations'].has_key('authenticate'), json['operations'])
         self.assertEquals(json['operations']['authenticate'],
             self.url('/django/contrib/auth/User/authenticate/'))
+        self.assertFalse(json['fields'].has_key('groups'), json['fields'].keys())
+        self.assertIn('groups', json['data_arrays'])
 
     def test_instance_metadata_user(self):
         user = User(username='test-user')
@@ -252,7 +254,7 @@ class BasicViews(ViewTests):
         s.save()
         response, json = self.do_post('/slumber_examples/Pizza/update/1/', {
             'name': 'New pizza'})
-        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.status_code, 200)
         n = Pizza.objects.get(pk=1)
         self.assertEquals(n.name, "New pizza")
 
@@ -295,6 +297,29 @@ class BasicViews(ViewTests):
                 exclusive_to={'data': None, 'kind': 'object', 'type': self.url('/slumber_examples/Shop/')}),
             data_arrays=dict(
                 prices=self.url('/slumber_examples/Pizza/data/%s/prices/' % s.pk))))
+
+    def test_instance_data_shop_with_null_active(self):
+        s = Shop(name='Test shop', slug='test-shop')
+        s.save()
+        response, json = self.do_get('/slumber_examples/Shop/data/%s/' % s.pk)
+        self.maxDiff = None
+        self.assertEquals(json, dict(
+            _meta={'message': 'OK', 'status': 200, 'username': 'service'},
+            type=self.url('/slumber_examples/Shop/'),
+            identity=self.url('/slumber_examples/Shop/data/1/'),
+            display='Test shop',
+            operations=dict(
+                data=self.url('/slumber_examples/Shop/data/1/'),
+                delete=self.url('/slumber_examples/Shop/delete/1/'),
+                update=self.url('/slumber_examples/Shop/update/1/')),
+            fields=dict(
+                id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),
+                active=dict(data=None, kind='value', type='django.db.models.fields.NullBooleanField'),
+                name={'data': 'Test shop', 'kind': 'value', 'type': 'django.db.models.fields.CharField'},
+                slug={'data': 'test-shop', 'kind': 'value', 'type': 'django.db.models.fields.CharField'},
+                web_address={'data': 'http://www.example.com/test-shop/', 'kind': 'property',
+                    'type': 'slumber_examples.Shop.web_address'}),
+            data_arrays={'pizza': self.url('/slumber_examples/Shop/data/1/pizza/')}))
 
     def test_instance_data_pizzaprice(self):
         s = Pizza(name='p1', for_sale=True)
