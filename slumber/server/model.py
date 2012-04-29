@@ -1,7 +1,7 @@
 """
     Implements the server side wrapper for a Django model.
 """
-from django.db.models import ForeignKey
+from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.fields import FieldDoesNotExist
 
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL, \
@@ -63,7 +63,10 @@ class DjangoModel(object):
         for field in self.model._meta.get_all_field_names():
             try:
                 definition = self.model._meta.get_field(field)
-                self._fields[field] = definition
+                if type(definition) == ManyToManyField:
+                    self._data_arrays.append(field)
+                else:
+                    self._fields[field] = definition
             except FieldDoesNotExist:
                 self._data_arrays.append(field)
 

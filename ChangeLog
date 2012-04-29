@@ -3,6 +3,7 @@
  Added JSON handler for the server side of the field type NullBooleanField.
  Fixed a bug where the user agent would sign the wrong POST data.
  The update operation no longer returns a redirect.
+ Many to many fields now appear in the data arrays section of the instance fields rather than with the other fields.
 
 2012-04-18  Kirit Saelensminde  <kirit@felspar.com>
  Fixed a problem where forwarded authentication could lead to an infinite recursion error.

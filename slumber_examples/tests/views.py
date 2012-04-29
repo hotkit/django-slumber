@@ -175,6 +175,8 @@ class BasicViews(ViewTests):
         self.assertTrue(json['operations'].has_key('authenticate'), json['operations'])
         self.assertEquals(json['operations']['authenticate'],
             self.url('/django/contrib/auth/User/authenticate/'))
+        self.assertFalse(json['fields'].has_key('groups'), json['fields'].keys())
+        self.assertIn('groups', json['data_arrays'])
 
     def test_instance_metadata_user(self):
         user = User(username='test-user')
