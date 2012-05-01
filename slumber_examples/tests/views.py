@@ -1,5 +1,6 @@
+import logging
 from mock import patch
-from simplejson import loads
+from simplejson import dumps, loads
 
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
@@ -12,12 +13,14 @@ from slumber_examples.models import Order, Pizza, PizzaPrice, Shop
 from slumber_examples.tests.configurations import ConfigureUser
 
 
-def _perform(client, method, url, data):
+def _perform(client, method, url, data, content_type=None):
     def method_wrapper(*a, **kw):
+        logging.info("Using wrapped GET handler")
         return client.get(*a, REQUEST_METHOD=method.upper(), **kw)
+    logging.info("%s with data %s", method, data)
     headers = _calculate_signature('service', method.upper(), url, data, None, True)
     response = getattr(client, method, method_wrapper)(
-        url, data, **headers)
+        url, data, content_type=content_type, **headers)
     if response.status_code == 200:
         return response, loads(response.content)
     else:
@@ -31,7 +34,8 @@ class ViewTests(object):
         return _perform(self.client, 'get', self.url(url), query)
 
     def do_post(self, url, body):
-        return _perform(self.client, 'post', self.url(url), body)
+        return _perform(self.client, 'post', self.url(url), dumps(body),
+            'application/json')
 
     def do_options(self, url):
         return _perform(self.client, 'options', self.url(url), {})
@@ -42,10 +46,12 @@ class ViewTests(object):
         else:
             return path
 
+
 class PlainTests(object):
     """Used to get non-service based view tests.
     """
     PREFIX = '/slumber'
+
 
 class ServiceTests(object):
     """Used to get service based view tests.
@@ -60,6 +66,7 @@ class ServiceTests(object):
         self.patch('slumber.server._get_slumber_service', lambda: 'pizzas')
     def tearDown(self):
         [p.stop() for p in self.__patchers]
+
 
 class ServiceTestsWithDirectory(ServiceTests):
     def setUp(self):
@@ -96,6 +103,7 @@ class ViewErrors(ViewTests):
         response, json = self.do_get('/slumber_examples/Pizza/not-an-operation/')
         self.assertEquals(response.status_code, 404)
 
+
 class ViewErrorsPlain(ConfigureUser, ViewErrors, PlainTests, TestCase):
     pass
 class ViewErrorsService(ConfigureUser, ViewErrors, ServiceTests, TestCase):
@@ -123,7 +131,6 @@ class BasicViews(ViewTests):
         response, json = self.do_get('/', {'model': 'nota.model'})
         self.assertEquals(response.status_code, 404)
 
-
     def test_application_with_models(self):
         response, json = self.do_get('/slumber_examples/')
         self.assertEquals(response.status_code, 200)
@@ -131,12 +138,10 @@ class BasicViews(ViewTests):
         self.assertEquals(json['models']['Pizza'],
             self.url('/slumber_examples/Pizza/'))
 
-
     def test_application_without_models(self):
         response, json = self.do_get('/slumber_examples/no_models/')
         self.assertEquals(response.status_code, 200)
         self.assertFalse(len(json['models']))
-
 
     def test_nested_application(self):
         response, json = self.do_get('/slumber_examples/nested1/')
@@ -149,7 +154,6 @@ class BasicViews(ViewTests):
         self.assertEquals(response.status_code, 200, 'slumber_ex_shop.NestedModel')
         response, json = self.do_get('/slumber_ex_shop/Pizza/')
         self.assertEquals(response.status_code, 404, 'slumber_ex_shop.Pizza')
-
 
     def test_instance_metadata_pizza(self):
         response, json = self.do_get('/slumber_examples/Pizza/')
@@ -186,12 +190,10 @@ class BasicViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         self.assertTrue(json['operations'].has_key('has-permission'), json['operations'])
 
-
     def test_instance_puttable(self):
         response, json = self.do_get('/slumber_examples/Pizza/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(json['puttable'], [['id'], ['name']])
-
 
     def test_model_operation_instances_no_instances(self):
         response, json = self.do_get('/slumber_examples/Pizza/instances/')
@@ -224,7 +226,6 @@ class BasicViews(ViewTests):
         self.assertEquals(len(json['page']), 0)
         self.assertFalse(json.has_key('next_page'), json)
 
-
     def test_instance_creation_get(self):
         response, json = self.do_get('/slumber_examples/Pizza/create/')
         self.assertEquals(response.status_code, 405, response.content)
@@ -246,7 +247,6 @@ class BasicViews(ViewTests):
         self.assertEquals(Pizza.objects.all()[0].name, 'Test Pizza')
         self.assertFalse(Pizza.objects.all()[0].for_sale)
 
-
     def test_update_instance(self):
         self.user.is_superuser = True
         self.user.save()
@@ -257,7 +257,6 @@ class BasicViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         n = Pizza.objects.get(pk=1)
         self.assertEquals(n.name, "New pizza")
-
 
     def test_get_instance(self):
         s = Pizza(name='S1', for_sale=True)
@@ -367,7 +366,6 @@ class BasicViews(ViewTests):
             'pk': 5, 'data': self.url('/slumber_examples/PizzaPrice/data/5/'), 'display': 'PizzaPrice object'})
         self.assertFalse(json.has_key('next_page'), json.keys())
 
-
     def test_delete_instance(self):
         self.user.is_superuser = True
         self.user.save()
@@ -380,6 +378,7 @@ class BasicViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         with self.assertRaises(Pizza.DoesNotExist):
             Pizza.objects.get(pk=s.pk)
+
 
 class BasicViewsPlain(ConfigureUser, BasicViews, PlainTests, TestCase):
     def test_service_configuration_missing_for_remoteforeignkey(self):
@@ -400,6 +399,7 @@ class BasicViewsPlain(ConfigureUser, BasicViews, PlainTests, TestCase):
         self.assertIsNotNone(order2.shop)
         self.assertEquals(unicode(order2.shop), unicode(order.shop))
         self.assertEquals(order2.shop.id, order.shop.id)
+
 
 class BasicViewsService(ConfigureUser, BasicViews, ServiceTests, TestCase):
     def test_services_with_directory(self):
@@ -439,6 +439,7 @@ class BasicViewsService(ConfigureUser, BasicViews, ServiceTests, TestCase):
         order2 = Order.objects.get(pk=order.pk)
         self.assertEquals(unicode(order2.shop), unicode(order.shop))
         self.assertEquals(order2.shop.id, order.shop.id)
+
 
 class BasicViewsWithServiceDirectory(ConfigureUser, BasicViews,
         ServiceTestsWithDirectory, TestCase):

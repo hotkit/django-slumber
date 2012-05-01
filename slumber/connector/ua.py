@@ -60,14 +60,13 @@ def _calculate_signature(authn_name, method, url, body,
     to_sign = {}
     if username:
         to_sign['X-FOST-User'] = username
-    if for_fake_client:
+    if not isinstance(body, basestring):
         if method in ['POST', 'PUT']:
             logging.info("Encoding POST/PUT data %s", body or {})
             data = encode_multipart(BOUNDARY, body or {})
         else:
             logging.info("Encoding query string %s", body or {})
-            data = body if isinstance(body, basestring) else \
-                urlencode(body or {}, doseq=True)
+            data = urlencode(body or {}, doseq=True)
     else:
         data = body or ''
     now = datetime.utcnow().isoformat() + 'Z'
@@ -150,16 +149,17 @@ def post(url, data, codes=None):
     # pylint: disable=E1101
     # Pylint gets confused by the fake HTTP client
     # pylint: disable=E1103
+    body = dumps(data) if data else ''
     url_fragment = _use_fake(url)
     if url_fragment:
-        response = _fake.post(url_fragment, data,
+        response = _fake.post(url_fragment, body,
+            content_type='application/json',
             HTTP_HOST='localhost:8000',
-            **_sign_request('POST', url_fragment, data, True))
+            **_sign_request('POST', url_fragment, body, True))
         assert response.status_code in (codes or [200]), \
             (url_fragment, response, response.content)
         content = response.content
     else:
-        body = dumps(data)
         headers = _sign_request('POST', urlparse(url).path, body, False)
         headers['Content-Type'] = 'application/json'
         response, content = Http().request(url, "POST", body=body,
