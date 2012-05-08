@@ -1,3 +1,6 @@
+2012-05-08  Kirit Saelensminde  <kirit@felspar.com>
+ Altered the RemoteForeignKey field's get_prep_value so that it uses the super method of the same name instead of delegating to the get_db_prep_value method. This fixes a problem on Django 1.4 in queries.
+
 2012-05-01  Kirit Saelensminde  <kirit@felspar.com>
  The internal (fake HTTP) requests will now prefer to send JSON to the client as it is a richer data format that the standard HTTP media types.
 
