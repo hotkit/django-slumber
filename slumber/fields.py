@@ -30,13 +30,14 @@ class RemoteForeignKey(URLField):
     def get_db_prep_value(self, value, *a, **kw):
         if isinstance(value, basestring):
             return value
-        url = value._url
-        final_url = super(RemoteForeignKey, self).get_db_prep_value(
-            to_slumber_scheme(url, get_slumber_services()), *a, **kw)
-        return final_url
+        url = to_slumber_scheme(value._url, get_slumber_services())
+        return super(RemoteForeignKey, self).get_db_prep_value(url, *a, **kw)
 
-    def get_prep_value(self, value):
-        return self.get_db_prep_value(value)
+    def get_prep_value(self, value, *a, **kw):
+        if isinstance(value, basestring):
+            return value
+        url = to_slumber_scheme(value._url, get_slumber_services())
+        return super(RemoteForeignKey, self).get_prep_value(url, *a, **kw)
 
     def to_python(self, value):
         if isinstance(value, _InstanceProxy):
