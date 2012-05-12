@@ -1,6 +1,9 @@
 2012-05-08  Kirit Saelensminde  <kirit@felspar.com>
  Altered the RemoteForeignKey field's get_prep_value so that it uses the super method of the same name instead of delegating to the get_db_prep_value method. This fixes a problem on Django 1.4 in queries.
 
+2012-05-01  Kirit Saelensminde  <kirit@felspar.com>
+ The internal (fake HTTP) requests will now prefer to send JSON to the client as it is a richer data format that the standard HTTP media types.
+
 2012-04-29  Kirit Saelensminde  <kirit@felspar.com>
  The conversion of types to JSON no longer takes a request as the first parameter. This allows objects to be converted without having to do it within the context of a request.
  Added JSON handler for the server side of the field type NullBooleanField.

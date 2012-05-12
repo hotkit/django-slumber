@@ -64,7 +64,8 @@ def view_handler(view):
     def wrapper(request, *args, **kwargs):
         """The decorated implementation.
         """
-        if request.META.get('CONTENT_TYPE') == 'application/json':
+        if request.META.get('CONTENT_TYPE') == 'application/json' and \
+                request.META.get('CONTENT_LENGTH'):
             request.POST = loads(request.raw_post_data)
         response = {'_meta': dict(status=200, message='OK')}
         try:
