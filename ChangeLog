@@ -1,3 +1,6 @@
+2012-05-14  Kirit Saelensminde  <kirit@felspar.com>
+ Treat any request whose Content-Type starts with 'application/json' as JSON rather than look for an exact match.
+
 2012-05-08  Kirit Saelensminde  <kirit@felspar.com>
  Altered the RemoteForeignKey field's get_prep_value so that it uses the super method of the same name instead of delegating to the get_db_prep_value method. This fixes a problem on Django 1.4 in queries.
 
