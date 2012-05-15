@@ -17,7 +17,7 @@ class CreateInstance(ModelOperation):
             """Use an inner function so that we can generate a proper
             permission name at run time.
             """
-            instance = self.model.model(**dict([(k, str(v))
+            instance = self.model.model(**dict([(k, v)
                 for k, v in request.POST.items()]))
             instance.save()
             return instance_data(response, self.model, instance)
