@@ -21,6 +21,10 @@ from slumber.server import get_slumber_local_url_prefix
 
 
 _fake = FakeClient()
+def _real():
+    """Don't check certificates when we use httplib2.
+    """
+    return Http(disable_ssl_certificate_validation=True)
 
 
 def _parse_qs(url):
@@ -128,7 +132,7 @@ def get(url, ttl = 0):
             to_sign = path + ('' if not query else '?' + query)
             for _ in range(0, 3):
                 headers = _sign_request('GET', to_sign, '', False)
-                response, content = Http().request(
+                response, content = _real().request(
                     url, headers=headers)
                 if response.status == 200:
                     break
@@ -162,7 +166,7 @@ def post(url, data, codes=None):
     else:
         headers = _sign_request('POST', urlparse(url).path, body, False)
         headers['Content-Type'] = 'application/json'
-        response, content = Http().request(url, "POST", body=body,
+        response, content = _real().request(url, "POST", body=body,
             headers = headers)
         assert response.status in (codes or [200]), \
             (url, response, content)
