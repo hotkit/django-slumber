@@ -1,13 +1,16 @@
 from decimal import Decimal
-
-import django.test
+import logging
 import mock
 import unittest2
 
 from django.http import HttpResponse
+import django.test
 
 from slumber import client
 from slumber.test import mock_client
+
+from slumber_examples.models import Order
+from slumber_examples.tests.views import ServiceTestsWithDirectory
 
 
 class TestSlumberMock(unittest2.TestCase):
@@ -78,6 +81,33 @@ class TestSlumberMock(unittest2.TestCase):
         m1.attr = 'attribute data'
         self.assertEqual(m1.attr, 'attribute data')
         self.assertEqual(m1.attr, m2.attr)
+
+
+class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
+    def _setup(self):
+        # Can't use setUp as that runs before the mock is applied
+        self.shop = client.pizzas.slumber_examples.Shop.get(pk=1)
+        self.order = Order(shop=self.shop)
+        self.order.save()
+        for order in Order.objects.all():
+            logging.debug(order.shop)
+
+    @mock_client(pizzas__slumber_examples__Shop = [
+        dict(pk=1, _url='slumber://pizzas/slumber_examples/Shop/data/1/')
+    ])
+    def test_can_order_with_remote_shop_mock(self):
+        self._setup()
+        fetched = Order.objects.get(shop=self.shop)
+        self.assertEqual(self.order, fetched)
+
+    @mock_client(pizzas__slumber_examples__Shop = [
+        dict(pk=1, _url='slumber://pizzas/slumber_examples/Shop/data/1/')
+    ])
+    def test_can_order_with_remote_shop_url(self):
+        self._setup()
+        fetched = Order.objects.get(
+            shop='slumber://pizzas/slumber_examples/Shop/data/1/')
+        self.assertEqual(self.order, fetched)
 
 
 class TestViews(django.test.TestCase):

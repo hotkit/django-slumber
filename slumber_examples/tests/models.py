@@ -1,6 +1,15 @@
+from django.test import TestCase as DBTestCase
+from mock import patch
 from unittest2 import TestCase
+
+from slumber import client
+from slumber.connector import Client
 from slumber.scheme import to_slumber_scheme, from_slumber_scheme, \
     SlumberServiceURLError
+
+from slumber_examples.models import Shop, Order
+from slumber_examples.tests.configurations import ConfigureUser
+from slumber_examples.tests.views import ServiceTestsWithDirectory
 
 
 class URLHandlingToDatabase(TestCase):
@@ -71,3 +80,35 @@ class URLHandlingFromDatabase(TestCase):
             from_slumber_scheme(
                 'slumber://not-a-service/Model/',
                 dict(testservice='http://example.com/slumber/testservice/'))
+
+
+class TestQueries(ConfigureUser, ServiceTestsWithDirectory, DBTestCase):
+    REAL_URL = 'http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/'
+    SLUMBER_URL = 'slumber://pizzas/slumber_examples/Shop/data/1/'
+
+    def setUp(self):
+        super(TestQueries, self).setUp()
+        self.shop = Shop(name='Test', slug='test', active=True)
+        self.shop.save()
+
+    def test_have_shop(self):
+        with patch('slumber._client', Client()):
+            shop = client.pizzas.slumber_examples.Shop.get(pk=1)
+            self.assertEqual(shop._url, self.REAL_URL)
+
+    def test_find_order_by_shop_remote_instance(self):
+        with patch('slumber._client', Client()):
+            shop = client.pizzas.slumber_examples.Shop.get(pk=1)
+            order = Order(shop=shop)
+            order.save()
+            fetched = Order.objects.get(shop=shop)
+            self.assertEqual(order, fetched)
+
+    def test_find_order_by_shop_url(self):
+        with patch('slumber._client', Client()):
+            shop = client.pizzas.slumber_examples.Shop.get(pk=1)
+            order = Order(shop=shop)
+            order.save()
+            fetched = Order.objects.get(shop=self.SLUMBER_URL)
+            self.assertEqual(order, fetched)
+

@@ -18,6 +18,19 @@ def _do_get(model, **query):
     assert False, "The instance was not found"
 
 
+class _MockInstance(DictObject):
+    """A mock instance that will add in a _url parameter.
+    """
+    def __init__(self, model_path, **kwargs):
+        super(_MockInstance, self).__init__(**kwargs)
+        if hasattr(self, 'pk'):
+            self._url = ('slumber://' + model_path.replace('__', '/')
+                + '/data/%s/' % getattr(self, 'pk'))
+
+    def __repr__(self):
+        return getattr(self, '_url', 'Unkown mock instance')
+
+
 class _MockClient(DictObject):
     """Mock slumber client class.
     """
@@ -30,9 +43,9 @@ class _MockClient(DictObject):
                     setattr(root, k, DictObject())
                 root = getattr(root, k)
             model_name = model.split('__')[-1]
-            model_type = type(model_name, (DictObject,), {})
+            model_type = type(model_name, (_MockInstance,), {})
             setattr(model_type, 'instances',
-                [model_type(**i) for i in instances])
+                [model_type(model, **i) for i in instances])
             setattr(model_type, 'get', classmethod(_do_get))
             setattr(root, model_name, model_type)
 

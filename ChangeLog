@@ -1,3 +1,6 @@
+2012-05-16  Kirit Saelensminde  <kirit@felspar.com>
+ The mock client instances can now be used in queries properly. Added some extra tests to make sure that normal remote instances, or their normalised URLs work as expected in queries.
+
 2012-05-15  Kirit Saelensminde  <kirit@felspar.com>
  Fixed a problem where the create operation would always convert values to strings. This broke `null` values sent over the wire.
  Set a httplib2 option so that SSL certificates are not checked.
