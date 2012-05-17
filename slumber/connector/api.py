@@ -66,7 +66,7 @@ def get_instance_from_data(base_url, json):
 class ModelConnector(DictObject):
     """Handles the connection to a Django model.
     """
-    _CACHE_TTL = 0
+    _CACHE_TTL = 2
 
     def __init__(self, url, **kwargs):
         _ensure_absolute(url)

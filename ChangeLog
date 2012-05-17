@@ -1,6 +1,7 @@
 2012-05-16  Kirit Saelensminde  <kirit@felspar.com>
  The create operation now resets the sequence numbers in case a primary key on an auto-increment field is specified.
  The user agent get function can now also be given status codes that it will accept as expected.
+ The TTL on proxies is now set to two seconds. There are circumstances under which this might be unsafe. The user agent remains with a zero second TTL.
 
 2012-05-16  Kirit Saelensminde  <kirit@felspar.com>
  The mock client instances can now be used in queries properly. Added some extra tests to make sure that normal remote instances, or their normalised URLs work as expected in queries.
