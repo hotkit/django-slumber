@@ -35,3 +35,8 @@ class OrderTests(ConfigureUser, TestCase):
         response = self.client.post('/slumber/slumber_examples/Pizza/order/1/',
             dict(quantity=3))
         self.assertEquals(response.status_code, 501, response.content)
+
+    def test_order_create_with_pk(self):
+        pizza2 = self.cnx.slumber_examples.Pizza.create(id=2, name='S2', for_sale=True)
+        pizza3 = Pizza.objects.create(name='S3', for_sale=True)
+        self.assertEqual(Pizza.objects.count(), 3)
