@@ -106,7 +106,7 @@ def _sign_request(method, url, body, for_fake_client):
         return {}
 
 
-def get(url, ttl = 0):
+def get(url, ttl = 0, codes=None):
     """Perform a GET request against a Slumber server.
     """
     # Pylint gets confused by the fake HTTP client
@@ -119,8 +119,8 @@ def get(url, ttl = 0):
             HTTP_HOST='localhost:8000', **headers)
         if response.status_code in [301, 302]:
             return get(response['location'])
-        assert response.status_code == 200, (
-            url_fragment, response.status_code)
+        assert response.status_code in (codes or [200]), \
+            (url_fragment, response, response.content)
         content = response.content
     else:
         cache_key = 'slumber.connector.ua.get.%s' % url
@@ -134,9 +134,10 @@ def get(url, ttl = 0):
                 headers = _sign_request('GET', to_sign, '', False)
                 response, content = _real().request(
                     url, headers=headers)
-                if response.status == 200:
+                if response.status in (codes or [200]):
                     break
-            assert response.status == 200, (url, response.status)
+            assert response.status in (codes or [200]), \
+                (url, response, content)
             if ttl:
                 cache.set(cache_key, (response, content), ttl)
         else:
