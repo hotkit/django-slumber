@@ -123,6 +123,11 @@ class _InstanceProxy(object):
         self._display = display
         self._fields = fields or {}
 
+    def __deepcopy__(self, _memo):
+        """Return a deep copy of the proxy. This isn't really deep.
+        """
+        return type(self)(self._url, self._display, self._fields)
+
     def _fetch_instance(self):
         """Fetch the underlying instance.
         """
