@@ -1,5 +1,6 @@
 2012-05-18  Kirit Saelensminde  <kirit@felspar.com>
  Fixed a problem with deep copies of remote objects that was causing Django to throw errors when they were used in certain types of query.
+ Added a number of attributes to the instance proxy that it will never have, so just throw an attribute error for them straight away. This cuts down on HTTP chatter, especially in tests.
 
 2012-05-17  Kirit Saelensminde  <kirit@felspar.com>
  The create operation now resets the sequence numbers in case a primary key on an auto-increment field is specified.
