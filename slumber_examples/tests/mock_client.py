@@ -1,3 +1,4 @@
+import copy
 from decimal import Decimal
 import logging
 import mock
@@ -128,3 +129,52 @@ class TestViews(django.test.TestCase):
     def test_patched_then_mocked(self, ok_text_patch):
         ok_text_patch.return_value = HttpResponse('patched')
         self.client.get('/')
+
+
+class TestCopy(ServiceTestsWithDirectory, django.test.TestCase):
+    @mock_client(pizzas__slumber_examples__Shop = [
+        dict(pk=1)
+    ])
+    def test_deepcopy_shop(self):
+        shop = client.pizzas.slumber_examples.Shop.get(pk=1)
+        deep = copy.deepcopy(shop)
+        self.assertEqual(shop.pk, deep.pk)
+
+    @mock_client(pizzas__slumber_examples__Shop = [
+        dict(pk=1)
+    ])
+    def test_deepcopy_shop_in_order_query(self):
+        query = Order.objects.filter(
+            shop='slumber://pizzas/slumber_examples/Shop/data/1/')
+        self.assertEqual(query.count(), 0)
+
+    @mock_client(pizzas__slumber_examples__Shop = [
+        dict(pk=1)
+    ])
+    def test_deepcopy_shop_in_order_query_double_filter_client_shop(self):
+        shop = client.pizzas.slumber_examples.Shop.get(pk=1)
+        query1 = Order.objects.filter(shop=shop)
+        self.assertEqual(query1.count(), 0)
+        query2 = query1.exclude(shop=shop)
+        self.assertEqual(query2.count(), 0)
+
+    @mock_client(pizzas__slumber_examples__Shop = [
+        dict(pk=1)
+    ])
+    def test_deepcopy_shop_in_order_query_double_filter_shop_url(self):
+        shop = 'slumber://pizzas/slumber_examples/Shop/data/1/'
+        query1 = Order.objects.filter(shop=shop)
+        self.assertEqual(query1.count(), 0)
+        query2 = query1.exclude(shop=shop)
+        self.assertEqual(query2.count(), 0)
+
+    @mock_client(pizzas__slumber_examples__Shop = [
+        dict(pk=1)
+    ])
+    def test_deepcopy_shop_in_order_query_double_filter_shop_from_order(self):
+        order = Order.objects.create(
+            shop = 'slumber://pizzas/slumber_examples/Shop/data/1/')
+        query1 = Order.objects.filter(shop=order.shop)
+        self.assertEqual(query1.count(), 1)
+        query2 = query1.filter(shop=order.shop)
+        self.assertEqual(query2.count(), 1)

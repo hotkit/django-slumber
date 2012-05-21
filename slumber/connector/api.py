@@ -66,7 +66,7 @@ def get_instance_from_data(base_url, json):
 class ModelConnector(DictObject):
     """Handles the connection to a Django model.
     """
-    _CACHE_TTL = 0
+    _CACHE_TTL = 2
 
     def __init__(self, url, **kwargs):
         _ensure_absolute(url)
@@ -123,6 +123,11 @@ class _InstanceProxy(object):
         self._display = display
         self._fields = fields or {}
 
+    def __deepcopy__(self, _memo):
+        """Return a deep copy of the proxy. This isn't really deep.
+        """
+        return type(self)(self._url, self._display, self._fields)
+
     def _fetch_instance(self):
         """Fetch the underlying instance.
         """
@@ -138,6 +143,11 @@ class _InstanceProxy(object):
         """Fetch the underlying instance from the cache if necessary and
         return the attribute value it has.
         """
+        if name in ['_as_sql', 'as_sql', 'evaluate', 'get_compiler',
+                'get_placeholder', '__iter__', 'next', '_prepare', 'prepare',
+                'prepare_database_save', 'value_annotation']:
+            # These are attributes that we will never have
+            raise AttributeError(name)
         return getattr(self._fetch_instance(), name)
 
     def __setattr__(self, name, value):
