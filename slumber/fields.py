@@ -41,6 +41,8 @@ class RemoteForeignKey(URLField):
         return super(RemoteForeignKey, self).get_prep_value(url, *a, **kw)
 
     def to_python(self, value):
+        if not value:
+            return None
         if isinstance(value, _InstanceProxy):
             return value
         url = from_slumber_scheme(

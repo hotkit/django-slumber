@@ -41,9 +41,8 @@ class RemoteForeignKeyField(forms.Field):
         elif isinstance(value, _InstanceProxy):
             return value
         else:
-            instance = get_instance_from_url(value)
             try:
-                instance._fetch_instance()._fetch_data()
+                instance = get_instance_from_url(value)
             except AssertionError:
                 raise forms.ValidationError("The remote object doesn't exist")
             return instance
