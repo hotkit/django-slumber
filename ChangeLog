@@ -1,3 +1,6 @@
+2012-05-24  Kirit Saelensminde  <kirit@felspar.com>
+ Optimised the solution to application of the client proxies to delay as long as possible HTTP requests. Many uses of remote instances no longer trigger any HTTP requests at all.
+
 2012-05-23  Kirit Saelensminde  <kirit@felspar.com>
  Fixed a problem where client proxies weren't always being applied properly when instances were fetched out of the database. The current solution solves it by forcing a HTTP request, but there should be a better way of doing this.
 

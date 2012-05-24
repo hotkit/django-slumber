@@ -10,7 +10,6 @@ from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
 from slumber.connector.ua import get, post
-from slumber.test import _MockClient
 
 
 def _ensure_absolute(url):
@@ -22,6 +21,8 @@ def _ensure_absolute(url):
 def get_instance(model, instance_url, display_name, fields = None):
     """Return an instance of the specified model etc.
     """
+    if isinstance(model, basestring):
+        model = get_model(model) # Assume we've been given a URL
     fields = fields or {}
     bases = [_InstanceProxy]
     for type_url, proxy in INSTANCE_PROXIES.items():
@@ -46,18 +47,18 @@ def get_model(url):
         return MODEL_URL_TO_SLUMBER_MODEL[url]
 
 
-def get_instance_from_url(url):
-    """Returns a local instance proxy for the object described by the
-    absolute URL provided.
-    """
-    # This is a bit ugly, but we need to do proper proxy lookups for real use
-    # and the mock is a pain to do anything else with
-    from slumber import _client
-    if isinstance(_client, _MockClient):
-        return _InstanceProxy(url, None)
-    else:
-        _, json = get(url)
-        return get_instance_from_data(url, json)
+#def get_instance_from_url(url):
+    #"""Returns a local instance proxy for the object described by the
+    #absolute URL provided.
+    #"""
+    ## This is a bit ugly, but we need to do proper proxy lookups for real use
+    ## and the mock is a pain to do anything else with
+    #from slumber import _client
+    #if isinstance(_client, _MockClient):
+        #return _InstanceProxy(url, None)
+    #else:
+        #_, json = get(url)
+        #return get_instance_from_data(url, json)
 
 
 def get_instance_from_data(base_url, json):
@@ -168,6 +169,9 @@ class _InstanceProxy(object):
     def __unicode__(self):
         """Allow us to take the unicode name of the instance
         """
+        if not self._display:
+            instance = self._fetch_instance()
+            self._display = instance._display
         return self._display
 
 

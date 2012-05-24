@@ -4,7 +4,9 @@
 from django import forms
 from django.contrib.admin.widgets import AdminURLFieldWidget
 
-from slumber.connector.api import _InstanceProxy, get_instance_from_url
+from slumber.connector.api import _InstanceProxy, get_instance
+from slumber.scheme import from_slumber_scheme
+from slumber.server import get_slumber_services
 
 
 class RemoteForeignKeyWidget(forms.TextInput):
@@ -23,8 +25,11 @@ class RemoteForeignKeyField(forms.Field):
     """A simple widget that allows the URL for the remote object to be
     seen and edited.
     """
-    def __init__(self, max_length=None, verify_exists=True, **kwargs):
+    def __init__(self, max_length=None, verify_exists=True,
+            model_url=None, **kwargs):
+        assert model_url, "RemoteForiegnKeyField must be passed a model_url"
         self.max_length = max_length
+        self.model_url = model_url
         self.verify_exists = verify_exists
         default = {'widget': RemoteForeignKeyWidget}
         default.update(kwargs)
@@ -42,7 +47,10 @@ class RemoteForeignKeyField(forms.Field):
             return value
         else:
             try:
-                instance = get_instance_from_url(value)
+                model_url = from_slumber_scheme(
+                    self.model_url, get_slumber_services())
+                instance = get_instance(model_url, value, None)
+                unicode(instance)
             except AssertionError:
                 raise forms.ValidationError("The remote object doesn't exist")
             return instance
