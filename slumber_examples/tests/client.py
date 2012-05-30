@@ -103,9 +103,10 @@ class TestsWithPizza(ConfigureUser, TestCase):
 
     def test_instance_type(self):
         self.assertEqual(self.s.pk, self.pizza.id)
-        self.assertEqual(type(self.pizza).__name__, 'slumber_examples.Pizza')
+        self.assertEqual(type(self.pizza).__name__,
+            'http://localhost:8000/slumber/slumber_examples/Pizza/data/1/')
         pizza_type = str(type(self.pizza))
-        self.assertTrue(pizza_type.endswith("slumber_examples.Pizza'>"),
+        self.assertTrue(pizza_type.endswith("slumber_examples/Pizza/data/1/'>"),
             pizza_type)
 
 
@@ -134,9 +135,6 @@ class TestsWithPizza(ConfigureUser, TestCase):
         first_price = prices[0]
         self.assertEquals(unicode(first_price), "PizzaPrice object")
         self.assertEquals(first_price.pizza.for_sale, True)
-        first_price_type = str(type(first_price))
-        self.assertTrue(first_price_type.endswith("slumber_examples.PizzaPrice'>"),
-            first_price_type)
 
 
     def test_instance_data_with_nested_data_array(self):
