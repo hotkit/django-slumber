@@ -103,6 +103,9 @@ def get_slumber_services(directory = None):
                 services[k] = v
         return services
     else:
+        service = get_slumber_service()
+        if service:
+            return {service: directory + '%s/' % service}
         return None
 
 

@@ -94,13 +94,7 @@ class Client(ServiceConnector):
         if not services:
             if not directory:
                 directory = get_slumber_directory()
-            service = get_slumber_service()
-            if service:
-                connect_to = urljoin(directory, service + '/')
-                setattr(self, service, ServiceConnector(connect_to))
-                super(Client, self).__init__(None)
-            else:
-                super(Client, self).__init__(directory)
+            super(Client, self).__init__(directory)
         else:
             for k, v in services.items():
                 setattr(self, k, ServiceConnector(v))

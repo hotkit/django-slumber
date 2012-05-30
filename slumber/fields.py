@@ -3,7 +3,7 @@
 """
 from django.db.models import URLField, SubfieldBase
 
-from slumber.connector.api import _InstanceProxy, get_instance_from_url
+from slumber.connector.api import _InstanceProxy, get_instance
 from slumber.connector.dictobject import DictObject
 from slumber.forms import RemoteForeignKeyField
 from slumber.scheme import to_slumber_scheme, from_slumber_scheme
@@ -41,14 +41,19 @@ class RemoteForeignKey(URLField):
         return super(RemoteForeignKey, self).get_prep_value(url, *a, **kw)
 
     def to_python(self, value):
+        if not value:
+            return None
         if isinstance(value, _InstanceProxy):
             return value
-        url = from_slumber_scheme(
+        instance_url = from_slumber_scheme(
             super(RemoteForeignKey, self).to_python(value),
             get_slumber_services())
-        return get_instance_from_url(url)
+        model_url = from_slumber_scheme(
+            self.model_url, get_slumber_services())
+        return get_instance(model_url, instance_url, None)
 
     def formfield(self, **kwargs):
-        defaults = {'form_class': RemoteForeignKeyField}
+        defaults = {'form_class': RemoteForeignKeyField,
+            'model_url': self.model_url}
         defaults.update(kwargs)
         return super(RemoteForeignKey, self).formfield(**defaults)

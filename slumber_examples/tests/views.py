@@ -9,6 +9,7 @@ from django.test import TestCase
 
 from slumber import Client
 from slumber.connector.ua import _calculate_signature
+from slumber.scheme import SlumberServiceURLError
 from slumber_examples.models import Order, Pizza, PizzaPrice, Shop
 from slumber_examples.tests.configurations import ConfigureUser
 
@@ -395,10 +396,8 @@ class BasicViewsPlain(ConfigureUser, BasicViews, PlainTests, TestCase):
             [order.pk])
         row = cursor.fetchone()
         self.assertEquals(row[0], order.shop._url)
-        order2 = Order.objects.get(pk=order.pk)
-        self.assertIsNotNone(order2.shop)
-        self.assertEquals(unicode(order2.shop), unicode(order.shop))
-        self.assertEquals(order2.shop.id, order.shop.id)
+        with self.assertRaises(SlumberServiceURLError):
+            order2 = Order.objects.get(pk=order.pk)
 
 
 class BasicViewsService(ConfigureUser, BasicViews, ServiceTests, TestCase):
@@ -420,7 +419,7 @@ class BasicViewsService(ConfigureUser, BasicViews, ServiceTests, TestCase):
             HTTP_HOST='localhost', REMOTE_ADDR='127.0.0.1')
         json = loads(response.content)
         self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(json['services'].get('pizzas', None), '/slumber/pizzas/', json)
+        self.assertTrue(json['services'].get('pizzas', '').endswith('/slumber/pizzas/'), json)
 
     def test_service_configuration_works_for_remoteforeignkey(self):
         self.user.is_superuser = True
@@ -435,7 +434,7 @@ class BasicViewsService(ConfigureUser, BasicViews, ServiceTests, TestCase):
             "SELECT shop FROM slumber_examples_order WHERE id=%s",
             [order.pk])
         row = cursor.fetchone()
-        self.assertEquals(row[0], order.shop._url)
+        self.assertEquals(row[0], 'slumber://pizzas/slumber_examples/Shop/data/1/')
         order2 = Order.objects.get(pk=order.pk)
         self.assertEquals(unicode(order2.shop), unicode(order.shop))
         self.assertEquals(order2.shop.id, order.shop.id)

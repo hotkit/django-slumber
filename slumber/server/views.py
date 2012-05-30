@@ -25,7 +25,7 @@ def service_root(request, response):
     service = get_slumber_service()
     if service:
         if not path:
-            return get_service_directory(request, response, service)
+            return get_service_directory(request, response)
         elif not path.startswith(service + '/') and path != service:
             return HttpResponseNotFound()
         path = path[len(service) + 1:]
@@ -61,15 +61,10 @@ def service_root(request, response):
             return HttpResponseNotFound()
 
 
-def get_service_directory(_request, response, service):
+def get_service_directory(_request, response):
     """Return the services.
     """
-    directory = get_slumber_services()
-    if directory or not service:
-        response['services'] = directory
-    else:
-        response['services'] = {}
-        response['services'][service] = get_slumber_root()
+    response['services'] = get_slumber_services()
 
 
 def get_applications(request, response):
@@ -84,7 +79,7 @@ def get_applications(request, response):
         return HttpResponseNotFound()
     response['apps'] = dict([(app.name, root + app.path + '/')
         for app in applications()])
-    get_service_directory(request, response, None)
+    get_service_directory(request, response)
 
 
 def get_models(_, response, app):

@@ -21,6 +21,8 @@ def _ensure_absolute(url):
 def get_instance(model, instance_url, display_name, fields = None):
     """Return an instance of the specified model etc.
     """
+    if isinstance(model, basestring):
+        model = get_model(model) # Assume we've been given a URL
     fields = fields or {}
     bases = [_InstanceProxy]
     for type_url, proxy in INSTANCE_PROXIES.items():
@@ -45,11 +47,18 @@ def get_model(url):
         return MODEL_URL_TO_SLUMBER_MODEL[url]
 
 
-def get_instance_from_url(url):
-    """Returns a local instance proxy for the object described by the
-    absolute URL provided.
-    """
-    return _InstanceProxy(url, None)
+#def get_instance_from_url(url):
+    #"""Returns a local instance proxy for the object described by the
+    #absolute URL provided.
+    #"""
+    ## This is a bit ugly, but we need to do proper proxy lookups for real use
+    ## and the mock is a pain to do anything else with
+    #from slumber import _client
+    #if isinstance(_client, _MockClient):
+        #return _InstanceProxy(url, None)
+    #else:
+        #_, json = get(url)
+        #return get_instance_from_data(url, json)
 
 
 def get_instance_from_data(base_url, json):
