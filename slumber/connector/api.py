@@ -28,7 +28,7 @@ def get_instance(model, instance_url, display_name, fields = None):
     for type_url, proxy in INSTANCE_PROXIES.items():
         if model._url.endswith(type_url):
             bases.append(proxy)
-    type_name = str(model.module + '.' + model.name)
+    type_name = str(instance_url)
     instance_type = type(type_name, tuple(bases), {})
     return instance_type(instance_url, display_name, fields)
 

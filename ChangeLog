@@ -1,3 +1,6 @@
+2012-05-30  Kirit Saelensminde  <kirit@felspar.com>
+ Changed the type name for the instance type so we no longer need to do any model look ups to calculate the name.
+
 2012-05-24  Kirit Saelensminde  <kirit@felspar.com>
  Optimised the solution to application of the client proxies to delay as long as possible HTTP requests. Many uses of remote instances no longer trigger any HTTP requests at all.
 
