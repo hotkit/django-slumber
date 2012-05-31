@@ -3,6 +3,7 @@
 """
 import mock
 
+from slumber.connector.api import get_model_type
 from slumber.connector.dictobject import DictObject
 
 
@@ -43,7 +44,8 @@ class _MockClient(DictObject):
                     setattr(root, k, DictObject())
                 root = getattr(root, k)
             model_name = model.split('__')[-1]
-            model_type = type(model_name, (_MockInstance,), {})
+            model_url = model.replace('__', '/') + '/'
+            model_type = get_model_type(model_url, [_MockInstance])
             setattr(model_type, 'instances',
                 [model_type(model, **i) for i in instances])
             setattr(model_type, 'get', classmethod(_do_get))

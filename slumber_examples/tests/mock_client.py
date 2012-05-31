@@ -49,7 +49,7 @@ class TestSlumberMock(unittest2.TestCase):
         p1 = client.slumber.Pizza.get(pk=1)
         self.assertEquals(p1.pk, 1)
         self.assertEquals(getattr(p1, 'name', None), 'Margarita', p1.__dict__)
-        self.assertEquals(type(p1).__name__, "Pizza")
+        self.assertEquals(type(p1).__name__, "slumber/Pizza/")
 
         p2 = client.slumber.Pizza.get(pk=2)
         self.assertEquals(p2.pk, 2)
@@ -67,6 +67,9 @@ class TestSlumberMock(unittest2.TestCase):
         with self.assertRaises(AssertionError):
             client.django.contrib.auth.User.get(pk=1)
 
+    @mock_client(django__contrib__auth__User=[])
+    def test_model_proxy_is_applied(self):
+        self.assertTrue(hasattr(client.django.contrib.auth.User, 'authenticate'))
 
     @mock_client(app__Model=[
         dict(pk=1)

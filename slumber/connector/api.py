@@ -33,15 +33,21 @@ def get_instance(model, instance_url, display_name, fields = None):
     return instance_type(instance_url, display_name, fields)
 
 
+def get_model_type(url, bases):
+    """Build and return a new type for the model.
+    """
+    for type_url, proxy in MODEL_PROXIES.items():
+        if url.endswith(type_url):
+            bases.append(proxy)
+    return type(str(url), tuple(bases), {})
+
+
 def get_model(url):
     """Return the client model connector for a given URL.
     """
     if not MODEL_URL_TO_SLUMBER_MODEL.has_key(url):
         bases = [ModelConnector]
-        for type_url, proxy in MODEL_PROXIES.items():
-            if url.endswith(type_url):
-                bases.append(proxy)
-        model_type = type(str(url), tuple(bases), {})
+        model_type = get_model_type(url, bases)
         return model_type(url)
     else:
         return MODEL_URL_TO_SLUMBER_MODEL[url]
