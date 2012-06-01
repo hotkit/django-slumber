@@ -27,6 +27,7 @@ class TestAddMiddleware(ConfigureUser, TestCase):
             self.client.get('/')
 
 
+# Repeat the TestsWithPizza with the middelware enabled
 class TestMiddleware(TestsWithPizza):
     def setUp(self):
         self.middleware = Cache()

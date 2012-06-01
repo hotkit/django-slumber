@@ -10,6 +10,7 @@ from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
 from slumber.connector.ua import get, post
+from slumber.scheme import to_slumber_scheme, from_slumber_scheme
 
 
 def _ensure_absolute(url):
@@ -30,35 +31,29 @@ def get_instance(model, instance_url, display_name, fields = None):
             bases.append(proxy)
     type_name = str(instance_url)
     instance_type = type(type_name, tuple(bases), {})
-    return instance_type(instance_url, display_name, fields)
+    return instance_type(from_slumber_scheme(instance_url),
+        display_name, fields)
+
+
+def get_model_type(url, bases):
+    """Build and return a new type for the model.
+    """
+    for type_url, proxy in MODEL_PROXIES.items():
+        if url.endswith(type_url):
+            bases.append(proxy)
+    return type(str(url), tuple(bases), {})
 
 
 def get_model(url):
     """Return the client model connector for a given URL.
     """
+    url = from_slumber_scheme(url)
     if not MODEL_URL_TO_SLUMBER_MODEL.has_key(url):
         bases = [ModelConnector]
-        for type_url, proxy in MODEL_PROXIES.items():
-            if url.endswith(type_url):
-                bases.append(proxy)
-        model_type = type(str(url), tuple(bases), {})
+        model_type = get_model_type(url, bases)
         return model_type(url)
     else:
         return MODEL_URL_TO_SLUMBER_MODEL[url]
-
-
-#def get_instance_from_url(url):
-    #"""Returns a local instance proxy for the object described by the
-    #absolute URL provided.
-    #"""
-    ## This is a bit ugly, but we need to do proper proxy lookups for real use
-    ## and the mock is a pain to do anything else with
-    #from slumber import _client
-    #if isinstance(_client, _MockClient):
-        #return _InstanceProxy(url, None)
-    #else:
-        #_, json = get(url)
-        #return get_instance_from_data(url, json)
 
 
 def get_instance_from_data(base_url, json):
@@ -140,6 +135,12 @@ class _InstanceProxy(object):
     def _fetch_instance(self):
         """Fetch the underlying instance.
         """
+        from slumber import _client
+        for candidate in getattr(_client, '_instances', []):
+            candidate_url = to_slumber_scheme(candidate._url)
+            self_url = to_slumber_scheme(self._url)
+            if candidate_url == self_url:
+                return candidate
         instance = CLIENT_INSTANCE_CACHE.get(self._url, None)
         if not instance:
             # We now have a cache miss so construct a new connector

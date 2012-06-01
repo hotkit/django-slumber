@@ -91,7 +91,7 @@ class UserModelProxy(object):
     def authenticate(self, **kwargs):
         """Allow a forwarded request for authentication.
         """
-        # We're accessing attributes that are providec by the  other types
+        # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
         _, json = post(self._operations['authenticate'], kwargs)
         if json['authenticated']:

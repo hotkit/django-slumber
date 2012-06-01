@@ -6,10 +6,12 @@ from django.test import TestCase
 from slumber import client
 from slumber._caches import CLIENT_INSTANCE_CACHE
 from slumber.connector import Client, DictObject
+from slumber.connector.api import get_instance
 from slumber.connector.ua import get
 
 from slumber_examples.models import Pizza, PizzaPrice, PizzaSizePrice
 from slumber_examples.tests.configurations import ConfigureUser
+from slumber_examples.tests.views import ServiceTestsWithDirectory
 
 
 class TestDirectoryURLs(ConfigureUser, TestCase):
@@ -29,7 +31,6 @@ class TestDirectoryURLs(ConfigureUser, TestCase):
 
 
 class TestLoads(ConfigureUser, TestCase):
-
     def test_applications_local(self):
         client = Client('http://localhost:8000/slumber')
         self.assertTrue(hasattr(client, 'slumber_examples'))
@@ -100,7 +101,6 @@ class TestsWithPizza(ConfigureUser, TestCase):
         self.s.save()
         self.pizza = client.slumber_examples.Pizza.get(pk=self.s.pk)
 
-
     def test_instance_type(self):
         self.assertEqual(self.s.pk, self.pizza.id)
         self.assertEqual(type(self.pizza).__name__,
@@ -109,10 +109,8 @@ class TestsWithPizza(ConfigureUser, TestCase):
         self.assertTrue(pizza_type.endswith("slumber_examples/Pizza/data/1/'>"),
             pizza_type)
 
-
     def test_cache_ttl(self):
         self.assertEqual(self.pizza._CACHE_TTL, 0)
-
 
     def test_instance_data(self):
         self.assertEqual('S1', self.pizza.name)
@@ -125,7 +123,6 @@ class TestsWithPizza(ConfigureUser, TestCase):
         except AttributeError:
             pass
 
-
     def test_instance_data_with_data_array(self):
         for p in range(15):
             PizzaPrice(pizza=self.s, date='2011-04-%s' % (p+1)).save()
@@ -135,7 +132,6 @@ class TestsWithPizza(ConfigureUser, TestCase):
         first_price = prices[0]
         self.assertEquals(unicode(first_price), "PizzaPrice object")
         self.assertEquals(first_price.pizza.for_sale, True)
-
 
     def test_instance_data_with_nested_data_array(self):
         p = PizzaPrice(pizza=self.s, date='2010-06-20')
@@ -149,11 +145,9 @@ class TestsWithPizza(ConfigureUser, TestCase):
         for a in self.pizza.prices[0].amounts:
             self.assertTrue(a.size in ['s', 'm', 'l'], a.size)
 
-
     def test_instance_no_pk(self):
         with self.assertRaises(AssertionError):
             pizza = client.slumber_examples.Pizza.get()
-
 
     def test_2nd_pizza_comes_from_cache(self):
         # Force a cache read
@@ -164,10 +158,26 @@ class TestsWithPizza(ConfigureUser, TestCase):
             pizza2 = client.slumber_examples.Pizza.get(pk=self.s.pk)
             self.assertEqual(unicode(pizza2), u"S1")
 
-
     def test_pizza_not_found(self):
         with self.assertRaises(AssertionError):
             p2 = client.slumber_examples.Pizza.get(pk=2)
+
+
+class TestGetInstance(ConfigureUser, ServiceTestsWithDirectory, TestCase):
+    def setUp(self):
+        super(TestGetInstance, self).setUp()
+        self.pizza = Pizza.objects.create(name='S1', for_sale=True)
+
+    def test_get_instance_with_slumber_urls(self):
+        pizza = get_instance(
+            'slumber://pizzas/slumber_examples/Pizza/',
+            'slumber://pizzas/slumber_examples/Pizza/data/%s/' % self.pizza.id,
+            None)
+        self.assertEqual(pizza._url,
+            'http://localhost:8000/slumber/pizzas/slumber_examples/'
+                'Pizza/data/%s/' % self.pizza.id)
+        self.assertEqual(pizza.id, self.pizza.id)
+        self.assertEqual(pizza.name, self.pizza.name)
 
 
 class AppServiceTests(ConfigureUser, TestCase):
