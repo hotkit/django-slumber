@@ -84,6 +84,17 @@ class TestSlumberMock(unittest2.TestCase):
         self.assertEqual(m1.attr, 'attribute data')
         self.assertEqual(m1.attr, m2.attr)
 
+    @mock_client(app__Model=[])
+    def test_model_operation_url_is_correct(self):
+        self.assertEqual(client.app.Model._operations['test-op'], 'slumber://app/Model/test-op/')
+
+    @mock_client(app__Model=[
+        dict(pk=1)
+    ])
+    def test_instance_operation_url_is_correct(self):
+        model = client.app.Model.get(pk=1)
+        self.assertEqual(model._operations['test-op'], 'slumber://app/Model/test-op/')
+
 
 class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
     def _setup(self):

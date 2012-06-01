@@ -47,10 +47,11 @@ class _MockInstance(DictObject):
     """
     def __init__(self, model_path, **kwargs):
         super(_MockInstance, self).__init__(**kwargs)
-        self._operations = _Operations(model_path + '/')
+        model_url = model_path.replace('__', '/') + '/'
+        self._operations = _Operations(model_url)
         if hasattr(self, 'pk'):
-            self._url = ('slumber://' + model_path.replace('__', '/')
-                + '/data/%s/' % getattr(self, 'pk'))
+            self._url = ('slumber://' + model_url +
+                'data/%s/' % getattr(self, 'pk'))
 
     def __repr__(self):
         return getattr(self, '_url', 'Unkown mock instance')
