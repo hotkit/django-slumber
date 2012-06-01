@@ -104,14 +104,21 @@ def mock_ua(test_method):
     """Allow the user agent to set up expectations.
     """
     class MockUA(object):
+        def __init__(self):
+            self.expectations = []
+
         def get(self, url, data):
-            pass
+            self.expectations.append(('get', url, data))
+
         def post(self, url, data):
-            pass
+            self.expectations.append(('post', url, data))
+
         def do_get(self, url, ttl = 0, codes = None):
             return None, {}
+
         def do_post(self, url, data, codes = None):
             return None, {}
+
     ua = MockUA()
     def test_wrapped(test, *a, **kw):
         with mock.patch('slumber.connector.ua._get', ua.do_get):
