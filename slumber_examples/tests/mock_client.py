@@ -115,7 +115,12 @@ class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
             'pk': 1, 'id': 1, 'username': 'test-user-1',
                 'is_active': True, 'is_staff': False, 'is_superuser': False,
                 'date_joined': date(2011, 05, 23),
-                'first_name': 'test', 'last_name': 'user', 'email': 'test-user@example.com'
+                'first_name': 'test1', 'last_name': 'user', 'email': 'test-user-1@example.com'
+        }, {
+            'pk': 2, 'id': 2, 'username': 'test-user-2',
+                'is_active': True, 'is_staff': False, 'is_superuser': False,
+                'date_joined': date(2011, 05, 23),
+                'first_name': 'test2', 'last_name': 'user', 'email': 'test-user-2@example.com'
         }])
     def test_model_proxy_is_applied(self):
         self.assertTrue(hasattr(client.django.contrib.auth.User, 'authenticate'))
@@ -123,11 +128,11 @@ class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
             self.assertEqual(url,
                 'slumber://django/contrib/auth/User/authenticate/')
             return None, {'authenticated': True, 'user': {
-                'url': 'slumber://django/contrib/auth/User/data/1/',
-                    'display_name': 'Test user'}}
+                'url': 'slumber://django/contrib/auth/User/data/2/',
+                    'display_name': 'test2 user'}}
         with mock.patch('slumber.connector.proxies.post', post):
             user = client.django.contrib.auth.User.authenticate()
-            self.assertEqual(user, User.objects.get(username='test-user-1'))
+            self.assertEqual(user, User.objects.get(username='test-user-2'))
 
 
 class TestViews(django.test.TestCase):
