@@ -32,7 +32,7 @@ class TestSlumberMock(unittest2.TestCase):
 
     @mock_client(
         slumber__Pizza=[
-           margarita ,
+           margarita,
             dict(pk=2, name='Four seasons', prices=[
                 dict(pk=2, amount=Decimal("13"))
             ]),
