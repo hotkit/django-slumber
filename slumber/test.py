@@ -60,6 +60,7 @@ class _MockClient(DictObject):
     """
     def __init__(self, **instances):
         super(_MockClient, self).__init__()
+        self._instances = []
         for model, instances in instances.items():
             root = self
             for k in model.split('__')[:-1]:
@@ -71,6 +72,7 @@ class _MockClient(DictObject):
             model_type = get_model_type(model_url, [_MockModel])
             instance_type = type(model_url, (_MockInstance,), {})
             instances = [instance_type(model, **i) for i in instances]
+            self._instances += instances
             setattr(root, model_name, model_type(model_url, instances))
 
     def _flush_client_instance_cache(self):
