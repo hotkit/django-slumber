@@ -133,7 +133,6 @@ class _InstanceProxy(object):
         """Fetch the underlying instance.
         """
         from slumber import _client
-        print _client, getattr(_client, '_instances', [])
         for candidate in getattr(_client, '_instances', []):
             if candidate._url == self._url:
                 return candidate
