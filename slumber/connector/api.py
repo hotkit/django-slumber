@@ -137,7 +137,6 @@ class _InstanceProxy(object):
         for candidate in getattr(_client, '_instances', []):
             if candidate._url == self._url:
                 return candidate
-            print candidate, self._url, candidate._url
         instance = CLIENT_INSTANCE_CACHE.get(self._url, None)
         if not instance:
             # We now have a cache miss so construct a new connector
