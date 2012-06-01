@@ -35,7 +35,8 @@ class _MockModel(object):
         for i in self.instances:
             found = True
             for k, v in query.items():
-                found = found and (getattr(i, k) == v or unicode(getattr(i, k)) == unicode(v))
+                found = found and (getattr(i, k) == v or
+                    unicode(getattr(i, k)) == unicode(v))
             if found:
                 return i
         assert False, "The instance was not found"
