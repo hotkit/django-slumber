@@ -1,20 +1,23 @@
 import copy
+from datetime import date
 from decimal import Decimal
 import logging
 import mock
 import unittest2
 
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 import django.test
 
 from slumber import client
-from slumber.test import mock_client
+from slumber.connector.ua import get, post
+from slumber.test import mock_client, mock_ua
 
 from slumber_examples.models import Order
 from slumber_examples.tests.views import ServiceTestsWithDirectory
 
 
-class TestSlumberMock(unittest2.TestCase):
+class TestSlumberMockClient(unittest2.TestCase):
     margarita = dict(pk=1, name='Margarita', for_sale=True)
 
 
@@ -32,7 +35,7 @@ class TestSlumberMock(unittest2.TestCase):
 
     @mock_client(
         slumber__Pizza=[
-           margarita ,
+           margarita,
             dict(pk=2, name='Four seasons', prices=[
                 dict(pk=2, amount=Decimal("13"))
             ]),
@@ -67,10 +70,6 @@ class TestSlumberMock(unittest2.TestCase):
         with self.assertRaises(AssertionError):
             client.django.contrib.auth.User.get(pk=1)
 
-    @mock_client(django__contrib__auth__User=[])
-    def test_model_proxy_is_applied(self):
-        self.assertTrue(hasattr(client.django.contrib.auth.User, 'authenticate'))
-
     @mock_client(app__Model=[
         dict(pk=1)
     ])
@@ -86,6 +85,61 @@ class TestSlumberMock(unittest2.TestCase):
         self.assertEqual(m1.attr, 'attribute data')
         self.assertEqual(m1.attr, m2.attr)
 
+    @mock_client(app__Model=[])
+    def test_model_operation_url_is_correct(self):
+        self.assertEqual(client.app.Model._operations['test-op'], 'slumber://app/Model/test-op/')
+
+    @mock_client(app__Model=[
+        dict(pk=1)
+    ])
+    def test_instance_operation_url_is_correct(self):
+        model = client.app.Model.get(pk=1)
+        self.assertEqual(model._operations['test-op'], 'slumber://app/Model/test-op/')
+
+
+class TestSlumberMockUA(unittest2.TestCase):
+    @mock_ua
+    def test_empty_mock_ua_with_no_activity(self, expect):
+        pass
+
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_unmet_expectation(self, expect):
+        expect.get('/', {})
+
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_no_get_expectation(self, expect):
+        get('/')
+
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_no_post_expectation(self, expect):
+        post('/', {})
+
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_no_expectated_get_got_post(self, expect):
+        expect.get('/', {})
+        post('/', {})
+
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_no_expectated_post_got_get(self, expect):
+        expect.post('/', {}, {})
+        get('/')
+
+    @mock_client(app__Model=[])
+    @mock_ua
+    def test_operation_with_mock_ua(self, expect):
+        expect.get('slumber://app/Model/test-op/', {'test': 'item'})
+        expect.post('slumber://app/Model/test-op/', {'test': 'item'}, {'item': 'test'})
+        self.assertEqual(len(expect.expectations), 2)
+        response1, json1 = get(client.app.Model._operations['test-op'])
+        self.assertEqual(json1, dict(test='item'))
+        response2, json2 = post(client.app.Model._operations['test-op'], json1)
+        self.assertEqual(json2, dict(item='test'))
+
 
 class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
     def _setup(self):
@@ -97,7 +151,7 @@ class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
             logging.debug(order.shop)
 
     @mock_client(pizzas__slumber_examples__Shop = [
-        dict(pk=1, _url='slumber://pizzas/slumber_examples/Shop/data/1/')
+        dict(pk=1)
     ])
     def test_can_order_with_remote_shop_mock(self):
         self._setup()
@@ -105,13 +159,44 @@ class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
         self.assertEqual(self.order, fetched)
 
     @mock_client(pizzas__slumber_examples__Shop = [
-        dict(pk=1, _url='slumber://pizzas/slumber_examples/Shop/data/1/')
+        dict(pk=1)
     ])
     def test_can_order_with_remote_shop_url(self):
         self._setup()
         fetched = Order.objects.get(
             shop='slumber://pizzas/slumber_examples/Shop/data/1/')
         self.assertEqual(self.order, fetched)
+
+    @mock_client(pizzas__slumber_examples__Shop = [
+        dict(pk=1, slug='test-shop-1')
+    ])
+    def test_order_shop_finds_mock(self):
+        self._setup()
+        self.assertEqual(self.order.shop.pk, 1)
+        self.assertEqual(self.order.shop.slug, 'test-shop-1')
+
+    @mock_client(django__contrib__auth__User=[{
+            'pk': 1, 'id': 1, 'username': 'test-user-1',
+                'is_active': True, 'is_staff': False, 'is_superuser': False,
+                'date_joined': date(2011, 05, 23),
+                'first_name': 'test1', 'last_name': 'user', 'email': 'test-user-1@example.com'
+        }, {
+            'pk': 2, 'id': 2, 'username': 'test-user-2',
+                'is_active': True, 'is_staff': False, 'is_superuser': False,
+                'date_joined': date(2011, 05, 23),
+                'first_name': 'test2', 'last_name': 'user', 'email': 'test-user-2@example.com'
+        }])
+    def test_model_proxy_is_applied(self):
+        self.assertTrue(hasattr(client.django.contrib.auth.User, 'authenticate'))
+        def post(url, data):
+            self.assertEqual(url,
+                'slumber://django/contrib/auth/User/authenticate/')
+            return None, {'authenticated': True, 'user': {
+                'url': 'slumber://django/contrib/auth/User/data/2/',
+                    'display_name': 'test2 user'}}
+        with mock.patch('slumber.connector.proxies.post', post):
+            user = client.django.contrib.auth.User.authenticate()
+            self.assertEqual(user, User.objects.get(username='test-user-2'))
 
 
 class TestViews(django.test.TestCase):

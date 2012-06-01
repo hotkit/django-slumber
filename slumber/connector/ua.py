@@ -106,8 +106,14 @@ def _sign_request(method, url, body, for_fake_client):
         return {}
 
 
-def get(url, ttl = 0, codes=None):
+def get(url, ttl=0, codes=None):
     """Perform a GET request against a Slumber server.
+    """
+    return _get(url, ttl, codes)
+
+
+def _get(url, ttl, codes):
+    """Mockable version of the user agent get.
     """
     # Pylint gets confused by the fake HTTP client
     # pylint: disable=E1103
@@ -149,6 +155,12 @@ def get(url, ttl = 0, codes=None):
 
 def post(url, data, codes=None):
     """Perform a POST request against a Slumber server.
+    """
+    return _post(url, data, codes)
+
+
+def _post(url, data, codes):
+    """Mockable version of the user agent post.
     """
     # Pylint gets confused by the urlparse return type
     # pylint: disable=E1101
