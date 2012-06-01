@@ -1,6 +1,7 @@
 2012-05-31  Kirit Saelensminde  <kirit@felspar.com>
  The mock client now uses the same model type constructor as the real client. This means that proxies are properly applied.
  The mock `get` method now tries to convert both values to unicode and if they compare then it will accept that. This avoids a problem where strings wouldn't compare properly with numbers.
+ When instances are fetched from a remote service the mock client is checked first to see if it is already holding the instance. If it is then it is used.
 
 2012-05-30  Kirit Saelensminde  <kirit@felspar.com>
  Changed the type name for the instance type so we no longer need to do any model look ups to calculate the name.
