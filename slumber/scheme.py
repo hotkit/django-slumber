@@ -27,10 +27,12 @@ def to_slumber_scheme(url, services=None):
     return ret or url
 
 
-def from_slumber_scheme(url, services):
+def from_slumber_scheme(url, services=None):
     """Turn a Slumber URL into a full URI as specified by the service
     configuration.
     """
+    if services is None:
+        services = get_slumber_services()
     if url.startswith('slumber://'):
         if not services:
             raise SlumberServiceURLError(

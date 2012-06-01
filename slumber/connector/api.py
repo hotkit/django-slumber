@@ -10,7 +10,7 @@ from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
 from slumber.connector.ua import get, post
-from slumber.scheme import to_slumber_scheme
+from slumber.scheme import to_slumber_scheme, from_slumber_scheme
 
 
 def _ensure_absolute(url):
@@ -31,7 +31,8 @@ def get_instance(model, instance_url, display_name, fields = None):
             bases.append(proxy)
     type_name = str(instance_url)
     instance_type = type(type_name, tuple(bases), {})
-    return instance_type(instance_url, display_name, fields)
+    return instance_type(from_slumber_scheme(instance_url),
+        display_name, fields)
 
 
 def get_model_type(url, bases):
@@ -46,6 +47,7 @@ def get_model_type(url, bases):
 def get_model(url):
     """Return the client model connector for a given URL.
     """
+    url = from_slumber_scheme(url)
     if not MODEL_URL_TO_SLUMBER_MODEL.has_key(url):
         bases = [ModelConnector]
         model_type = get_model_type(url, bases)
