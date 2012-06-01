@@ -95,7 +95,7 @@ class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
             logging.debug(order.shop)
 
     @mock_client(pizzas__slumber_examples__Shop = [
-        dict(pk=1, _url='slumber://pizzas/slumber_examples/Shop/data/1/')
+        dict(pk=1)
     ])
     def test_can_order_with_remote_shop_mock(self):
         self._setup()
@@ -103,7 +103,7 @@ class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
         self.assertEqual(self.order, fetched)
 
     @mock_client(pizzas__slumber_examples__Shop = [
-        dict(pk=1, _url='slumber://pizzas/slumber_examples/Shop/data/1/')
+        dict(pk=1)
     ])
     def test_can_order_with_remote_shop_url(self):
         self._setup()
