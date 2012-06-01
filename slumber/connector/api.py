@@ -53,20 +53,6 @@ def get_model(url):
         return MODEL_URL_TO_SLUMBER_MODEL[url]
 
 
-#def get_instance_from_url(url):
-    #"""Returns a local instance proxy for the object described by the
-    #absolute URL provided.
-    #"""
-    ## This is a bit ugly, but we need to do proper proxy lookups for real use
-    ## and the mock is a pain to do anything else with
-    #from slumber import _client
-    #if isinstance(_client, _MockClient):
-        #return _InstanceProxy(url, None)
-    #else:
-        #_, json = get(url)
-        #return get_instance_from_data(url, json)
-
-
 def get_instance_from_data(base_url, json):
     """Return a local instance proxy for the object described by the provided
     JSON like Python datastructure.
