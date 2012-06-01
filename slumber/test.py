@@ -98,3 +98,17 @@ def mock_client(**instances):
         test_wrapped.__doc__ = test_method.__doc__
         return test_wrapped
     return decorator
+
+
+def mock_ua(test_method):
+    """Allow the user agent to set up expectations.
+    """
+    class MockUA(object):
+        def get(self, url, data):
+            pass
+    mock = MockUA()
+    def test_wrapped(test, *a, **kw):
+        test_method(test, mock, *a, **kw)
+    test_wrapped.__doc__ = test_method.__doc__
+    return test_wrapped
+

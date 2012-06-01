@@ -10,13 +10,14 @@ from django.http import HttpResponse
 import django.test
 
 from slumber import client
-from slumber.test import mock_client
+from slumber.connector.ua import get, post
+from slumber.test import mock_client, mock_ua
 
 from slumber_examples.models import Order
 from slumber_examples.tests.views import ServiceTestsWithDirectory
 
 
-class TestSlumberMock(unittest2.TestCase):
+class TestSlumberMockClient(unittest2.TestCase):
     margarita = dict(pk=1, name='Margarita', for_sale=True)
 
 
@@ -94,6 +95,14 @@ class TestSlumberMock(unittest2.TestCase):
     def test_instance_operation_url_is_correct(self):
         model = client.app.Model.get(pk=1)
         self.assertEqual(model._operations['test-op'], 'slumber://app/Model/test-op/')
+
+
+class TestSlumberMockUA(unittest2.TestCase):
+    @mock_client(app__Model=[])
+    @mock_ua
+    def test_operation_with_mock_ua(self, expect):
+        expect.get('', {})
+        response, json = get(client.app.Model._operations['test-op'])
 
 
 class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
