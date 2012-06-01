@@ -106,9 +106,17 @@ def mock_ua(test_method):
     class MockUA(object):
         def get(self, url, data):
             pass
-    mock = MockUA()
+        def post(self, url, data):
+            pass
+        def do_get(self, url, ttl = 0, codes = None):
+            return None, {}
+        def do_post(self, url, data, codes = None):
+            return None, {}
+    ua = MockUA()
     def test_wrapped(test, *a, **kw):
-        test_method(test, mock, *a, **kw)
+        with mock.patch('slumber.connector.ua._get', ua.do_get):
+            with mock.patch('slumber.connector.ua._post', ua.do_post):
+                test_method(test, ua, *a, **kw)
     test_wrapped.__doc__ = test_method.__doc__
     return test_wrapped
 

@@ -106,7 +106,7 @@ def _sign_request(method, url, body, for_fake_client):
         return {}
 
 
-def get(url, ttl = 0, codes=None):
+def get(url, ttl=0, codes=None):
     """Perform a GET request against a Slumber server.
     """
     return _get(url, ttl, codes)
