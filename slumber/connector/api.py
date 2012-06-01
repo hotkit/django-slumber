@@ -132,6 +132,12 @@ class _InstanceProxy(object):
     def _fetch_instance(self):
         """Fetch the underlying instance.
         """
+        from slumber import _client
+        print _client, getattr(_client, '_instances', [])
+        for candidate in getattr(_client, '_instances', []):
+            if candidate._url == self._url:
+                return candidate
+            print candidate, self._url, candidate._url
         instance = CLIENT_INSTANCE_CACHE.get(self._url, None)
         if not instance:
             # We now have a cache miss so construct a new connector
