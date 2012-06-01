@@ -70,6 +70,14 @@ class TestSlumberMock(unittest2.TestCase):
     @mock_client(django__contrib__auth__User=[])
     def test_model_proxy_is_applied(self):
         self.assertTrue(hasattr(client.django.contrib.auth.User, 'authenticate'))
+        def post(url, data):
+            self.assertEqual(url,
+                'slumber://django/contrib/auth/User/authenticate/')
+            return None, {'authenticated': True, 'user': {
+                'url': 'slumber://django/contrib/auth/User/data/1/',
+                    'display_name': 'Test user'}}
+        with mock.patch('slumber.connector.proxies.post', post):
+            self.assertEqual(client.django.contrib.auth.User.authenticate(), True)
 
     @mock_client(app__Model=[
         dict(pk=1)
