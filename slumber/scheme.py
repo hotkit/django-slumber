@@ -1,6 +1,7 @@
 """
     Utility functions for managing the slumber URL scheme.
 """
+from slumber.server import get_slumber_services
 
 
 class SlumberServiceURLError(Exception):
@@ -10,9 +11,11 @@ class SlumberServiceURLError(Exception):
     pass
 
 
-def to_slumber_scheme(url, services):
+def to_slumber_scheme(url, services=None):
     """Look at the URL and convert it to a service based URL if applicable.
     """
+    if services is None:
+        services = get_slumber_services()
     ret = None
     if services:
         longest = None, ''
