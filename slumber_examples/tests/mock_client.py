@@ -111,6 +111,14 @@ class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
             shop='slumber://pizzas/slumber_examples/Shop/data/1/')
         self.assertEqual(self.order, fetched)
 
+    @mock_client(pizzas__slumber_examples__Shop = [
+        dict(pk=1, slug='test-shop-1')
+    ])
+    def test_order_shop_finds_mock(self):
+        self._setup()
+        self.assertEqual(self.order.shop.pk, 1)
+        self.assertEqual(self.order.shop.slug, 'test-shop-1')
+
     @mock_client(django__contrib__auth__User=[{
             'pk': 1, 'id': 1, 'username': 'test-user-1',
                 'is_active': True, 'is_staff': False, 'is_superuser': False,
