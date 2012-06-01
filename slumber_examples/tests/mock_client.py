@@ -1,9 +1,11 @@
 import copy
+from datetime import date
 from decimal import Decimal
 import logging
 import mock
 import unittest2
 
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 import django.test
 
@@ -67,18 +69,6 @@ class TestSlumberMock(unittest2.TestCase):
         with self.assertRaises(AssertionError):
             client.django.contrib.auth.User.get(pk=1)
 
-    @mock_client(django__contrib__auth__User=[])
-    def test_model_proxy_is_applied(self):
-        self.assertTrue(hasattr(client.django.contrib.auth.User, 'authenticate'))
-        def post(url, data):
-            self.assertEqual(url,
-                'slumber://django/contrib/auth/User/authenticate/')
-            return None, {'authenticated': True, 'user': {
-                'url': 'slumber://django/contrib/auth/User/data/1/',
-                    'display_name': 'Test user'}}
-        with mock.patch('slumber.connector.proxies.post', post):
-            self.assertEqual(client.django.contrib.auth.User.authenticate(), True)
-
     @mock_client(app__Model=[
         dict(pk=1)
     ])
@@ -120,6 +110,24 @@ class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
         fetched = Order.objects.get(
             shop='slumber://pizzas/slumber_examples/Shop/data/1/')
         self.assertEqual(self.order, fetched)
+
+    @mock_client(django__contrib__auth__User=[{
+            'pk': 1, 'id': 1, 'username': 'test-user-1',
+                'is_active': True, 'is_staff': False, 'is_superuser': False,
+                'date_joined': date(2011, 05, 23),
+                'first_name': 'test', 'last_name': 'user', 'email': 'test-user@example.com'
+        }])
+    def test_model_proxy_is_applied(self):
+        self.assertTrue(hasattr(client.django.contrib.auth.User, 'authenticate'))
+        def post(url, data):
+            self.assertEqual(url,
+                'slumber://django/contrib/auth/User/authenticate/')
+            return None, {'authenticated': True, 'user': {
+                'url': 'slumber://django/contrib/auth/User/data/1/',
+                    'display_name': 'Test user'}}
+        with mock.patch('slumber.connector.proxies.post', post):
+            user = client.django.contrib.auth.User.authenticate()
+            self.assertEqual(user, User.objects.get(username='test-user-1'))
 
 
 class TestViews(django.test.TestCase):
