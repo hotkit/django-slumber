@@ -104,26 +104,40 @@ def mock_ua(test_method):
     """Allow the user agent to set up expectations.
     """
     class MockUA(object):
-        def __init__(self):
+        def __init__(self, test):
             self.expectations = []
+            self.test = test
 
         def get(self, url, data):
-            self.expectations.append(('get', url, data))
+            self.expectations.append(('get', url, None, data))
 
-        def post(self, url, data):
-            self.expectations.append(('post', url, data))
+        def post(self, url, edata, rdata):
+            self.expectations.append(('post', url, edata, rdata))
 
         def do_get(self, url, ttl = 0, codes = None):
-            return None, {}
+            self.test.assertTrue(self.expectations,
+                "No expectation for GET %s" % url)
+            emethod, eurl, edata, rdata = self.expectations.pop(0)
+            self.test.assertEqual(emethod, 'get')
+            self.test.assertEqual(url, eurl)
+            self.test.assertIsNone(edata)
+            return None, rdata
 
         def do_post(self, url, data, codes = None):
-            return None, {}
+            self.test.assertTrue(self.expectations,
+                "No expectation for POST %s\n%s" % (url, data))
+            emethod, eurl, edata, rdata = self.expectations.pop(0)
+            self.test.assertEqual(emethod, 'post')
+            self.test.assertEqual(url, eurl)
+            self.test.assertEqual(data, edata)
+            return None, rdata
 
-    ua = MockUA()
     def test_wrapped(test, *a, **kw):
+        ua = MockUA(test)
         with mock.patch('slumber.connector.ua._get', ua.do_get):
             with mock.patch('slumber.connector.ua._post', ua.do_post):
                 test_method(test, ua, *a, **kw)
+                test.assertEqual(ua.expectations, [], "There are un-used expectations")
     test_wrapped.__doc__ = test_method.__doc__
     return test_wrapped
 

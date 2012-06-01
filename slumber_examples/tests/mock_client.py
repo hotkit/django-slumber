@@ -98,11 +98,47 @@ class TestSlumberMockClient(unittest2.TestCase):
 
 
 class TestSlumberMockUA(unittest2.TestCase):
+    @mock_ua
+    def test_empty_mock_ua_with_no_activity(self, expect):
+        pass
+
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_unmet_expectation(self, expect):
+        expect.get('/', {})
+
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_no_get_expectation(self, expect):
+        get('/')
+
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_no_post_expectation(self, expect):
+        post('/', {})
+
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_no_expectated_get_got_post(self, expect):
+        expect.get('/', {})
+        post('/', {})
+
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_no_expectated_post_got_get(self, expect):
+        expect.post('/', {}, {})
+        get('/')
+
     @mock_client(app__Model=[])
     @mock_ua
     def test_operation_with_mock_ua(self, expect):
-        expect.get('', {})
-        response, json = get(client.app.Model._operations['test-op'])
+        expect.get('slumber://app/Model/test-op/', {'test': 'item'})
+        expect.post('slumber://app/Model/test-op/', {'test': 'item'}, {'item': 'test'})
+        self.assertEqual(len(expect.expectations), 2)
+        response1, json1 = get(client.app.Model._operations['test-op'])
+        self.assertEqual(json1, dict(test='item'))
+        response2, json2 = post(client.app.Model._operations['test-op'], json1)
+        self.assertEqual(json2, dict(item='test'))
 
 
 class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
