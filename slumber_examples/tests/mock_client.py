@@ -114,6 +114,12 @@ class TestSlumberMockUA(unittest2.TestCase):
 
     @unittest2.expectedFailure
     @mock_ua
+    def test_get_with_wrong_query(self, expect):
+        expect.get('/?query1', {})
+        get('/?another')
+
+    @unittest2.expectedFailure
+    @mock_ua
     def test_no_post_expectation(self, expect):
         post('/', {})
 
