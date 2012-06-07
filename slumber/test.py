@@ -38,7 +38,10 @@ class _MockModel(object):
                 found = found and (getattr(i, k) == v or
                     unicode(getattr(i, k)) == unicode(v))
             if found:
-                return i
+                if hasattr(i, '_url'):
+                    return get_instance('slumber://' + self._url, i._url, None)
+                else:
+                    return i
         assert False, "The instance was not found"
 
 
