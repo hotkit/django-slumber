@@ -87,17 +87,19 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
 
     @mock_client(app__Model=[])
     def test_model_operation_url_is_correct(self):
-        self.assertEqual(client.app.Model._operations['test-op'], 'slumber://app/Model/test-op/')
+        self.assertEqual(client.app.Model._operations['test-op'],
+            'http://app/Model/test-op/')
 
     @mock_client(pizzas__app__Model=[
         dict(pk=1)
     ])
     def test_instance_operation_url_is_correct(self):
         model = client.pizzas.app.Model.get(pk=1)
-        self.assertEqual(model._operations['test-op'], 'slumber://pizzas/app/Model/test-op/')
+        self.assertEqual(model._operations['test-op'],
+            'http://pizzas/app/Model/test-op/1/')
 
 
-class TestSlumberMockUA(unittest2.TestCase):
+class TestSlumberMockUA(ServiceTestsWithDirectory, unittest2.TestCase):
     @mock_ua
     def test_empty_mock_ua_with_no_activity(self, expect):
         pass
@@ -135,16 +137,27 @@ class TestSlumberMockUA(unittest2.TestCase):
         expect.post('/', {}, {})
         get('/')
 
-    @mock_client(app__Model=[])
+    @mock_client(pizzas__app__Model=[])
     @mock_ua
-    def test_operation_with_mock_ua(self, expect):
-        expect.get('slumber://app/Model/test-op/', {'test': 'item'})
-        expect.post('slumber://app/Model/test-op/', {'test': 'item'}, {'item': 'test'})
+    def test_model_operation_with_mock_ua(self, expect):
+        expect.get('http://pizzas/app/Model/test-op/', {'test': 'item'})
+        expect.post('http://pizzas/app/Model/test-op/', {'test': 'item'}, {'item': 'test'})
         self.assertEqual(len(expect.expectations), 2)
-        response1, json1 = get(client.app.Model._operations['test-op'])
+        response1, json1 = get(client.pizzas.app.Model._operations['test-op'])
         self.assertEqual(json1, dict(test='item'))
-        response2, json2 = post(client.app.Model._operations['test-op'], json1)
+        response2, json2 = post(client.pizzas.app.Model._operations['test-op'], json1)
         self.assertEqual(json2, dict(item='test'))
+
+    @mock_client(pizzas__django__contrib__auth__User=[
+        dict(pk=1)])
+    @mock_ua
+    def test_instance_operation_with_mock_ua(self, expect):
+        user = client.pizzas.django.contrib.auth.User.get(pk=1)
+        expect.get(
+            'http://pizzas/django/contrib/auth/User/has-permission/1/some.permission',
+            {'is-allowed': True})
+        has = user.has_perm('some.permission')
+        self.assertTrue(has)
 
 
 class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
@@ -196,7 +209,7 @@ class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
         self.assertTrue(hasattr(client.pizzas.django.contrib.auth.User, 'authenticate'))
         def post(url, data):
             self.assertEqual(url,
-                'slumber://pizzas/django/contrib/auth/User/authenticate/')
+                'http://pizzas/django/contrib/auth/User/authenticate/')
             return None, {'authenticated': True, 'user': {
                 'url': 'slumber://pizzas/django/contrib/auth/User/data/2/',
                     'display_name': 'test2 user'}}
