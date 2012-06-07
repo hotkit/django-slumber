@@ -1,3 +1,6 @@
+2012-06-05  Kirit Saelensminde  <kirit@felspar.com>
+ Make sure that if a URL is used in a query directly it is properly converted to a Slumber URL as appropriate.
+
 2012-05-31  Kirit Saelensminde  <kirit@felspar.com>
  The mock client now uses the same model type constructor as the real client. This means that proxies are properly applied.
  The mock `get` method now tries to convert both values to unicode and if they compare then it will accept that. This avoids a problem where strings wouldn't compare properly with numbers.

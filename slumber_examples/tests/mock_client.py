@@ -272,3 +272,14 @@ class TestCopy(ServiceTestsWithDirectory, django.test.TestCase):
         self.assertEqual(query1.count(), 1)
         query2 = query1.filter(shop=order.shop)
         self.assertEqual(query2.count(), 1)
+
+    @mock_client(pizzas__slumber_examples__Shop = [
+        dict(pk=1)
+    ])
+    def test_query_with_real_url(self):
+        order = Order.objects.create(
+            shop = 'slumber://pizzas/slumber_examples/Shop/data/1/')
+        self.assertEqual(order.shop._url,
+            'http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/')
+        query = Order.objects.filter(shop=order.shop._url)
+        self.assertEqual(query.count(), 1, [o.shop._url for o in list(Order.objects.all())])
