@@ -17,7 +17,7 @@ from slumber_examples.models import Order
 from slumber_examples.tests.views import ServiceTestsWithDirectory
 
 
-class TestSlumberMockClient(unittest2.TestCase):
+class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
     margarita = dict(pk=1, name='Margarita', for_sale=True)
 
 
@@ -34,14 +34,14 @@ class TestSlumberMockClient(unittest2.TestCase):
 
 
     @mock_client(
-        slumber__Pizza=[
+        pizzas__slumber__Pizza=[
            margarita,
             dict(pk=2, name='Four seasons', prices=[
                 dict(pk=2, amount=Decimal("13"))
             ]),
             dict(pk=3, name='Hawaiin', for_sale=False),
         ],
-        slumber__PizzaPrice= [
+        pizzas__slumber__PizzaPrice= [
             dict(pk=1,
                 pizza=margarita,
                 date='2010-01-01', amount=Decimal("14")),
@@ -49,18 +49,18 @@ class TestSlumberMockClient(unittest2.TestCase):
     def test_get_pizza(self):
         """Ensure that we can manage instances and data arrays properly.
         """
-        p1 = client.slumber.Pizza.get(pk=1)
+        p1 = client.pizzas.slumber.Pizza.get(pk=1)
         self.assertEquals(p1.pk, 1)
         self.assertEquals(getattr(p1, 'name', None), 'Margarita', p1.__dict__)
-        self.assertEquals(type(p1).__name__, "slumber/Pizza/")
+        self.assertEquals(type(p1).__name__, "slumber://pizzas/slumber/Pizza/data/1/")
 
-        p2 = client.slumber.Pizza.get(pk=2)
+        p2 = client.pizzas.slumber.Pizza.get(pk=2)
         self.assertEquals(p2.pk, 2)
         self.assertEquals(len(p2.prices), 1)
         self.assertTrue(hasattr(p2.prices[0], 'pk'), type(p2.prices[0]))
         self.assertEquals(p2.prices[0].amount, Decimal("13"))
 
-        pp1 = client.slumber.PizzaPrice.get(pk=1)
+        pp1 = client.pizzas.slumber.PizzaPrice.get(pk=1)
         self.assertEquals(pp1.pk, 1)
         self.assertEquals(pp1.pizza.name, 'Margarita')
 
@@ -70,12 +70,12 @@ class TestSlumberMockClient(unittest2.TestCase):
         with self.assertRaises(AssertionError):
             client.django.contrib.auth.User.get(pk=1)
 
-    @mock_client(app__Model=[
+    @mock_client(pizzas__app__Model=[
         dict(pk=1)
     ])
-    def test_aliase_writes_are_visible(self):
-        m1 = client.app.Model.get(pk=1)
-        m2 = client.app.Model.get(pk=1)
+    def test_alias_writes_are_visible(self):
+        m1 = client.pizzas.app.Model.get(pk=1)
+        m2 = client.pizzas.app.Model.get(pk=1)
         self.assertEqual(m1.pk, m2.pk)
         with self.assertRaises(AttributeError):
             m1.attr
@@ -87,17 +87,19 @@ class TestSlumberMockClient(unittest2.TestCase):
 
     @mock_client(app__Model=[])
     def test_model_operation_url_is_correct(self):
-        self.assertEqual(client.app.Model._operations['test-op'], 'slumber://app/Model/test-op/')
+        self.assertEqual(client.app.Model._operations['test-op'],
+            'http://app/Model/test-op/')
 
-    @mock_client(app__Model=[
+    @mock_client(pizzas__app__Model=[
         dict(pk=1)
     ])
     def test_instance_operation_url_is_correct(self):
-        model = client.app.Model.get(pk=1)
-        self.assertEqual(model._operations['test-op'], 'slumber://app/Model/test-op/')
+        model = client.pizzas.app.Model.get(pk=1)
+        self.assertEqual(model._operations['test-op'],
+            'http://pizzas/app/Model/test-op/1/')
 
 
-class TestSlumberMockUA(unittest2.TestCase):
+class TestSlumberMockUA(ServiceTestsWithDirectory, unittest2.TestCase):
     @mock_ua
     def test_empty_mock_ua_with_no_activity(self, expect):
         pass
@@ -111,6 +113,12 @@ class TestSlumberMockUA(unittest2.TestCase):
     @mock_ua
     def test_no_get_expectation(self, expect):
         get('/')
+
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_get_with_wrong_query(self, expect):
+        expect.get('/?query1', {})
+        get('/?another')
 
     @unittest2.expectedFailure
     @mock_ua
@@ -129,16 +137,27 @@ class TestSlumberMockUA(unittest2.TestCase):
         expect.post('/', {}, {})
         get('/')
 
-    @mock_client(app__Model=[])
+    @mock_client(pizzas__app__Model=[])
     @mock_ua
-    def test_operation_with_mock_ua(self, expect):
-        expect.get('slumber://app/Model/test-op/', {'test': 'item'})
-        expect.post('slumber://app/Model/test-op/', {'test': 'item'}, {'item': 'test'})
+    def test_model_operation_with_mock_ua(self, expect):
+        expect.get('http://pizzas/app/Model/test-op/', {'test': 'item'})
+        expect.post('http://pizzas/app/Model/test-op/', {'test': 'item'}, {'item': 'test'})
         self.assertEqual(len(expect.expectations), 2)
-        response1, json1 = get(client.app.Model._operations['test-op'])
+        response1, json1 = get(client.pizzas.app.Model._operations['test-op'])
         self.assertEqual(json1, dict(test='item'))
-        response2, json2 = post(client.app.Model._operations['test-op'], json1)
+        response2, json2 = post(client.pizzas.app.Model._operations['test-op'], json1)
         self.assertEqual(json2, dict(item='test'))
+
+    @mock_client(pizzas__django__contrib__auth__User=[
+        dict(pk=1)])
+    @mock_ua
+    def test_instance_operation_with_mock_ua(self, expect):
+        user = client.pizzas.django.contrib.auth.User.get(pk=1)
+        expect.get(
+            'http://pizzas/django/contrib/auth/User/has-permission/1/some.permission',
+            {'is-allowed': True})
+        has = user.has_perm('some.permission')
+        self.assertTrue(has)
 
 
 class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
@@ -190,13 +209,28 @@ class TestMockWithDatabase(ServiceTestsWithDirectory, django.test.TestCase):
         self.assertTrue(hasattr(client.pizzas.django.contrib.auth.User, 'authenticate'))
         def post(url, data):
             self.assertEqual(url,
-                'slumber://pizzas/django/contrib/auth/User/authenticate/')
+                'http://pizzas/django/contrib/auth/User/authenticate/')
             return None, {'authenticated': True, 'user': {
                 'url': 'slumber://pizzas/django/contrib/auth/User/data/2/',
                     'display_name': 'test2 user'}}
         with mock.patch('slumber.connector.proxies.post', post):
             user = client.pizzas.django.contrib.auth.User.authenticate()
             self.assertEqual(user, User.objects.get(username='test-user-2'))
+
+    @mock_client(pizzas__django__contrib__auth__User=[{
+            'pk': 1, 'id': 1, 'username': 'test-user-1',
+                'is_active': True, 'is_staff': False, 'is_superuser': False,
+                'date_joined': date(2011, 05, 23),
+                'first_name': 'test1', 'last_name': 'user', 'email': 'test-user-1@example.com'
+        }, {
+            'pk': 2, 'id': 2, 'username': 'test-user-2',
+                'is_active': True, 'is_staff': False, 'is_superuser': False,
+                'date_joined': date(2011, 05, 23),
+                'first_name': 'test2', 'last_name': 'user', 'email': 'test-user-2@example.com'
+        }])
+    def test_instance_proxy_is_applied_using_mocked_get(self):
+        user = client.pizzas.django.contrib.auth.User.get(pk=2)
+        self.assertTrue(hasattr(user, 'has_perm'), type(user).__mro__)
 
 
 class TestViews(django.test.TestCase):
@@ -266,3 +300,14 @@ class TestCopy(ServiceTestsWithDirectory, django.test.TestCase):
         self.assertEqual(query1.count(), 1)
         query2 = query1.filter(shop=order.shop)
         self.assertEqual(query2.count(), 1)
+
+    @mock_client(pizzas__slumber_examples__Shop = [
+        dict(pk=1)
+    ])
+    def test_query_with_real_url(self):
+        order = Order.objects.create(
+            shop = 'slumber://pizzas/slumber_examples/Shop/data/1/')
+        self.assertEqual(order.shop._url,
+            'http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/')
+        query = Order.objects.filter(shop=order.shop._url)
+        self.assertEqual(query.count(), 1, [o.shop._url for o in list(Order.objects.all())])

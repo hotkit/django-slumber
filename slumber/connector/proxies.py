@@ -38,9 +38,8 @@ class UserInstanceProxy(object):
         """
         # We're accessing attributes that are provided by the  other types
         # pylint: disable = E1101
-        _, json = get(
-            urljoin(self._operations['has-permission'], permission),
-            self._CACHE_TTL)
+        url = urljoin(self._operations['has-permission'], permission)
+        _, json = get(url, self._CACHE_TTL)
         return json['is-allowed']
 
     def has_module_perms(self, module):

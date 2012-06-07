@@ -42,8 +42,10 @@ def from_slumber_scheme(url, services=None):
             service_prefix = 'slumber://%s/' % service
             if url.startswith(service_prefix):
                 service_url = services[service]
-                return service_url + url[len(service_prefix):]
+                final_url = service_url + url[len(service_prefix):]
+                return final_url
         raise SlumberServiceURLError(
             "Service in URL %s does not found in configured services %s"
                 % (url, services.keys()))
     return url
+

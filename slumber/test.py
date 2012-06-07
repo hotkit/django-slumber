@@ -11,10 +11,11 @@ class _Operations(object):
     """Allows us to fetch URLs for operations in mocks reliably.
     """
     def __init__(self, url):
-        self._url = 'slumber://' + url
+        self._url = 'http://' + url
+        self._suffix = '/'
 
     def __getitem__(self, name):
-        return self._url + name + '/'
+        return self._url + name + self._suffix
 
 
 class _MockModel(object):
@@ -38,7 +39,11 @@ class _MockModel(object):
                 found = found and (getattr(i, k) == v or
                     unicode(getattr(i, k)) == unicode(v))
             if found:
-                return i
+                if hasattr(i, '_url'):
+                    return get_instance(
+                        'slumber://' + self._url, i._url, None)
+                else:
+                    return i
         assert False, "The instance was not found"
 
 
@@ -50,8 +55,9 @@ class _MockInstance(DictObject):
         model_url = model_path.replace('__', '/') + '/'
         self._operations = _Operations(model_url)
         if hasattr(self, 'pk'):
+            self._operations._suffix = '/%s/' % getattr(self, 'pk')
             self._url = ('slumber://' + model_url +
-                'data/%s/' % getattr(self, 'pk'))
+                'data%s' % self._operations._suffix)
 
     def __repr__(self):
         return getattr(self, '_url', 'Unkown mock instance')

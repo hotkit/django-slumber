@@ -1,3 +1,10 @@
+2012-06-07  Kirit Saelensminde  <kirit@felspar.com>
+ The mock client model method `get` now returns an instance proxy as it should (when it can). If there isn't enough information to build a proper instance URL then it will continue to return the mock instance directly.
+ Have had to change the URL scheme for the operation URLs in the mock client from slumber: to http: as Python's urlparse.urljoin won't work otherwise. Have also changed the instance operations to include the primary key (if given).
+
+2012-06-05  Kirit Saelensminde  <kirit@felspar.com>
+ Make sure that if a URL is used in a query directly it is properly converted to a Slumber URL as appropriate.
+
 2012-05-31  Kirit Saelensminde  <kirit@felspar.com>
  The mock client now uses the same model type constructor as the real client. This means that proxies are properly applied.
  The mock `get` method now tries to convert both values to unicode and if they compare then it will accept that. This avoids a problem where strings wouldn't compare properly with numbers.

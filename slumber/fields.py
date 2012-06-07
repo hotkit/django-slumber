@@ -30,8 +30,9 @@ class RemoteForeignKey(URLField):
 
     def get_db_prep_value(self, value, *a, **kw):
         if isinstance(value, basestring):
-            return value
-        url = to_slumber_scheme(value._url, get_slumber_services())
+            url = to_slumber_scheme(value, get_slumber_services())
+        else:
+            url = to_slumber_scheme(value._url, get_slumber_services())
         return super(RemoteForeignKey, self).get_db_prep_value(url, *a, **kw)
 
     def get_prep_value(self, value, *a, **kw):
@@ -57,3 +58,4 @@ class RemoteForeignKey(URLField):
             'model_url': self.model_url}
         defaults.update(kwargs)
         return super(RemoteForeignKey, self).formfield(**defaults)
+
