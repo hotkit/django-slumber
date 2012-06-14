@@ -40,6 +40,7 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
                 dict(pk=2, amount=Decimal("13"))
             ]),
             dict(pk=3, name='Hawaiin', for_sale=False),
+            dict(id=4, name='Diablo', for_sale=True),
         ],
         pizzas__slumber__PizzaPrice= [
             dict(pk=1,
@@ -63,6 +64,9 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
         pp1 = client.pizzas.slumber.PizzaPrice.get(pk=1)
         self.assertEquals(pp1.pk, 1)
         self.assertEquals(pp1.pizza.name, 'Margarita')
+
+        p3 = client.pizzas.slumber.Pizza.get(id=4)
+        self.assertEqual(type(p3).__name__, "slumber://pizzas/slumber/Pizza/data/4/")
 
 
     @mock_client(django__contrib__auth__User=[])

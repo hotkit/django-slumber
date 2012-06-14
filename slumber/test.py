@@ -38,8 +38,8 @@ class _MockModel(object):
         for i in self.instances:
             found = True
             for k, v in query.items():
-                found = found and (getattr(i, k) == v or
-                    unicode(getattr(i, k)) == unicode(v))
+                found = found and hasattr(i, k) and (
+                    getattr(i, k) == v or unicode(getattr(i, k)) == unicode(v))
             if found:
                 if hasattr(i, '_url'):
                     return get_instance(
@@ -63,8 +63,9 @@ class _MockInstance(DictObject):
     def __init__(self, model_url, **kwargs):
         super(_MockInstance, self).__init__(**kwargs)
         self._operations = _Operations(model_url)
-        if hasattr(self, 'pk'):
-            self._operations._suffix = '/%s/' % getattr(self, 'pk')
+        if hasattr(self, 'pk') or hasattr(self, 'id'):
+            pk = getattr(self, 'pk', getattr(self, 'id', None))
+            self._operations._suffix = '/%s/' % pk
             self._url = ('slumber://' + model_url +
                 'data%s' % self._operations._suffix)
 

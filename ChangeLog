@@ -1,5 +1,6 @@
 2012-06-14  Kirit Saelensminde  <kirit@felspar.com>
  Added a create member to the mock models on the mock client.
+ If the client instance is not given an explicit `pk` member then we will try to build its URL from the `id` member if it has that.
 
 2012-06-07  Kirit Saelensminde  <kirit@felspar.com>
  The mock client model method `get` now returns an instance proxy as it should (when it can). If there isn't enough information to build a proper instance URL then it will continue to return the mock instance directly.
