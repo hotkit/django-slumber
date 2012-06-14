@@ -20,7 +20,6 @@ from slumber_examples.tests.views import ServiceTestsWithDirectory
 class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
     margarita = dict(pk=1, name='Margarita', for_sale=True)
 
-
     @mock_client(app__contrib__auth__Model=[], app__Pizza=[])
     def test_basic_app_data(self):
         """Ensure that the basic meta data part of the mock works as it should.
@@ -31,7 +30,6 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
         self.assertTrue(hasattr(client.app.contrib.auth, 'Model'))
         self.assertTrue(hasattr(client.app, 'Pizza'))
         self.assertFalse(hasattr(client, 'slumber'))
-
 
     @mock_client(
         pizzas__slumber__Pizza=[
