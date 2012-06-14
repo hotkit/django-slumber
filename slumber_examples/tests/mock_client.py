@@ -71,6 +71,11 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
         with self.assertRaises(AttributeError):
             p3.prices
 
+    @mock_client(pizzas__app__Model=[])
+    def test_created_object_can_be_gotten(self):
+        client.pizzas.app.Model.create(id=1, name='Test')
+        item = client.pizzas.app.Model.get(id=1)
+        self.assertEqual(item.name, 'Test')
 
     @mock_client(django__contrib__auth__User=[])
     def test_not_found_asserts(self):
