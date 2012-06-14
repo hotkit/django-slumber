@@ -70,7 +70,7 @@ class _MockInstance(DictObject):
                 'data%s' % self._operations._suffix)
 
     def __repr__(self):
-        return getattr(self, '_url', 'Unkown mock instance')
+        return getattr(self, '_url', 'Unknown mock instance')
 
 
 class _MockClient(DictObject):
