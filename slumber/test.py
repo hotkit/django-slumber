@@ -46,7 +46,7 @@ class _MockModel(object):
                         'slumber://' + self._url, i._url, None)
                 else:
                     return i
-        assert False, "The instance was not found"
+        assert False, "The instance was not found\n%s" % query
 
     def create(self, **items):
         """Implements a mocked version of the create operator.
