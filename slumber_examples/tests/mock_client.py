@@ -67,6 +67,9 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
 
         p3 = client.pizzas.slumber.Pizza.get(id=4)
         self.assertEqual(type(p3).__name__, "slumber://pizzas/slumber/Pizza/data/4/")
+        self.assertEqual(p3.name, "Diablo")
+        with self.assertRaises(AttributeError):
+            p3.prices
 
 
     @mock_client(django__contrib__auth__User=[])
