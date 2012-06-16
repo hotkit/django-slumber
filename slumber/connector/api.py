@@ -10,7 +10,7 @@ from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
 from slumber.connector.ua import get, post
-from slumber.scheme import to_slumber_scheme, from_slumber_scheme
+from slumber.scheme import from_slumber_scheme
 
 
 def _ensure_absolute(url):
@@ -137,8 +137,8 @@ class _InstanceProxy(object):
         """
         from slumber import _client
         for candidate in getattr(_client, '_instances', []):
-            candidate_url = to_slumber_scheme(candidate._url)
-            self_url = to_slumber_scheme(self._url)
+            candidate_url = from_slumber_scheme(candidate._url)
+            self_url = from_slumber_scheme(self._url)
             if candidate_url == self_url:
                 return candidate
         instance = CLIENT_INSTANCE_CACHE.get(self._url, None)

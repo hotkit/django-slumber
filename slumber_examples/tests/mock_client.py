@@ -20,7 +20,6 @@ from slumber_examples.tests.views import ServiceTestsWithDirectory
 class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
     margarita = dict(pk=1, name='Margarita', for_sale=True)
 
-
     @mock_client(app__contrib__auth__Model=[], app__Pizza=[])
     def test_basic_app_data(self):
         """Ensure that the basic meta data part of the mock works as it should.
@@ -32,7 +31,6 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
         self.assertTrue(hasattr(client.app, 'Pizza'))
         self.assertFalse(hasattr(client, 'slumber'))
 
-
     @mock_client(
         pizzas__slumber__Pizza=[
            margarita,
@@ -40,6 +38,7 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
                 dict(pk=2, amount=Decimal("13"))
             ]),
             dict(pk=3, name='Hawaiin', for_sale=False),
+            dict(id=4, name='Diablo', for_sale=True),
         ],
         pizzas__slumber__PizzaPrice= [
             dict(pk=1,
@@ -64,6 +63,17 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
         self.assertEquals(pp1.pk, 1)
         self.assertEquals(pp1.pizza.name, 'Margarita')
 
+        p3 = client.pizzas.slumber.Pizza.get(id=4)
+        self.assertEqual(type(p3).__name__, "slumber://pizzas/slumber/Pizza/data/4/")
+        self.assertEqual(p3.name, "Diablo")
+        with self.assertRaises(AttributeError):
+            p3.prices
+
+    @mock_client(pizzas__app__Model=[])
+    def test_created_object_can_be_gotten(self):
+        client.pizzas.app.Model.create(id=1, name='Test')
+        item = client.pizzas.app.Model.get(id=1)
+        self.assertEqual(item.name, 'Test')
 
     @mock_client(django__contrib__auth__User=[])
     def test_not_found_asserts(self):

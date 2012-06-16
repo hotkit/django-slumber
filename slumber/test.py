@@ -22,10 +22,12 @@ class _MockModel(object):
     """A mock model object type so we can attach things more sanely for
     mocking purposes.
     """
-    def __init__(self, url, instances):
+    def __init__(self, client, url, instance_type):
+        self.client = client
         self._url = url
         self._operations = _Operations(url)
-        self.instances = instances
+        self.instance_type = instance_type
+        self.instances = []
 
     def __call__(self, url, display_name):
         return get_instance('slumber://' + self._url, url, display_name)
@@ -36,31 +38,39 @@ class _MockModel(object):
         for i in self.instances:
             found = True
             for k, v in query.items():
-                found = found and (getattr(i, k) == v or
-                    unicode(getattr(i, k)) == unicode(v))
+                found = found and hasattr(i, k) and (
+                    getattr(i, k) == v or unicode(getattr(i, k)) == unicode(v))
             if found:
                 if hasattr(i, '_url'):
                     return get_instance(
                         'slumber://' + self._url, i._url, None)
                 else:
                     return i
-        assert False, "The instance was not found"
+        assert False, "The instance was not found\n%s" % query
+
+    def create(self, **items):
+        """Implements a mocked version of the create operator.
+        """
+        instance = self.instance_type(self._url, **items)
+        self.instances.append(instance)
+        self.client._instances.append(instance)
+        return instance
 
 
 class _MockInstance(DictObject):
     """A mock instance that will add in a _url parameter.
     """
-    def __init__(self, model_path, **kwargs):
+    def __init__(self, model_url, **kwargs):
         super(_MockInstance, self).__init__(**kwargs)
-        model_url = model_path.replace('__', '/') + '/'
         self._operations = _Operations(model_url)
-        if hasattr(self, 'pk'):
-            self._operations._suffix = '/%s/' % getattr(self, 'pk')
+        if hasattr(self, 'pk') or hasattr(self, 'id'):
+            pk = getattr(self, 'pk', getattr(self, 'id', None))
+            self._operations._suffix = '/%s/' % pk
             self._url = ('slumber://' + model_url +
                 'data%s' % self._operations._suffix)
 
     def __repr__(self):
-        return getattr(self, '_url', 'Unkown mock instance')
+        return getattr(self, '_url', 'Unknown mock instance')
 
 
 class _MockClient(DictObject):
@@ -79,9 +89,10 @@ class _MockClient(DictObject):
             model_url = model.replace('__', '/') + '/'
             model_type = get_model_type(model_url, [_MockModel])
             instance_type = type(model_url, (_MockInstance,), {})
-            instances = [instance_type(model, **i) for i in instances]
-            self._instances += instances
-            setattr(root, model_name, model_type(model_url, instances))
+            mock_model = model_type(self, model_url, instance_type)
+            setattr(root, model_name, mock_model)
+            for instance in instances:
+                mock_model.create(**instance)
 
     def _flush_client_instance_cache(self):
         """Empty stub so that the middleware works in tests.
