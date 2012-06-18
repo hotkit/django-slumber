@@ -118,14 +118,16 @@ def _get(url, ttl, codes):
     # Pylint gets confused by the fake HTTP client
     # pylint: disable=E1103
     url_fragment = _use_fake(url)
+    codes = codes or [200]
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
         headers = _sign_request('GET', file_spec, query, True)
         response = _fake.get(file_spec, query,
             HTTP_HOST='localhost:8000', **headers)
-        if response.status_code in [301, 302]:
-            return get(response['location'])
-        assert response.status_code in (codes or [200]), \
+        if response.status_code in [301, 302] and \
+                response.status_code not in codes:
+            return get(response['location'], ttl, codes)
+        assert response.status_code in codes, \
             (url_fragment, response, response.content)
         content = response.content
     else:
@@ -140,9 +142,9 @@ def _get(url, ttl, codes):
                 headers = _sign_request('GET', to_sign, '', False)
                 response, content = _real().request(
                     url, headers=headers)
-                if response.status in (codes or [200]):
+                if response.status in codes:
                     break
-            assert response.status in (codes or [200]), \
+            assert response.status in codes, \
                 (url, response, content)
             if ttl:
                 cache.set(cache_key, (response, content), ttl)
