@@ -1,11 +1,11 @@
+from django.core.cache import cache
 from httplib2 import ServerNotFoundError
 from mock import Mock, patch
 import socket
 from unittest2 import TestCase
 
-from django.core.cache import cache
-
-from slumber.connector.ua import get, post
+from slumber.connector.ua import for_user, get, post
+from slumber_examples.tests.views import ServiceTests
 
 
 class _response_fake(object):
@@ -18,7 +18,6 @@ class _response_httplib2(object):
 
 
 class TestPost(TestCase):
-
     def test_fake(self):
         def _post(self, url, data, **kw):
             return _response_fake()
@@ -137,4 +136,34 @@ class TestGet(TestCase):
         except Exception, e:
             print type(e)
             raise e
+
+
+class TestUsernameDecorator(ServiceTests, TestCase):
+    def setUp(self):
+        super(TestUsernameDecorator, self).setUp()
+        self.checked = False
+
+    def signature_with_username(self, authn_name, method, url,
+            body, username, for_fake_client):
+        self.checked = True
+        self.assertEqual(username, 'test-user')
+        return {}
+
+    def test_post_uses_username(self):
+        @for_user('test-user')
+        def do_post():
+            with patch('slumber.connector.ua._calculate_signature',
+                    self.signature_with_username):
+                post('/slumber/', {})
+        do_post()
+        self.assertTrue(self.checked)
+
+    def test_get_uses_username(self):
+        @for_user('test-user')
+        def do_get():
+            with patch('slumber.connector.ua._calculate_signature',
+                    self.signature_with_username):
+                get('/slumber/')
+        do_get()
+        self.assertTrue(self.checked)
 

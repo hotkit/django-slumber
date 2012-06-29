@@ -90,6 +90,25 @@ def _calculate_signature(authn_name, method, url, body,
         return headers
 
 
+def for_user(name):
+    """Decorator constructor that sets the user name to be used for requests.
+    """
+    def decorator(function):
+        """The decorator.
+        """
+        def wrapped(*a, **kw):
+            """The final wrapped function call.
+            """
+            old = getattr(PER_THREAD, 'username', None)
+            try:
+                PER_THREAD.username = name
+                return function(*a, **kw)
+            finally:
+                PER_THREAD.username = old
+        return wrapped
+    return decorator
+
+
 def _sign_request(method, url, body, for_fake_client):
     """Calculate the request headers that need to be added so that the
     request is properly signed and the Slumber server will consider
@@ -99,9 +118,9 @@ def _sign_request(method, url, body, for_fake_client):
     from slumber.connector import get_slumber_authn_name
     authn_name = get_slumber_authn_name()
     if authn_name:
-        username = getattr(PER_THREAD, 'username', None)
+        name = getattr(PER_THREAD, 'username', None)
         return _calculate_signature(
-            authn_name, method, url, body, username, for_fake_client)
+            authn_name, method, url, body, name, for_fake_client)
     else:
         return {}
 
@@ -118,14 +137,16 @@ def _get(url, ttl, codes):
     # Pylint gets confused by the fake HTTP client
     # pylint: disable=E1103
     url_fragment = _use_fake(url)
+    codes = codes or [200]
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
         headers = _sign_request('GET', file_spec, query, True)
         response = _fake.get(file_spec, query,
             HTTP_HOST='localhost:8000', **headers)
-        if response.status_code in [301, 302]:
-            return get(response['location'])
-        assert response.status_code in (codes or [200]), \
+        if response.status_code in [301, 302] and \
+                response.status_code not in codes:
+            return get(response['location'], ttl, codes)
+        assert response.status_code in codes, \
             (url_fragment, response, response.content)
         content = response.content
     else:
@@ -140,9 +161,9 @@ def _get(url, ttl, codes):
                 headers = _sign_request('GET', to_sign, '', False)
                 response, content = _real().request(
                     url, headers=headers)
-                if response.status in (codes or [200]):
+                if response.status in codes:
                     break
-            assert response.status in (codes or [200]), \
+            assert response.status in codes, \
                 (url, response, content)
             if ttl:
                 cache.set(cache_key, (response, content), ttl)
