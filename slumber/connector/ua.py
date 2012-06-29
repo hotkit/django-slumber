@@ -90,6 +90,25 @@ def _calculate_signature(authn_name, method, url, body,
         return headers
 
 
+def for_user(name):
+    """Decorator constructor that sets the user name to be used for requests.
+    """
+    def decorator(function):
+        """The decorator.
+        """
+        def wrapped(*a, **kw):
+            """The final wrapped function call.
+            """
+            old = getattr(PER_THREAD, 'username', None)
+            try:
+                PER_THREAD.username = name
+                return function(*a, **kw)
+            finally:
+                PER_THREAD.username = old
+        return wrapped
+    return decorator
+
+
 def _sign_request(method, url, body, for_fake_client):
     """Calculate the request headers that need to be added so that the
     request is properly signed and the Slumber server will consider
@@ -99,9 +118,9 @@ def _sign_request(method, url, body, for_fake_client):
     from slumber.connector import get_slumber_authn_name
     authn_name = get_slumber_authn_name()
     if authn_name:
-        username = getattr(PER_THREAD, 'username', None)
+        name = getattr(PER_THREAD, 'username', None)
         return _calculate_signature(
-            authn_name, method, url, body, username, for_fake_client)
+            authn_name, method, url, body, name, for_fake_client)
     else:
         return {}
 

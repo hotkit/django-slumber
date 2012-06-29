@@ -1,3 +1,6 @@
+2012-06-29  Kirit Saelensminde  <kirit@felspar.com>
+ Added a `for_user` decorator to the user agent that can be used to set the user name used for requests to other services.
+
 2012-06-18  Kirit Saelensminde  <kirit@felspar.com>
  Allow us to bypass redirects with the fake HTTP client in the user agent. Useful for testing redirects.
 
