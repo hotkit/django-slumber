@@ -1,3 +1,6 @@
+2012-07-17  Kirit Saelensminde  <kirit@felspar.com>
+ Fixed a bug where GET requests against remote servers using query strings weren't always signed correctly.
+
 2012-06-29  Kirit Saelensminde  <kirit@felspar.com>
  Added a `for_user` decorator to the user agent that can be used to set the user name used for requests to other services.
 
