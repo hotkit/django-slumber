@@ -156,9 +156,8 @@ def _get(url, ttl, codes):
             logging.debug("Cache miss for url %s with cache key %s",
                 url, cache_key)
             _, _, path, _, query, _ = urlparse(url)
-            to_sign = path + ('' if not query else '?' + query)
             for _ in range(0, 3):
-                headers = _sign_request('GET', to_sign, '', False)
+                headers = _sign_request('GET', path, query or '', False)
                 response, content = _real().request(
                     url, headers=headers)
                 if response.status in codes:
