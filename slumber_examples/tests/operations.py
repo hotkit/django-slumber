@@ -4,7 +4,7 @@ from simplejson import loads
 from django.test import TestCase
 
 from slumber import Client
-from slumber.connector.ua import post
+from slumber.connector.ua import post, get
 
 from slumber_examples.models import Pizza
 from slumber_examples.tests.configurations import ConfigureUser
@@ -20,11 +20,23 @@ class CreateTests(ConfigureUser, TestCase):
     def test_create_pizza(self):
         response1, json1 = post('/slumber/slumber_examples/Pizza/create/', {
                 'id': 1, 'name': 'Test P', 'for_sale': True})
+
         self.assertEqual(response1.status_code, 200)
         response2, json2 = post('/slumber/slumber_examples/Pizza/create/', {
                 'id': 1, 'name': 'Test P', 'for_sale': True})
         self.assertEqual(response2.status_code, 200)
         self.assertEqual(Pizza.objects.all().count(), 1)
+
+    def test_update_pizza(self):
+        self.cnx = Client()
+        p_id, p_sale = 1 , False
+        response1, json1 = post('/slumber/slumber_examples/Pizza/create/',{
+                'id':p_id, 'name':'Test P', 'for_sale': True})
+        self.assertEqual(response1.status_code, 200)
+        pizza = self.cnx.slumber_examples.Pizza.get(pk = p_id)
+        self.cnx.slumber_examples.Pizza.update(pizza, for_sale = p_sale)
+        pizza = self.cnx.slumber_examples.Pizza.get(pk = p_id)
+        self.assertEqual(pizza.for_sale, p_sale)
 
 
 class OrderTests(ConfigureUser, TestCase):
