@@ -1,3 +1,6 @@
+2012-08-06  Dui Satsana  <dui@proteus-tech.com>
+ Added `update` method to proxy base class so all remote objects can update easily.
+
 2012-07-17  Kirit Saelensminde  <kirit@felspar.com>
  Fixed a bug where GET requests against remote servers using query strings weren't always signed correctly.
 

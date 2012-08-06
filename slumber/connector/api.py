@@ -115,6 +115,13 @@ class ModelConnector(DictObject):
         _, json = get(url + '?' + urlencode(kwargs), self._CACHE_TTL)
         return get_instance_from_data(url, json)
 
+    def update(self, instance_connector, **kwargs):
+        """Implements the client side for the model 'update' operator.
+        """
+        url = urljoin(self._url, instance_connector._operations['update'])
+        _, json = post(url, kwargs)
+        return json
+
 
 class _InstanceProxy(object):
     """Add an extra layer of indirection between the objects being manipulated
