@@ -55,6 +55,15 @@ class _MockModel(object):
         self.instances.append(instance)
         self.client._instances.append(instance)
         return instance
+        
+    def update(self, instance_connector, **updating_data):
+        """ Implement a mocked version of update operator """
+        updating_id = instance_connector.pk
+
+        for instance in self.instances:
+            if instance.pk == updating_id:
+                for key, value in updating_data.items():
+                    setattr(instance, key, value)
 
 
 class _MockInstance(DictObject):
