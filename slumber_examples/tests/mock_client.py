@@ -69,8 +69,7 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
         with self.assertRaises(AttributeError):
             p3.prices
 
-    @mock_client(
-        pizzas__slumber__Pizza=[dict(pk = 3, name = 'Hawaiin', for_sale = False)])
+    @mock_client(pizzas__slumber__Pizza=[dict(pk = 3, name = 'Hawaiin', for_sale = False)])
     def test_update_pizza(self):
         """Ensure that we can update instances data properly."""
 
