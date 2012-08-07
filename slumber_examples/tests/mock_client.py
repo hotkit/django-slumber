@@ -69,6 +69,19 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
         with self.assertRaises(AttributeError):
             p3.prices
 
+    @mock_client(
+        pizzas__slumber__Pizza=[dict(pk = 3, name = 'Hawaiin', for_sale = False)])
+    def test_update_pizza(self):
+        """Ensure that we can update instances data properly."""
+
+        Hawaiin_pizza =  client.pizzas.slumber.Pizza.get(pk = 3)
+        self.assertEquals(Hawaiin_pizza.for_sale, False)
+
+        client.pizzas.slumber.Pizza.update(Hawaiin_pizza, for_sale = True)
+
+        Hawaiin_pizza =  client.pizzas.slumber.Pizza.get(pk = 3)
+        self.assertEquals(Hawaiin_pizza.for_sale, True)
+        
     @mock_client(pizzas__app__Model=[])
     def test_created_object_can_be_gotten(self):
         client.pizzas.app.Model.create(id=1, name='Test')
