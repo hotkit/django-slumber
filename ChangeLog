@@ -1,3 +1,6 @@
+2012-08-06  jsaytoe  <jsaytoe@proteus-tech.com>
+ Added `update` method to mock instances to make writing tests using it simpler.
+
 2012-08-06  Dui Satsana  <dui@proteus-tech.com>
  Added `update` method to proxy base class so all remote objects can update easily.
 
