@@ -14,9 +14,6 @@ from urlparse import parse_qs
 from slumber.server import get_slumber_local_url_prefix
 
 
-_fake = FakeClient()
-
-
 def _parse_qs(url):
     """Split the query string off (this is needed to support Django 1.0's
     fake HTTP client.
@@ -46,7 +43,7 @@ def get(url, ttl = 0):
     url_fragment = _use_fake(url)
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
-        response = _fake.get(file_spec, query,
+        response = FakeClient().get(file_spec, query,
             HTTP_HOST='localhost:8000')
         if response.status_code in [301, 302]:
             return get(response['location'])
@@ -74,7 +71,7 @@ def post(url, data):
     """
     url_fragment = _use_fake(url)
     if url_fragment:
-        response = _fake.post(url_fragment, data, HTTP_HOST='localhost:8000')
+        response = FakeClient().post(url_fragment, data, HTTP_HOST='localhost:8000')
         assert response.status_code == 200, \
             (url_fragment, response, response.content)
         content = response.content
