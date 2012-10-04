@@ -13,15 +13,9 @@ DJANGO_MODEL_TO_SLUMBER_MODEL = {}
 MODEL_URL_TO_SLUMBER_MODEL = {}
 
 
-# Stores instances in the client
-CLIENT_INSTANCE_CACHE = type('cache', (dict,), {})()
-# Leave the cache off by default
-CLIENT_INSTANCE_CACHE.enabled = False
-
-
 # Stores the operations used for a given model on the server
 SLUMBER_MODEL_OPERATIONS = {}
 
 
-# Make the request available
+# Add a location where we can save per thread data
 PER_THREAD = threading.local()

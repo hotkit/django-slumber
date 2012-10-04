@@ -7,8 +7,7 @@ from urlparse import urljoin
 
 from django.conf import settings
 
-from slumber._caches import CLIENT_INSTANCE_CACHE, \
-    MODEL_URL_TO_SLUMBER_MODEL
+from slumber._caches import MODEL_URL_TO_SLUMBER_MODEL, PER_THREAD
 from slumber.connector.api import get_model
 from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
@@ -87,6 +86,7 @@ class Client(ServiceConnector):
     """The first level of the Slumber client connector.
     """
     def __init__(self, directory=None):
+        self._instances = []
         client_apps = getattr(settings, 'SLUMBER_CLIENT_APPS', [])
         for app in client_apps:
             __import__(app, globals(), locals(), ['slumber_client'])
@@ -104,4 +104,5 @@ class Client(ServiceConnector):
     def _flush_client_instance_cache(cls):
         """Flush the (global) instance cache.
         """
-        CLIENT_INSTANCE_CACHE.clear()
+        if getattr(PER_THREAD, 'cache', None):
+            PER_THREAD.cache.clear()

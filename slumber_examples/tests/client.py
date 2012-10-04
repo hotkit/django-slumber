@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from slumber import client
-from slumber._caches import CLIENT_INSTANCE_CACHE
 from slumber.connector import Client, DictObject
 from slumber.connector.api import get_instance
 from slumber.connector.ua import get

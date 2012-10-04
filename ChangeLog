@@ -1,3 +1,6 @@
+2012-10-04  Chokchai Phatharamalai  <juacompe@proteus-tech.com>
+ Change the instance cache to be thread safe.
+
 2012-10-02  ruxo  <samrit@proteus-tech.com>
  Instantiate FakeClient every time. Singleton of Fakeclient keeps error state of previous web call which will eventually raise again on the subsequent call no matter if it is success or not.
 
