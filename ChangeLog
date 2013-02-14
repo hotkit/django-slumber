@@ -1,3 +1,6 @@
+2013-02-14  Kirit Saelensminde  <kirit@felspar.com>
+ Fixed a bug in the caching code that meant that the cache never had any data added to it.
+
 2012-10-04  Chokchai Phatharamalai  <juacompe@proteus-tech.com>
  Change the instance cache to be thread safe.
 
