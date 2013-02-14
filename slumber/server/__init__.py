@@ -84,7 +84,8 @@ def get_slumber_local_url_prefix():
         raise AbsoluteURIRequired("The URL for the local service must be "
         "specified as absolute: %s is currently %s" %
             (get_slumber_service(), service_url))
-    return '%s://%s/' % (parsed[0], parsed[1])
+    return getattr(settings, 'SLUMBER_LOCAL_PREFIX',
+        '%s://%s/' % (parsed[0], parsed[1]))
 
 
 def get_slumber_services(directory = None):
