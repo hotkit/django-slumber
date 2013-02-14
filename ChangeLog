@@ -1,3 +1,9 @@
+2012-10-04  Chokchai Phatharamalai  <juacompe@proteus-tech.com>
+ Change the instance cache to be thread safe.
+
+2012-10-02  ruxo  <samrit@proteus-tech.com>
+ Instantiate FakeClient every time. Singleton of Fakeclient keeps error state of previous web call which will eventually raise again on the subsequent call no matter if it is success or not.
+
 2012-08-06  jsaytoe  <jsaytoe@proteus-tech.com>
  Added `update` method to mock instances to make writing tests using it simpler.
 

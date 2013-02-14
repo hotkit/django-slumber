@@ -1,11 +1,11 @@
 """
     Allow us to get an instance directly from the JSON data for an object.
 """
+import logging
 from urllib import urlencode
 from urlparse import urljoin, urlparse
 
-from slumber._caches import CLIENT_INSTANCE_CACHE, \
-    MODEL_URL_TO_SLUMBER_MODEL
+from slumber._caches import MODEL_URL_TO_SLUMBER_MODEL, PER_THREAD
 from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.connector.dictobject import DictObject
 from slumber.connector.json import from_json_data
@@ -148,12 +148,14 @@ class _InstanceProxy(object):
             self_url = from_slumber_scheme(self._url)
             if candidate_url == self_url:
                 return candidate
-        instance = CLIENT_INSTANCE_CACHE.get(self._url, None)
+        instance = getattr(PER_THREAD, 'cache', {}).get(self._url, None)
         if not instance:
             # We now have a cache miss so construct a new connector
             instance = _InstanceConnector(self._url, **self._fields)
-            if CLIENT_INSTANCE_CACHE.enabled:
-                CLIENT_INSTANCE_CACHE[self._url] = instance
+            if getattr(PER_THREAD, 'cache', None):
+                PER_THREAD.cache[self._url] = instance
+            else:
+                logging.info("No cache to write instance %s into", self._url)
         return instance
 
     def __getattr__(self, name):

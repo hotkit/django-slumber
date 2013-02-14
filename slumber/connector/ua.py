@@ -20,7 +20,6 @@ from slumber._caches import PER_THREAD
 from slumber.server import get_slumber_local_url_prefix
 
 
-_fake = FakeClient()
 def _real():
     """Don't check certificates when we use httplib2.
     """
@@ -141,7 +140,7 @@ def _get(url, ttl, codes):
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
         headers = _sign_request('GET', file_spec, query, True)
-        response = _fake.get(file_spec, query,
+        response = FakeClient().get(file_spec, query,
             HTTP_HOST='localhost:8000', **headers)
         if response.status_code in [301, 302] and \
                 response.status_code not in codes:
@@ -189,7 +188,7 @@ def _post(url, data, codes):
     body = dumps(data) if data else ''
     url_fragment = _use_fake(url)
     if url_fragment:
-        response = _fake.post(url_fragment, body,
+        response = FakeClient().post(url_fragment, body,
             content_type='application/json',
             HTTP_HOST='localhost:8000',
             **_sign_request('POST', url_fragment, body, True))

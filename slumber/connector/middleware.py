@@ -1,8 +1,9 @@
 """
     Middleware to help manage the Slumber client.
 """
-from slumber import client
-from slumber._caches import CLIENT_INSTANCE_CACHE, PER_THREAD
+import logging
+
+from slumber._caches import PER_THREAD
 
 
 # Django defines the class members as methods
@@ -17,13 +18,14 @@ class Cache(object):
     def process_request(self, _request):
         """Turn the cache on.
         """
-        CLIENT_INSTANCE_CACHE.enabled = True
+        logging.info("PER_THREAD instance cache created")
+        PER_THREAD.cache = type('cache', (dict,), {})()
 
     def process_response(self, _request, response):
         """Turn the cache off again at the end of the request and flush it.
         """
-        CLIENT_INSTANCE_CACHE.enabled = False
-        client._flush_client_instance_cache()
+        delattr(PER_THREAD, 'cache')
+        logging.info("PER_THREAD instance cache removed")
         return response
 
 
