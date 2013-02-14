@@ -13,15 +13,17 @@ from slumber_examples.tests.configurations import ConfigureUser
 class CreateTests(ConfigureUser, TestCase):
     def test_create_pizza(self):
         response, json = post('/slumber/slumber_examples/Pizza/create/', {
-                'id': 1, 'name': 'Test P', 'for_sale': True})
+            'id': 1, 'name': 'Test P', 'for_sale': True})
         self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.has_key('pk'), json)
+        self.assertEqual(json['pk'], 1, json)
         self.assertEqual(Pizza.objects.all().count(), 1)
 
-    def test_create_pizza(self):
+    def test_create_pizza_twice(self):
         response1, json1 = post('/slumber/slumber_examples/Pizza/create/', {
                 'id': 1, 'name': 'Test P', 'for_sale': True})
-
         self.assertEqual(response1.status_code, 200)
+
         response2, json2 = post('/slumber/slumber_examples/Pizza/create/', {
                 'id': 1, 'name': 'Test P', 'for_sale': True})
         self.assertEqual(response2.status_code, 200)

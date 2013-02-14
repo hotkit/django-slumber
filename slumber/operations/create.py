@@ -7,6 +7,7 @@ from django.db import connection
 from slumber.operations import ModelOperation
 from slumber.operations.instancedata import instance_data
 from slumber.server.http import require_permission
+from slumber.server.json import to_json_data
 
 
 class CreateInstance(ModelOperation):
@@ -28,7 +29,8 @@ class CreateInstance(ModelOperation):
             lines = connection.ops.sequence_reset_sql(
                 no_style(), [self.model.model])
             cursor.execute(';'.join(lines))
-            # Return the
-            return instance_data(response, self.model, instance)
+            instance_data(response, self.model, instance)
+            response['pk'] = to_json_data(self.model, instance, 'pk',
+                self.model.fields[self.model.model._meta.pk.name])
         return do_create(self, request)
 
