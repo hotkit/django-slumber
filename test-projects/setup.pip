@@ -9,4 +9,4 @@ django_ip_authn
 coverage
 mock
 unittest2
-pylint
+pylint >= 0.26.0
