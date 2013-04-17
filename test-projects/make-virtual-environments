@@ -3,18 +3,25 @@ cd `dirname $0`
 
 source virtualenvwrapper.sh
 
+function check_worked {
+    if ! $*
+    then
+        exit 1
+    fi
+}
+
 mkvirtualenv --no-site-packages slumber1-0
-pip install -r setup.pip -r django1_0/setup.pip
+check_worked pip install -r setup.pip -r django1_0/setup.pip
 deactivate
 
 mkvirtualenv --no-site-package slumber1-3
-pip install -r setup.pip -r django1_3/setup.pip
+check_worked pip install -r setup.pip -r django1_3/setup.pip
 deactivate
 
 mkvirtualenv --no-site-package slumber1-4
-pip install -r setup.pip -r django1_4/setup.pip
+check_worked pip install -r setup.pip -r django1_4/setup.pip
 deactivate
 
 mkvirtualenv --no-site-package slumber1-5
-pip install -r setup.pip -r django1_5/setup.pip
+check_worked pip install -r setup.pip -r django1_5/setup.pip
 deactivate
