@@ -24,7 +24,7 @@ echo Django 1.4
 check_worked python manage.py test slumber_examples
 
 workon slumber1-5
-cd test-projects/django1_5
+cd ../django1_5
 echo Django 1.5
 check_worked python manage.py test slumber_examples
 
