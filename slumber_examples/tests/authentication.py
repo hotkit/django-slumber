@@ -43,7 +43,9 @@ class TestAuthnRequired(ConfigureUser, TestCase):
             '/slumber/slumber_examples/Pizza/data/234234/')
         self.assertEqual(response.status_code, 404)
         json = loads(response.content)
-        self.assertEqual(json["error"], "Pizza matching query does not exist.")
+        self.assertTrue(
+            json["error"].startswith("Pizza matching query does not exist."),
+            json["error"])
 
     def test_model_create_requires_permission(self):
         response = self.signed_post(self.user.username,
