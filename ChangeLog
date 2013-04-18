@@ -1,5 +1,6 @@
 2013-04-18  Kirit Saelensminde  <kirit@felspar.com>
  Added in a Django 1.5 test project and made suitable changes to the code to account for it.
+ Add a South introspection rule for the custom remote foreign key field.
 
 2013-02-14  Kirit Saelensminde  <kirit@felspar.com>
  Fixed a bug in the caching code that meant that the cache never had any data added to it.

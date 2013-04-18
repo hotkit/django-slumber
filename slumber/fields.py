@@ -59,3 +59,18 @@ class RemoteForeignKey(URLField):
         defaults.update(kwargs)
         return super(RemoteForeignKey, self).formfield(**defaults)
 
+
+try:
+    # If South in installed then we need to tell it about our custom field
+    from south.modelsinspector import add_introspection_rules
+    add_introspection_rules([
+            (
+                (RemoteForeignKey,),
+                [],
+                {'model_url': ('model_url', {})}
+            )
+        ], [r"^slumber\.fields\.RemoteForeignKey"])
+except ImportError: # pragma: no cover
+    # South isn't installed so don't worry about it
+    pass
+
