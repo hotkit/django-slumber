@@ -6,7 +6,8 @@ django-fost-authn >= 0.3.4
 django_ip_authn
 
 # Used for testing
+BeautifulSoup
 coverage
 mock
 unittest2
-pylint
+pylint >= 0.26.0

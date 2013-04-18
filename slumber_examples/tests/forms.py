@@ -1,3 +1,4 @@
+from BeautifulSoup import BeautifulSoup
 from django import forms
 from django.contrib.admin.widgets import AdminURLFieldWidget
 from django.test import TestCase
@@ -34,17 +35,23 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         self.user.save()
         self.client = Client()
 
+    def sameSoup(self, form, html):
+        soup = BeautifulSoup(form.as_p())
+        check =  BeautifulSoup(html)
+        for left, right in zip(soup.findAll(True), check.findAll(True)):
+            self.assertEquals(left.name, right.name)
+            self.assertEquals(dict(left.attrs), dict(right.attrs))
+
 
     def test_default_formfield(self):
         form = WidgetTest.Form()
-        self.assertEquals(form.as_p(),
-            '''<p><label for="id_rfk">Rfk:</label> '''
-                '''<input type="text" name="rfk" id="id_rfk" /></p>''')
+        self.sameSoup(form, '''<p><label for="id_rfk">Rfk:</label> '''
+            '''<input type="text" name="rfk" id="id_rfk" /></p>''')
 
     def test_empty_form_submission_with_required_field(self):
         form = WidgetTest.Form(dict(rfk=''))
         self.assertFalse(form.is_valid())
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<ul class="errorlist"><li>This field is required</li></ul>\n'''
             '''<p><label for="id_rfk">Rfk:</label> '''
                 '''<input type="text" name="rfk" id="id_rfk" /></p>''')
@@ -58,7 +65,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         shop = self.client.pizzas.slumber_examples.Shop.create(
             name='Shop', slug='shop')
         form = WidgetTest.Form(dict(rfk=shop))
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<p><label for="id_rfk">Rfk:</label> '''
                 '''<input type="text" name="rfk" '''
                     '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
@@ -78,7 +85,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
 
     def test_model_form(self):
         form = WidgetTest.ModelForm()
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" id="id_shop" /></p>''')
 
@@ -86,14 +93,14 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         shop = self.client.pizzas.slumber_examples.Shop.create(
             name='Shop', slug='shop')
         form = WidgetTest.ModelForm(dict(shop=shop))
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
                     '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
                     '''id="id_shop" /></p>''')
         self.assertEquals(type(form.fields['shop']), RemoteForeignKeyField)
         self.assertTrue(form.is_valid())
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
                     '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
@@ -104,14 +111,14 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         shop = self.client.pizzas.slumber_examples.Shop.create(
             name='Shop', slug='shop')
         form = WidgetTest.ModelForm(dict(shop=shop._url))
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
                     '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
                     '''id="id_shop" /></p>''')
         self.assertEquals(type(form.fields['shop']), RemoteForeignKeyField)
         self.assertTrue(form.is_valid())
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
                     '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
@@ -123,7 +130,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         shop_from_url = get_instance(
             self.client.pizzas.slumber_examples.Shop, shop._url, unicode(shop))
         form = WidgetTest.ModelForm(dict(shop=shop_from_url))
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
                     '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
@@ -131,7 +138,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         self.assertEquals(type(form.fields['shop']), RemoteForeignKeyField)
         self.assertTrue(form.is_valid())
         self.assertEquals(unicode(form.cleaned_data['shop']), unicode(shop))
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
                     '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
@@ -143,7 +150,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         order = Order(shop=shop)
         order.save()
         form = WidgetTest.ModelForm(instance=order)
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
                     '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
@@ -156,7 +163,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         order.save()
         order_db = Order.objects.get(pk=order.pk)
         form = WidgetTest.ModelForm(instance=order_db)
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
                     '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
@@ -166,7 +173,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         shop = self.client.pizzas.slumber_examples.Shop.create(
             name='Shop', slug='shop')
         form = WidgetTest.AdminForm(dict(rfk=shop))
-        self.assertEquals(form.as_p(),
+        self.sameSoup(form,
             '''<p><label for="id_rfk">Rfk:</label> '''
                 '''<input type="text" name="rfk" '''
                     '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
