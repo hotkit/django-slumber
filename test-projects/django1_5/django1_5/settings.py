@@ -1,4 +1,7 @@
 # Django settings for django1_5 project.
+import os
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+_join_with_project_path = lambda a, *p: os.path.join(PROJECT_ROOT, a, *p)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -11,7 +14,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': '',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': '',
@@ -46,7 +49,7 @@ USE_I18N = True
 USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True
+USE_TZ = False
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
@@ -92,14 +95,19 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'fost_authn.Middleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'fost_authn.FostBackend',
 )
 
 ROOT_URLCONF = 'django1_5.urls'
@@ -108,6 +116,7 @@ ROOT_URLCONF = 'django1_5.urls'
 WSGI_APPLICATION = 'django1_5.wsgi.application'
 
 TEMPLATE_DIRS = (
+    _join_with_project_path('../../templates'),
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -124,7 +133,23 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+
+    'django_nose',
+
+    # Slumber test applications
+    'slumber_examples',
+    'slumber_examples.nested1',
+    'slumber_examples.nested1.nested2',
+    'slumber_examples.no_models',
+
+    'slumber_ex_shop',
 )
+SLUMBER_CLIENT_APPS = ['slumber_examples']
+
+AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
+
+# Needed to get the Django nose test runner working
+TEST_RUNNER='django_nose.NoseTestSuiteRunner'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
