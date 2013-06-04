@@ -29,16 +29,20 @@ class RemoteForeignKey(URLField):
         pass
 
     def get_db_prep_value(self, value, *a, **kw):
-        if isinstance(value, basestring):
-            url = to_slumber_scheme(value, get_slumber_services())
-        else:
-            url = to_slumber_scheme(value._url, get_slumber_services())
+        url = value
+        if value is not None:
+            if isinstance(value, basestring):
+                url = to_slumber_scheme(value, get_slumber_services())
+            else:
+                url = to_slumber_scheme(value._url, get_slumber_services())
         return super(RemoteForeignKey, self).get_db_prep_value(url, *a, **kw)
 
     def get_prep_value(self, value, *a, **kw):
-        if isinstance(value, basestring) or isinstance(value, DictObject):
-            return value
-        url = to_slumber_scheme(value._url, get_slumber_services())
+        url = value
+        if value is not None:
+            if isinstance(value, basestring) or isinstance(value, DictObject):
+                return value
+            url = to_slumber_scheme(value._url, get_slumber_services())
         return super(RemoteForeignKey, self).get_prep_value(url, *a, **kw)
 
     def to_python(self, value):
