@@ -4,7 +4,7 @@
 from django.db.models import URLField, SubfieldBase
 
 from slumber.connector.api import _InstanceProxy, get_instance
-from slumber.connector.dictobject import DictObject
+#from slumber.connector.dictobject import DictObject
 from slumber.forms import RemoteForeignKeyField
 from slumber.scheme import to_slumber_scheme, from_slumber_scheme
 from slumber.server import get_slumber_services
@@ -29,14 +29,16 @@ class RemoteForeignKey(URLField):
         pass
 
     def get_db_prep_value(self, value, *a, **kw):
-        if isinstance(value, basestring):
+        if value is None:
+            url = None
+        elif isinstance(value, basestring):
             url = to_slumber_scheme(value, get_slumber_services())
         else:
             url = to_slumber_scheme(value._url, get_slumber_services())
         return super(RemoteForeignKey, self).get_db_prep_value(url, *a, **kw)
 
     def get_prep_value(self, value, *a, **kw):
-        if isinstance(value, basestring) or isinstance(value, DictObject):
+        if isinstance(value, basestring) or value is None:
             return value
         url = to_slumber_scheme(value._url, get_slumber_services())
         return super(RemoteForeignKey, self).get_prep_value(url, *a, **kw)

@@ -1,3 +1,6 @@
+2013-06-04  Kirit Saelensminde  <kirit@felspar.com>
+ Fixed up some NULL handling problems for the database fields on RemoteForeignKey thanks to Jsaytoe.
+
 2013-04-18  Kirit Saelensminde  <kirit@felspar.com>
  Added in a Django 1.5 test project and made suitable changes to the code to account for it.
  Add a South introspection rule for the custom remote foreign key field.

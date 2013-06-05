@@ -55,3 +55,5 @@ class Profile(models.Model):
 class Order(models.Model):
     shop = RemoteForeignKey(null=False,
         model_url='slumber://pizzas/slumber_examples/Shop/')
+    nested = RemoteForeignKey(null=True, blank=True,
+        model_url='slumber://pizzas/slumber_ex_shop/NestedModel')
