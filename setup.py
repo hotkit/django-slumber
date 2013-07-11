@@ -10,7 +10,7 @@ def read(fname1, fname2):
 
 setup(
     name = "django_slumber",
-    version = "0.7.2",
+    version = "0.7.2.1",
     author = "Kirit Saelensminde",
     author_email = "kirit@felspar.com",
     url='https://github.com/KayEss/django-slumber',
@@ -23,7 +23,7 @@ setup(
         'slumber_examples', 'slumber_examples.no_models', 'slumber_examples.tests',
         'slumber_examples.nested1', 'slumber_examples.nested1.nested2',
         'slumber_ex_shop'],
-    install_requires = ['simplejson', 'httplib2', 'django-fost-authn >= 0.3.4'],
+    install_requires = ['simplejson', 'httplib2', 'django-fost-authn >= 0.3.6'],
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Framework :: Django",
