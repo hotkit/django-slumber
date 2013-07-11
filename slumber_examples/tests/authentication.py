@@ -176,7 +176,26 @@ class TestBackend(PatchForAuthnService, TestCase):
             self.assertTrue(hasattr(user, attr), user.__dict__.keys())
 
     def test_remote_login(self):
-        user = self.backend.authenticate(username=self.user.username, password='pass')
+        user = self.backend.authenticate(
+            username=self.user.username, password='pass')
+        self.assertTrue(user)
+        self.assertEqual(user.username, self.user.username)
+
+    def test_remote_login_with_unicode_username(self):
+        # 2014 - mdash, 203d - interrobang
+        self.user.username = u'interesting\u2014user\u203d'
+        self.user.save()
+        user = self.backend.authenticate(
+            username=self.user.username, password='pass')
+        self.assertTrue(user)
+        self.assertEqual(user.username, self.user.username)
+
+    def test_remote_login_with_unicode_password(self):
+        # 203d - interrobang
+        self.user.set_password(u'newpass\u203d')
+        self.user.save()
+        user = self.backend.authenticate(
+            username=self.user.username, password=u'newpass\u203d')
         self.assertTrue(user)
         self.assertEqual(user.username, self.user.username)
 
