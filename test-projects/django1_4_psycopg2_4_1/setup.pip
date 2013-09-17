@@ -1,0 +1,5 @@
+django < 1.5
+django-nose
+git+git://github.com/nose-devs/nose.git
+
+psycopg2 == 2.4.1

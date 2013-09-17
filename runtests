@@ -18,6 +18,11 @@ check_worked python -tt manage.py test slumber_examples
 cd ../..
 check_worked pylint --rcfile=pylintrc --output-format=colorized slumber
 
+workon slumber1-4_psycopg2-4-1
+cd test-projects/django1_4_psycopg2_4_1
+echo Django 1.4 with psycopg 2.4.1
+check_worked python manage.py test slumber_examples
+
 workon slumber1-4
 cd test-projects/django1_4
 echo Django 1.4
