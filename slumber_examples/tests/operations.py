@@ -6,7 +6,7 @@ from django.test import TestCase
 from slumber import Client
 from slumber.connector.ua import post, get
 
-from slumber_examples.models import Pizza
+from slumber_examples.models import Pizza, PizzaCrust
 from slumber_examples.tests.configurations import ConfigureUser
 
 
@@ -32,6 +32,13 @@ class CreateTests(ConfigureUser, TestCase):
         self.assertEqual(response2.status_code, 200)
         self.assertFalse(json2['created'], json2)
         self.assertEqual(Pizza.objects.all().count(), 1)
+
+    def test_create_pizza_crust(self):
+        response1, json1 = post('/slumber/slumber_examples/PizzaCrust/create/', {
+                'code': 'org', 'full_name': 'original crust'})
+        self.assertEqual(response1.status_code, 200)
+        self.assertTrue(json1['created'], json1)
+        self.assertEqual(PizzaCrust.objects.all().count(), 1)
 
     def test_update_pizza(self):
         self.cnx = Client()
