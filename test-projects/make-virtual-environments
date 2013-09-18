@@ -18,6 +18,10 @@ mkvirtualenv --no-site-package slumber1-3
 check_worked pip install -r setup.pip -r django1_3/setup.pip
 deactivate
 
+mkvirtualenv --no-site-package slumber1-3_psycopg2-4-1
+check_worked pip install -r setup.pip -r django1_3_psycopg2_4_1/setup.pip
+deactivate
+
 mkvirtualenv --no-site-package slumber1-4
 check_worked pip install -r setup.pip -r django1_4/setup.pip
 deactivate
