@@ -1,6 +1,7 @@
 *.pyc
 coverage
-/test-projects/django1_3/.coverage
+test-projects/django1_3/.coverage
+test-projects/django1_3_psycopg2_4_1/.coverage
 .idea
 .DS_Store
 

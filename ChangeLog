@@ -1,3 +1,6 @@
+2013-09-18  Chirapat Harigulrak  <chirapat@proteus-tech.com>
+ Make the create operation work for models who don't have a primary key of a numeric sequence.
+
 2013-07-11  Kirit Saelensminde  <kirit@felspar.com>
  UTF-7 encode the user name in the Authorization header and in the X-FOST-User header.
  Allow for Unicode data in user names and passwords when remote authenticating.

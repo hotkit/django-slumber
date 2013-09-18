@@ -35,9 +35,10 @@ class CreateInstance(ModelOperation):
 
             # Reset the sequence point in case there was a PK set
             cursor = connection.cursor()
-            lines = connection.ops.sequence_reset_sql(
+            reset_sequence_command_lines = connection.ops.sequence_reset_sql(
                 no_style(), [self.model.model])
-            cursor.execute(';'.join(lines))
+            if len(reset_sequence_command_lines) != 0:
+                cursor.execute(';'.join(reset_sequence_command_lines))
 
             instance_data(response, self.model, instance)
             response['pk'] = to_json_data(self.model, instance, 'pk',
@@ -45,4 +46,3 @@ class CreateInstance(ModelOperation):
             response['created'] = created
 
         return do_create(self, request)
-
