@@ -122,6 +122,21 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
         self.assertTrue(headers.has_key('X-FOST-User'), headers)
         self.assertEqual(headers['X-FOST-User'], self.user.username)
 
+    def test_username_with_unicode(self):
+        self.user.username = u"my\u2014name" # 0x2014 is mdash
+        self.user.save()
+        headers = {}
+        def check_request(request):
+            for k, v in _sign_request('GET', '/', '', False).items():
+                headers[k] = v
+            return HttpResponse('ok', 'text/plain')
+        with patch('slumber_examples.views._ok_text', check_request):
+            self.signed_get(self.user.username)
+        self.assertTrue(headers.has_key('Authorization'), headers)
+        self.assertTrue(headers.has_key('X-FOST-User'), headers)
+        self.assertEqual(
+            headers['X-FOST-User'].decode('utf-7'), self.user.username)
+
     def test_authentication_backend_accepts_signature(self):
         def check_request(request):
             class response:
@@ -161,7 +176,26 @@ class TestBackend(PatchForAuthnService, TestCase):
             self.assertTrue(hasattr(user, attr), user.__dict__.keys())
 
     def test_remote_login(self):
-        user = self.backend.authenticate(username=self.user.username, password='pass')
+        user = self.backend.authenticate(
+            username=self.user.username, password='pass')
+        self.assertTrue(user)
+        self.assertEqual(user.username, self.user.username)
+
+    def test_remote_login_with_unicode_username(self):
+        # 2014 - mdash, 203d - interrobang
+        self.user.username = u'interesting\u2014user\u203d'
+        self.user.save()
+        user = self.backend.authenticate(
+            username=self.user.username, password='pass')
+        self.assertTrue(user)
+        self.assertEqual(user.username, self.user.username)
+
+    def test_remote_login_with_unicode_password(self):
+        # 203d - interrobang
+        self.user.set_password(u'newpass\u203d')
+        self.user.save()
+        user = self.backend.authenticate(
+            username=self.user.username, password=u'newpass\u203d')
         self.assertTrue(user)
         self.assertEqual(user.username, self.user.username)
 

@@ -62,7 +62,7 @@ def _calculate_signature(authn_name, method, url, body,
     # pylint: disable=R0914
     to_sign = {}
     if username:
-        to_sign['X-FOST-User'] = username
+        to_sign['X-FOST-User'] = username.encode('utf-7')
     if not isinstance(body, basestring):
         if method in ['POST', 'PUT']:
             logging.info("Encoding POST/PUT data %s", body or {})
@@ -76,12 +76,14 @@ def _calculate_signature(authn_name, method, url, body,
     _, signature = fost_hmac_request_signature(
         settings.SECRET_KEY, method, url, now, to_sign, data)
     headers = {}
-    headers['Authorization'] = 'FOST %s:%s' % (authn_name, signature)
+    headers['Authorization'] = 'FOST %s:%s' % \
+        (authn_name.encode('utf-7'), signature)
     headers['X-FOST-Timestamp'] = now
     headers['X-FOST-Headers'] = ' '.join(['X-FOST-Headers'] + to_sign.keys())
     for key, value in to_sign.items():
         headers[key] = value
-    logging.debug("_calculate_signature %s adding headers: %s", method, headers)
+    logging.debug("_calculate_signature %s adding headers: %s",
+        method, headers)
     if for_fake_client:
         return dict([('HTTP_' + k.upper().replace('-', '_'), v)
             for k, v in headers.items()])

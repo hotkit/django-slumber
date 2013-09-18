@@ -15,7 +15,7 @@ class AuthenticateUser(ModelOperation):
         """
         # This method can't be a function
         # pylint: disable=R0201
-        user = authenticate(**dict([(str(k), str(v))
+        user = authenticate(**dict([(str(k), v)
             for k, v in request.POST.items()]))
         response['authenticated'] = bool(user)
         if user:
