@@ -106,6 +106,7 @@ def for_user(name):
                 return function(*a, **kw)
             finally:
                 PER_THREAD.username = old
+        wrapped.__name__ = function.__name__
         return wrapped
     return decorator
 
