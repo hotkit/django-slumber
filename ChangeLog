@@ -1,3 +1,6 @@
+2013-09-24  Kirit Saelensminde  <kirit@felspar.com>
+ The decorator `slumber.connector.ua.for_user` now copies the wrapped function name so that it can be used for tests etc. where the original function name is still needed.
+
 2013-09-18  Chirapat Harigulrak  <chirapat@proteus-tech.com>
  Make the create operation work for models who don't have a primary key of a numeric sequence.
 
