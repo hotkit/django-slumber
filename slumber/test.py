@@ -168,7 +168,8 @@ def mock_ua(test_method):
             emethod, eurl, edata, rdata = self.expectations.pop(0)
             self.test.assertEqual(emethod, 'post')
             self.test.assertEqual(url, eurl)
-            self.test.assertEqual(data, edata)
+            if not edata is None:
+                self.test.assertEqual(data, edata)
             return None, rdata
 
     def test_wrapped(test, *a, **kw):
