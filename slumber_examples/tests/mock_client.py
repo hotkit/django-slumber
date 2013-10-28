@@ -80,7 +80,7 @@ class TestSlumberMockClient(ServiceTestsWithDirectory, unittest2.TestCase):
 
         Hawaiin_pizza =  client.pizzas.slumber.Pizza.get(pk = 3)
         self.assertEquals(Hawaiin_pizza.for_sale, True)
-        
+
     @mock_client(pizzas__app__Model=[])
     def test_created_object_can_be_gotten(self):
         client.pizzas.app.Model.create(id=1, name='Test')
@@ -159,11 +159,28 @@ class TestSlumberMockUA(ServiceTestsWithDirectory, unittest2.TestCase):
         expect.post('/', {}, {})
         get('/')
 
+    @unittest2.expectedFailure
+    @mock_ua
+    def test_expect_wrong_post_data(self, expect):
+        expect.post('/', {'data': True}, {})
+        post('/', {'data': False})
+
     @mock_client(pizzas__app__Model=[])
     @mock_ua
     def test_model_operation_with_mock_ua(self, expect):
         expect.get('http://pizzas/app/Model/test-op/', {'test': 'item'})
         expect.post('http://pizzas/app/Model/test-op/', {'test': 'item'}, {'item': 'test'})
+        self.assertEqual(len(expect.expectations), 2)
+        response1, json1 = get(client.pizzas.app.Model._operations['test-op'])
+        self.assertEqual(json1, dict(test='item'))
+        response2, json2 = post(client.pizzas.app.Model._operations['test-op'], json1)
+        self.assertEqual(json2, dict(item='test'))
+
+    @mock_client(pizzas__app__Model=[])
+    @mock_ua
+    def test_model_operation_with_mock_ua_no_post_data_match(self, expect):
+        expect.get('http://pizzas/app/Model/test-op/', {'test': 'item'})
+        expect.post('http://pizzas/app/Model/test-op/', None, {'item': 'test'})
         self.assertEqual(len(expect.expectations), 2)
         response1, json1 = get(client.pizzas.app.Model._operations['test-op'])
         self.assertEqual(json1, dict(test='item'))
