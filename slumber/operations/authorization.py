@@ -1,7 +1,25 @@
 """
     Implements authorization checks for users.
 """
-from slumber.operations import InstanceOperation
+from slumber.operations import InstanceOperation, ModelOperation
+
+
+class CheckMyPermission(ModelOperation):
+    """Allows for checking if the current user has a specific permission.
+    """
+
+    def get(self, request, response, _appname, _modelname, permission=None):
+        """Implements the permission lookup.
+        """
+        # pylint: disable=R0201
+        response['permissions'] = {}
+        permissions = []
+        if permission:
+            permissions.append(permission)
+        for perm in request.GET.getlist('q'):
+            permissions.append(perm)
+        for perm in permissions:
+            response['permissions'][perm] = request.user.has_perm(perm)
 
 
 class PermissionCheck(InstanceOperation):

@@ -14,12 +14,13 @@ from slumber_examples.models import Order, Pizza, PizzaPrice, Shop
 from slumber_examples.tests.configurations import ConfigureUser
 
 
-def _perform(client, method, url, data, content_type=None):
+def _perform(client, method, url, data, content_type=None, username=None):
     def method_wrapper(*a, **kw):
         logging.info("Using wrapped GET handler")
         return client.get(*a, REQUEST_METHOD=method.upper(), **kw)
     logging.info("%s with data %s", method, data)
-    headers = _calculate_signature('service', method.upper(), url, data, None, True)
+    headers = _calculate_signature('service',
+        method.upper(), url, data, username, True)
     response = getattr(client, method, method_wrapper)(
         url, data, content_type=content_type, **headers)
     if response.status_code == 200:
@@ -31,8 +32,9 @@ def _perform(client, method, url, data, content_type=None):
 class ViewTests(object):
     """Base class for view tests that give us some user agent functionality.
     """
-    def do_get(self, url, query = {}):
-        return _perform(self.client, 'get', self.url(url), query)
+    def do_get(self, url, query = {}, username=None):
+        return _perform(self.client, 'get', self.url(url), query,
+            username=username)
 
     def do_post(self, url, body):
         return _perform(self.client, 'post', self.url(url), dumps(body),
@@ -466,6 +468,8 @@ class UserViews(ViewTests):
     data = '/django/contrib/auth/User/data/%s/'
     perm = '/django/contrib/auth/User/has-permission/%s/%s/'
     perms = '/django/contrib/auth/User/get-permissions/%s/'
+    user_perm = '/django/contrib/auth/User/do-i-have-perm/%s/'
+    user_perm_q = '/django/contrib/auth/User/do-i-have-perm/'
 
     def setUp(self):
         self.user = User(username='test-user')
@@ -509,6 +513,12 @@ class UserViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(json['is-allowed'], False, json)
 
+    def test_current_user_permission_no_permission(self):
+        response, json = self.do_get(self.user_perm % 'foo.example',
+            username=self.user.username)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['permissions']['foo.example'], False, json)
+
     def test_user_permission_is_allowed(self):
         permission = Permission(content_type_id=1, name='Can something',
             codename='can_something')
@@ -518,6 +528,16 @@ class UserViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(json['is-allowed'], True, json)
 
+    def test_current_user_permission_is_allowed(self):
+        permission = Permission(content_type_id=1, name='Can something',
+            codename='can_something')
+        permission.save()
+        self.user.user_permissions.add(permission)
+        response, json = self.do_get(self.user_perm % 'auth.can_something',
+            username=self.user.username)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['permissions']['auth.can_something'], True, json)
+
     def test_user_permission_not_allowed(self):
         permission = Permission(content_type_id=1, name='Can something',
             codename='can_something')
@@ -525,6 +545,38 @@ class UserViews(ViewTests):
         response, json = self.do_get(self.perm % (self.user.pk, 'auth.can_something'))
         self.assertEquals(response.status_code, 200)
         self.assertEquals(json['is-allowed'], False, json)
+
+    def test_current_user_permission_not_allowed(self):
+        permission = Permission(content_type_id=1, name='Can something',
+            codename='can_something')
+        permission.save()
+        response, json = self.do_get(self.user_perm % 'auth.can_something',
+                username=self.user.username)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['permissions']['auth.can_something'], False, json)
+
+    def test_current_user_multiple_permissions(self):
+        can_perm = Permission(content_type_id=1, name='Can something',
+            codename='can_something')
+        can_perm.save()
+        self.user.user_permissions.add(can_perm)
+        cannot_perm = Permission(content_type_id=1, name='Cannot something',
+            codename='cannot_something')
+        cannot_perm.save()
+        response, json = self.do_get(self.user_perm_q,
+            dict(q=['foo.example', 'auth.can_something', 'auth.cannot_something']),
+            username=self.user.username)
+        self.assertEquals(response.status_code, 200)
+        permissions = json['permissions']
+        self.assertEquals(permissions['foo.example'], False, json)
+        self.assertEquals(permissions['auth.can_something'], True, json)
+        self.assertEquals(permissions['auth.cannot_something'], False, json)
+
+    def test_current_user_no_permissions(self):
+        response, json = self.do_get(self.user_perm_q,
+            username=self.user.username)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json['permissions'].keys(), [], json)
 
     def test_get_group_permissions(self):
         response, json = self.do_get(self.perms % self.user.pk)
