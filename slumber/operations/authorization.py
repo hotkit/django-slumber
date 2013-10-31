@@ -9,7 +9,10 @@ class CheckMyPermission(ModelOperation):
     """
 
     def get(self, request, response, _appname, _modelname, permission):
-        pass
+        """Implements the permission lookup.
+        """
+        # pylint: disable=R0201
+        response['is-allowed'] = request.user.has_perm(permission)
 
 
 class PermissionCheck(InstanceOperation):
