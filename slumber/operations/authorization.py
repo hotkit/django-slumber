@@ -1,7 +1,15 @@
 """
     Implements authorization checks for users.
 """
-from slumber.operations import InstanceOperation
+from slumber.operations import InstanceOperation, ModelOperation
+
+
+class CheckMyPermission(ModelOperation):
+    """Allows for checking if the current user has a specific permission.
+    """
+
+    def get(self, request, response, _appname, _modelname, permission):
+        pass
 
 
 class PermissionCheck(InstanceOperation):
