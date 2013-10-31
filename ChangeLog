@@ -1,3 +1,6 @@
+2013-10-31  Kirit Saelensminde  <kirit@felspar.com>
+ Allow checking if the user making a request has a given permission.
+
 2013-10-28  Kirit Saelensminde  <kirit@felspar.com>
  Allow us to set up a POST expectation, but not test on the post data itself by setting the expected data to None.
 
