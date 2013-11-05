@@ -7,8 +7,8 @@ from django.db.models.fields import FieldDoesNotExist
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL, \
     SLUMBER_MODEL_OPERATIONS
 from slumber.operations.authenticate import AuthenticateUser
-from slumber.operations.authorization import PermissionCheck, \
-    ModulePermissions, GetPermissions
+from slumber.operations.authorization import CheckMyPermission, \
+    PermissionCheck, ModulePermissions, GetPermissions
 from slumber.operations.create import CreateInstance
 from slumber.operations.delete import DeleteInstance
 from slumber.operations.instancedata import InstanceData
@@ -46,6 +46,7 @@ class DjangoModel(object):
             UpdateInstance(self, 'update')]
         if self.path == 'django/contrib/auth/User/':
             ops = SLUMBER_MODEL_OPERATIONS[self]
+            ops.append(CheckMyPermission(self, 'do-i-have-perm'))
             ops.append(AuthenticateUser(self, 'authenticate'))
             ops.append(PermissionCheck(self, 'has-permission'))
             ops.append(GetPermissions(self, 'get-permissions'))
