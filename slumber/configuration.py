@@ -7,7 +7,7 @@ from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.server.json import DATA_MAPPING
 
 
-def configure(django_model,
+def configure(arg,
         properties_ro = None,
         to_json = None,
         operations_extra = None,
@@ -38,12 +38,16 @@ def configure(django_model,
     """
     # We need all of these arguments as they are all used
     # pylint: disable=R0913
-    if django_model and isinstance(django_model, basestring):
+    if isinstance(arg, basestring):
+        model_name = arg
         if instance_proxy:
-            INSTANCE_PROXIES[django_model] = instance_proxy
+            INSTANCE_PROXIES[model_name] = instance_proxy
         if model_proxy:
-            MODEL_PROXIES[django_model] = model_proxy
+            MODEL_PROXIES[model_name] = model_proxy
+    elif isinstance(arg, dict):
+        pass
     else:
+        django_model = arg
         model = DJANGO_MODEL_TO_SLUMBER_MODEL[django_model]
 
         model.properties['r'] += properties_ro or []
