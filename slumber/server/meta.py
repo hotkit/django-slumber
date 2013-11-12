@@ -13,6 +13,8 @@ IMPORTING = None
 def applications():
     """Return the Django application wrappers for all installed apps.
     """
+    # We need the global or the tracking doesn't work
+    # pylint: disable = global-statement
     if APP_FROM_APPNAME:
         return APP_FROM_APPNAME.values()
     else:
