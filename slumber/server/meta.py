@@ -18,6 +18,7 @@ def applications():
             __import__(app.name, globals(), locals(), ['slumber_server'])
         return apps
 
+
 def get_application(app_name):
     """Build a Django application wrapper around an application given
     by its name.
