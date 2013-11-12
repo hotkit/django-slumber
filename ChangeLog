@@ -1,3 +1,6 @@
+2013-11-12  Kirit Saelensminde  <kirit@felspar.com>
+ Django applicatoins that are imported on the server side are now able to take a configuration that appears when the service URL is fetched.
+
 2013-10-31  Kirit Saelensminde  <kirit@felspar.com>
  Allow checking if the user making a request has a given permission.
 
