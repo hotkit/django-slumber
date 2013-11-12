@@ -7,6 +7,9 @@ from slumber._caches import APP_FROM_APPNAME
 from slumber.server.application import DjangoApp
 
 
+IMPORTING = None
+
+
 def applications():
     """Return the Django application wrappers for all installed apps.
     """
@@ -15,7 +18,10 @@ def applications():
     else:
         apps = [get_application(app) for app in settings.INSTALLED_APPS]
         for app in apps:
+            global IMPORTING
+            IMPORTING = app.name
             __import__(app.name, globals(), locals(), ['slumber_server'])
+            IMPORTING = None
         return apps
 
 

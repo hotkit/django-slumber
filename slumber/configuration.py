@@ -5,6 +5,7 @@ from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL, \
     SLUMBER_MODEL_OPERATIONS
 from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.server.json import DATA_MAPPING
+from slumber.server.meta import get_application
 
 
 def configure(arg,
@@ -45,7 +46,11 @@ def configure(arg,
         if model_proxy:
             MODEL_PROXIES[model_name] = model_proxy
     elif isinstance(arg, dict):
-        pass
+        from slumber.server.meta import IMPORTING
+        assert IMPORTING, "Slumber itself must call configure"
+        config = arg
+        app = get_application(IMPORTING)
+        app.configuration = config
     else:
         django_model = arg
         model = DJANGO_MODEL_TO_SLUMBER_MODEL[django_model]
