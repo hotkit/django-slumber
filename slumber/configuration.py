@@ -5,9 +5,10 @@ from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL, \
     SLUMBER_MODEL_OPERATIONS
 from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.server.json import DATA_MAPPING
+from slumber.server.meta import get_application
 
 
-def configure(django_model,
+def configure(arg,
         properties_ro = None,
         to_json = None,
         operations_extra = None,
@@ -38,19 +39,42 @@ def configure(django_model,
     """
     # We need all of these arguments as they are all used
     # pylint: disable=R0913
-    if django_model and isinstance(django_model, basestring):
-        if instance_proxy:
-            INSTANCE_PROXIES[django_model] = instance_proxy
-        if model_proxy:
-            MODEL_PROXIES[django_model] = model_proxy
+    if isinstance(arg, basestring):
+        _model_name(arg, instance_proxy, model_proxy)
+    elif isinstance(arg, dict):
+        _configuration(arg)
     else:
-        model = DJANGO_MODEL_TO_SLUMBER_MODEL[django_model]
+        _model(arg, to_json, properties_ro, operations_extra)
 
-        model.properties['r'] += properties_ro or []
-        for type_name, function in (to_json or {}).items():
-            DATA_MAPPING[type_name] = function
 
-        ops = SLUMBER_MODEL_OPERATIONS[model]
-        for operation, name in operations_extra or []:
-            ops.append(operation(model, name))
+def _model_name(model_name, instance_proxy, model_proxy):
+    """Process configuration given by a Django model name.
+    """
+    if instance_proxy:
+        INSTANCE_PROXIES[model_name] = instance_proxy
+    if model_proxy:
+        MODEL_PROXIES[model_name] = model_proxy
+
+
+def _configuration(config):
+    """Process a configuratoin that is to be added to the service meta-data.
+    """
+    from slumber.server.meta import IMPORTING
+    assert IMPORTING, "Slumber itself must call configure"
+    app = get_application(IMPORTING)
+    app.configuration = config
+
+
+def _model(django_model, to_json, properties_ro, operations_extra):
+    """Process configuration for a Django model
+    """
+    model = DJANGO_MODEL_TO_SLUMBER_MODEL[django_model]
+
+    model.properties['r'] += properties_ro or []
+    for type_name, function in (to_json or {}).items():
+        DATA_MAPPING[type_name] = function
+
+    ops = SLUMBER_MODEL_OPERATIONS[model]
+    for operation, name in operations_extra or []:
+        ops.append(operation(model, name))
 

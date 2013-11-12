@@ -4,6 +4,9 @@ from models import Pizza, Shop
 from operations import OrderPizza
 
 
+configure(
+    {'test': True})
+
 configure(Pizza,
     operations_extra = [(OrderPizza, 'order')])
 

@@ -128,7 +128,7 @@ Returns the instance attributes and provides links to related data. Only authent
 
 #### Customising Slumber data ####
 
-When Slumber loads the applications you have defined in your `settings.py` it will also try to load a module called `slumber_conf` from the same place as your models. This can be used to customise how models appear on the Slumber server.
+When Slumber loads the applications you have defined in your `settings.py` it will also try to load a module called `slumber_server` from the same place as your models. This can be used to customise how models appear on the Slumber server.
 
     from models import Shop
     from slumber import configure
@@ -137,6 +137,42 @@ When Slumber loads the applications you have defined in your `settings.py` it wi
         properties_ro = ['web_site'])
 
 This will make a new read-only property `web_site` available in the data about instances populated from the `web_site` property on that model.
+
+You can also pass pass in extra configuration data that you wish to see in the slumber request for the service.
+
+    from models import Shop
+    from slumber import configure
+
+    configure({'shop': True})
+
+The configuration item must be a `dict` and it will turn up in the service response. For example, you might see something like:
+
+    {
+        "services": {
+            "slumber_examples": "http://example.com/slumber/slumber_examples/",
+        },
+        "apps": {
+            "slumber_examples": "/slumber/slumber_examples/slumber_examples/",
+            "django.contrib.sites": "/slumber/slumber_examples/django/contrib/sites/",
+            "django.contrib.contenttypes": "/slumber/slumber_examples/django/contrib/contenttypes/",
+            "django.contrib.messages": "/slumber/slumber_examples/django/contrib/messages/",
+            "django.contrib.admin": "/slumber/slumber_examples/django/contrib/admin/",
+            "django.contrib.sessions": "/slumber/slumber_examples/django/contrib/sessions/",
+            "django.contrib.auth": "/slumber/slumber_examples/django/contrib/auth/",
+            "django.contrib.staticfiles": "/slumber/slumber_examples/django/contrib/staticfiles/"
+        },
+        "configuration": {
+            "shop": {
+                "shop": true
+            }
+        }
+        "_meta": {
+            "status": 200,
+            "message": "OK"
+        }
+
+You may have one per Django application that is contained within the service.
+
 
 ### update (instance) ###
 

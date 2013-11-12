@@ -79,6 +79,8 @@ def get_applications(request, response):
         return HttpResponseNotFound()
     response['apps'] = dict([(app.name, root + app.path + '/')
         for app in applications()])
+    response['configuration'] = dict([(app.name, app.configuration)
+        for app in applications() if getattr(app, 'configuration', None)])
     get_service_directory(request, response)
 
 
