@@ -116,13 +116,15 @@ class ViewErrorsService(ConfigureUser, ViewErrors, ServiceTests, TestCase):
 
 
 class BasicViews(ViewTests):
-
     def test_applications(self):
         self.assertTrue(bool(self.user))
         self.assertEqual(self.user.pk, 1)
         response, json = self.do_get('/')
         apps = json['apps']
         self.assertEquals(apps['slumber_examples'], self.url('/slumber_examples/'))
+        self.assertTrue(json.has_key('configuration'), json)
+        self.assertTrue(json['configuration'].has_key('slumber_examples'), json)
+        self.assertTrue(json['configuration']['slumber_examples']['test'], json)
 
     def test_model_search_success(self):
         response, json = self.do_get('/', {'model': 'slumber_examples.Pizza'})
