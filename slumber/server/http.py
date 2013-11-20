@@ -13,7 +13,7 @@ try:
 except ImportError: # pragma: no cover
     USE_CSRF = False
 
-from slumber.server import NotAuthorised, Forbidden
+from slumber.server import NotAuthorised, Forbidden, accept_handler
 
 
 class _proxyEncoder(JSONEncoder):
@@ -92,9 +92,9 @@ def view_handler(view):
             response['_meta']['username'] = request.user.username
         else:
             logging.debug("Request user %s not authenticated", request.user)
-        http_response = HttpResponse(dumps(response, indent=4,
-                cls=_proxyEncoder), 'text/plain',
-            status=response['_meta']['status'])
+        http_response = accept_handler.accept(meta.get('accept', ''))(
+            request, response, meta.get('CONTENT_TYPE', '')
+        )
         for header, value in response['_meta'].get('headers', {}).items():
             http_response[header] = value
         return http_response

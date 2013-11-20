@@ -11,3 +11,4 @@ from server import *
 from services import *
 from ua import *
 from views import *
+from accept_handler import *
