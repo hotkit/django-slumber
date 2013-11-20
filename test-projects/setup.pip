@@ -1,6 +1,7 @@
 # Required by Slumber
 simplejson
 httplib2
+dicttoxml
 
 django-fost-authn >= 0.3.6
 django_ip_authn

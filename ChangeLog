@@ -1,3 +1,6 @@
+2013-11-20  Chirapat Harigulrak <chirapat@proteus-tech.com>
+  Create xml response handler
+
 2013-07-11  Kirit Saelensminde  <kirit@felspar.com>
  UTF-7 encode the user name in the Authorization header and in the X-FOST-User header.
  Allow for Unicode data in user names and passwords when remote authenticating.
