@@ -45,7 +45,7 @@ def from_slumber_scheme(url, services=None):
                 final_url = service_url + url[len(service_prefix):]
                 return final_url
         raise SlumberServiceURLError(
-            "Service in URL %s does not found in configured services %s"
+            "Service in URL %s not found in configured services %s"
                 % (url, services.keys()))
     return url
 
