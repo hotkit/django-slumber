@@ -23,7 +23,7 @@ setup(
         'slumber_examples', 'slumber_examples.no_models', 'slumber_examples.tests',
         'slumber_examples.nested1', 'slumber_examples.nested1.nested2',
         'slumber_ex_shop'],
-    install_requires = ['simplejson', 'httplib2', 'django-fost-authn >= 0.3.6'],
+    install_requires = ['simplejson', 'httplib2', 'django-fost-authn >= 0.3.6', 'dicttoxml'],
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Framework :: Django",
