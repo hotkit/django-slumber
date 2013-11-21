@@ -1,3 +1,6 @@
+2013-11-20  Chirapat Harigulrak <chirapat@proteus-tech.com>
+ Create xml response handler
+
 2013-09-24  Kirit Saelensminde  <kirit@felspar.com>
  The decorator `slumber.connector.ua.for_user` now copies the wrapped function name so that it can be used for tests etc. where the original function name is still needed.
 
