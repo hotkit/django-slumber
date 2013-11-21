@@ -10,7 +10,7 @@ from slumber.server import xml
 class TestAcceptHandler(TestCase):
     def setUp(self):
         class Request(object):
-            META = {'accept': None, 'CONTENT_TYPE': None}
+            META = {'accept': 'application/xml;', 'CONTENT_TYPE': None}
         self.request = Request()
         self.response = {'_meta': {'status': 200}}
 
@@ -32,7 +32,7 @@ class TestAcceptHandler(TestCase):
         self.assertTrue(isinstance(expect_http_response, HttpResponse))
         self.assertEqual(loads(expect_http_response.content), test_str)
 
-    def test_accept_handler_with_real_value(self):
+    def test_accept_handler_with_mix_value(self):
         accept_handlers_list = [
             ('application/json', lambda req, res, ct: None),
             ('application/xhtml', lambda req, res, ct: HttpResponse(dumps({'fake_fn2': True}), 'text/plain', status=200))

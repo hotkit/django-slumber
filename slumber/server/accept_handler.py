@@ -2,10 +2,13 @@
 """
 
 from default_accept_handler import default_handler
+from xml import as_xml
 
 
 def get_handlers_list():
-    return []
+    return [
+        ('application/xml', as_xml),
+    ]
 
 
 def accept(request_meta_data, accept_handlers_list=None):
