@@ -1,9 +1,10 @@
-from mock import patch
+from mock import patch, Mock
 from simplejson import loads, dumps
 from django.http import HttpResponse
 from django.test import TestCase
 from slumber.server import accept_handler
 from slumber.server.http import view_handler
+from slumber.server import xml
 
 
 class TestAcceptHandler(TestCase):
@@ -69,4 +70,28 @@ class TestUsingAcceptHandler(TestCase):
         self.assertEquals(content, dict(
             fake_content=str(test_str),
             _meta=dict(status=200, message="OK", username="testuser")))
+
+    @patch('slumber.server.accept_handler.get_handlers_list')
+    def test_with_accept_header_as_xml(self, mock_handler_list):
+        xml.as_xml = Mock()
+        test_str = 'just a fake content'
+        class Request(object):
+            META = {'accept': 'application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;'}
+            class user(object):
+                @classmethod
+                def is_authenticated(cls):
+                    return True
+                username = 'testuser'
+
+        mock_handler_list.return_value = [
+            ('application/json', lambda req, res, ct: HttpResponse(dumps(res), 'text/plain')),
+            ('application/xml', xml.as_xml),
+        ]
+
+        @view_handler
+        def view(request, response):
+            response['fake_content'] = test_str
+
+        view(Request())
+        self.assertTrue(xml.as_xml.called)
 

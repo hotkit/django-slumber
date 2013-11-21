@@ -14,10 +14,11 @@ class TestXML(ConfigureUser, TestCase):
     def test_as_xml(self):
         # Arrange
         request = {}
-        response = {'_meta': dict(status=200, message='OK')}
+        response = {'_meta': dict(status=200, message='OK'),
+                    'fake_content': 'sputnik'}
         content_type = None
 
-        xml_snippet = dicttoxml.dicttoxml(response, root=False)
+        xml_snippet = dicttoxml.dicttoxml(dict(snippet=response), root=False)
         dom = parseString(xml_snippet).toprettyxml()
 
         expected_response = HttpResponse(dom, 'text/xml', 200)

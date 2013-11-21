@@ -10,6 +10,6 @@ from xml.dom.minidom import parseString
 def as_xml(request, response, content_type):
     """Return http response object in text/xml format.
     """
-    xml_snippet = dicttoxml.dicttoxml(response, root=False)
+    xml_snippet = dicttoxml.dicttoxml(dict(snippet=response), root=False)
     dom = parseString(xml_snippet).toprettyxml()
     return HttpResponse(dom, 'text/xml', status=response['_meta']['status'])
