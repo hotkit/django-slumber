@@ -1,8 +1,8 @@
 """ Dispatch type of http accept header handler
 """
 
-from default_accept_handler import default_handler
-from xml import as_xml
+from slumber.server.default_accept_handler import default_handler
+from slumber.server.xml import as_xml
 
 
 def get_handlers_list():
