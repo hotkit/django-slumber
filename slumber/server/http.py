@@ -3,10 +3,9 @@
     data.
 """
 import logging
-from simplejson import dumps, JSONEncoder, loads
+from simplejson import JSONEncoder, loads
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
 try:
     from django.views.decorators.csrf import csrf_exempt
     USE_CSRF = True

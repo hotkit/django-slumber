@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from xml.dom.minidom import parseString
 
 
-def as_xml(request, response, content_type):
+def as_xml(_request, response, _content_type):
     """Return http response object in text/xml format.
     """
     xml = dicttoxml.dicttoxml(response, root=True)

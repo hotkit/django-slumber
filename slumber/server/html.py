@@ -8,28 +8,30 @@ from django.http import HttpResponse
 from types import NoneType
 
 
-def build_html(request, response, content_type):
+def build_html(_request, response, _content_type):
     """Return http response object in text/html format.
     """
     html_template = '<!DOCTYPE HTML>\n<html><body>%s</body></html>'
-    dom = html_template % convert(response)
+    dom = html_template % _convert(response)
     if settings.DEBUG:
         dom = BeautifulSoup(dom).prettify()
 
     return HttpResponse(dom, 'text/HTML', status=response['_meta']['status'])
 
-def convert(obj):
-    """This is the recursively converter.
+
+def _convert(obj):
+    """This is the recursive converter.
     """
     if type(obj) in (int, float, str, unicode, bool, NoneType):
-        return convert_atom(obj)
+        return _convert_atom(obj)
     if isinstance(obj, dict):
-        return convert_dict(obj)
+        return _convert_dict(obj)
     if type(obj) in (list, set, tuple) or isinstance(obj, collections.Iterable):
-        return convert_list(obj)
+        return _convert_list(obj)
     raise TypeError('Unsupported data type')
 
-def convert_atom(val):
+
+def _convert_atom(val):
     """Return xml element for atom which are 'int', 'float',
     'long', 'string', 'boolean' and 'null'.
     """
@@ -49,21 +51,23 @@ def convert_atom(val):
         raise TypeError('Unsupported data type')
     return '<span class="%s">%s</span>' % (val_type, val)
 
-def convert_dict(obj):
+
+def _convert_dict(obj):
     """Return xml element for dict.
     """
     output = "<dl>"
     for k, v in obj.items():
         output += '<dt>%s</dt>' % k
-        output += '<dd>%s</dd>' % convert(v)
+        output += '<dd>%s</dd>' % _convert(v)
     output += "</dl>"
     return output
 
-def convert_list(items):
+
+def _convert_list(items):
     """Return xml element for list.
     """
     output = "<ol>"
     for item in items:
-        output += '<li>%s</li>' % convert(item)
+        output += '<li>%s</li>' % _convert(item)
     output += "</ol>"
     return output

@@ -6,7 +6,8 @@ from django.test import TestCase
 from mock import patch
 import mock
 
-from slumber.server.html import build_html, convert, convert_atom
+from slumber.server.html import (build_html, _convert as convert,
+    _convert_atom as convert_atom)
 from slumber_examples.tests import ConfigureUser
 
 
@@ -16,7 +17,7 @@ class TestHTML(ConfigureUser, TestCase):
         self.html_template = '<!DOCTYPE HTML>\n<html><body>%s</body></html>'
         super(TestHTML, self).setUp()
 
-    @patch("slumber.server.html.convert")
+    @patch("slumber.server.html._convert")
     def test_as_HTML_should_call_convert (self, convert_mocked):
         # Arrange
         request = {}

@@ -7,17 +7,20 @@ from slumber.server.html import build_html as as_html
 
 
 def get_handlers_list():
+    """The default set of content encoders.
+    """
     return [
         ('application/xml', as_xml),
-        ('text/html', as_html)
+        ('text/html', as_html),
     ]
 
 
 def accept(request_meta_data, accept_handlers_list=None):
+    """Perform the content type negotiation.
+    """
     if not accept_handlers_list:
         accept_handlers_list = get_handlers_list()
     for accept_str, fn_handler in accept_handlers_list:
         if accept_str in request_meta_data:
             return fn_handler
-    else:
-        return default_handler
+    return default_handler
