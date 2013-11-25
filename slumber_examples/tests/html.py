@@ -13,7 +13,7 @@ from slumber_examples.tests import ConfigureUser
 class TestHTML(ConfigureUser, TestCase):
     def setUp(self):
         settings.DEBUG = True
-        self.html_template = '<!DOCTYPE HTML><html><body>%s</body></html>'
+        self.html_template = '<!DOCTYPE HTML>\n<html><body>%s</body></html>'
         super(TestHTML, self).setUp()
 
     @patch("slumber.server.html.convert")
@@ -55,10 +55,10 @@ class TestHTML(ConfigureUser, TestCase):
         # Assert
         self.assertEqual(result, expect_result)
 
-    def test_convert_with_string_type(self):
+    def test_convert_with_string_type__convert_backslash_into_br_tag(self):
         # Arrange
-        test_dict = {'a':'Test_text'}
-        expect_result = '<dl><dt>a</dt><dd><span class="string">Test_text</span></dd></dl>'
+        test_dict = {'a':'Test_text\n'}
+        expect_result = '<dl><dt>a</dt><dd><span class="string">Test_text<br></span></dd></dl>'
         # Act
         result = convert(test_dict)
         # Assert
