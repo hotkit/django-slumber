@@ -6,6 +6,7 @@ from slumber.server import accept_handler
 from slumber.server.http import view_handler
 from slumber.server import xml
 from slumber.server import html
+from django.conf import settings
 
 
 class TestAcceptHandler(TestCase):
@@ -56,6 +57,22 @@ class TestUsingAcceptHandler(TestCase):
                     return True
                 username = 'testuser'
         self.test_request = Request
+
+    @patch('slumber.server.accept_handler.get_handlers_list')
+    def test_with_accept_handler_with_default(self, mock_handler_list):
+        settings.DEBUG = False
+        test_str = 'just a fake content'
+        mock_handler_list.return_value = []
+        test_result_str = '{"_meta": {"status": 200, "username": "testuser", "message": "OK"}, "fake_content": "just a fake content"}'
+
+
+        @view_handler
+        def view(request, response):
+            response['fake_content'] = test_str
+
+        http_response = view( self.test_request() )
+
+        self.assertEqual(test_result_str, str(http_response.content))
 
     @patch('slumber.server.accept_handler.get_handlers_list')
     def test_with_accept_header_value(self, mock_handler_list):
