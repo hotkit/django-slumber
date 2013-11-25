@@ -1,3 +1,7 @@
+2013-11-25 Siraset Jirapatchandej <siraset@proteus-tech.com>
+ Merge html response handler from nattakit
+ Merge xml response handler chirapat
+
 2013-11-20  Chirapat Harigulrak <chirapat@proteus-tech.com>
   Create xml response handler
 
