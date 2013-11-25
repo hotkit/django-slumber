@@ -65,6 +65,7 @@ def view_handler(view):
         """The decorated implementation.
         """
         meta = request.META
+        print 'meta ', meta.items()
         if meta.get('CONTENT_TYPE', '').startswith('application/json') and \
                 meta.get('CONTENT_LENGTH'):
             request.POST = loads(request.raw_post_data)
@@ -92,7 +93,7 @@ def view_handler(view):
             response['_meta']['username'] = request.user.username
         else:
             logging.debug("Request user %s not authenticated", request.user)
-        http_response = accept_handler.accept(meta.get('accept', ''))(
+        http_response = accept_handler.accept(meta.get('HTTP_ACCEPT', ''))(
             request, response, meta.get('CONTENT_TYPE', '')
         )
         for header, value in response['_meta'].get('headers', {}).items():

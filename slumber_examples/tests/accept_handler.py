@@ -11,12 +11,12 @@ from slumber.server import html
 class TestAcceptHandler(TestCase):
     def setUp(self):
         class Request(object):
-            META = {'accept': 'application/xml;', 'CONTENT_TYPE': None}
+            META = {'HTTP_ACCEPT': 'application/xml;', 'CONTENT_TYPE': None}
         self.request = Request()
         self.response = {'_meta': {'status': 200}}
 
     def test_accept_handler(self):
-        expect_http_response = accept_handler.accept(self.request.META['accept'])(
+        expect_http_response = accept_handler.accept(self.request.META['HTTP_ACCEPT'])(
             self.request, self.response, self.request.META.get('CONTENT_TYPE', None)
         )
         self.assertTrue(isinstance(expect_http_response, HttpResponse))
@@ -49,7 +49,7 @@ class TestAcceptHandler(TestCase):
 class TestUsingAcceptHandler(TestCase):
     def setUp(self):
         class Request(object):
-            META = {'accept': 'application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;'}
+            META = {'HTTP_ACCEPT': 'application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;'}
             class user(object):
                 @classmethod
                 def is_authenticated(cls):
