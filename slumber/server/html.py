@@ -11,7 +11,7 @@ from types import NoneType
 def build_html(request, response, content_type):
     """Return http response object in text/html format.
     """
-    html_template = '<!DOCTYPE HTML><html><body>%s</body></html>'
+    html_template = '<!DOCTYPE HTML>\n<html><body>%s</body></html>'
     dom = html_template % convert(response)
     if settings.DEBUG:
         dom = BeautifulSoup(dom).prettify()

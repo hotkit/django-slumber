@@ -13,7 +13,7 @@ from slumber_examples.tests import ConfigureUser
 class TestHTML(ConfigureUser, TestCase):
     def setUp(self):
         settings.DEBUG = True
-        self.html_template = '<!DOCTYPE HTML><html><body>%s</body></html>'
+        self.html_template = '<!DOCTYPE HTML>\n<html><body>%s</body></html>'
         super(TestHTML, self).setUp()
 
     @patch("slumber.server.html.convert")
