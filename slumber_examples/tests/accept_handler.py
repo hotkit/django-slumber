@@ -5,6 +5,7 @@ from django.test import TestCase
 from slumber.server import accept_handler
 from slumber.server.http import view_handler
 from slumber.server import xml
+from slumber.server import html
 
 
 class TestAcceptHandler(TestCase):
@@ -93,4 +94,19 @@ class TestUsingAcceptHandler(TestCase):
         view( self.test_request() )
         self.assertTrue(xml.as_xml.called)
 
- 
+    @patch('slumber.server.accept_handler.get_handlers_list')
+    def test_with_accept_handler_as_html(self, mock_handler_list):
+        html.build_html = Mock()
+        test_str = 'just a fake content'
+
+        mock_handler_list.return_value = [
+            ('application/json', lambda req, res, ct: HttpResponse(dumps(res), 'text/plain')),
+            ('text/html', html.build_html),
+        ]
+
+        @view_handler
+        def view(request, response):
+            response['fake_content'] = test_str
+
+        view( self.test_request() )
+        self.assertTrue(html.build_html.called)
