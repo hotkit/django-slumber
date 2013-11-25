@@ -18,7 +18,7 @@ class TestXML(ConfigureUser, TestCase):
                     'fake_content': 'sputnik'}
         content_type = None
 
-        xml_snippet = dicttoxml.dicttoxml(dict(snippet=response), root=False)
+        xml_snippet = dicttoxml.dicttoxml(response, root=True)
         dom = parseString(xml_snippet).toprettyxml()
 
         expected_response = HttpResponse(dom, 'text/xml', 200)
