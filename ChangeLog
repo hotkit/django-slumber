@@ -1,3 +1,6 @@
+2013-11-20  Chirapat Harigulrak <chirapat@proteus-tech.com>
+  Create xml response handler
+
 2013-11-12  Kirit Saelensminde  <kirit@felspar.com>
  Django applicatoins that are imported on the server side are now able to take a configuration that appears when the service URL is fetched.
 
