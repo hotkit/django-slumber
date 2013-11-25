@@ -13,4 +13,4 @@ from ua import *
 from views import *
 from xml import *
 from accept_handler import *
-
+from html import *
