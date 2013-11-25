@@ -14,6 +14,5 @@ def as_xml(request, response, content_type):
     xml = dicttoxml.dicttoxml(response, root=True)
     if settings.DEBUG:
         xml = parseString(xml).toprettyxml()
-
     return HttpResponse(xml, 'text/xml', status=response['_meta']['status'])
 

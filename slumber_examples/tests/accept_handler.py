@@ -78,7 +78,6 @@ class TestUsingAcceptHandler(TestCase):
     def test_with_accept_header_value(self, mock_handler_list):
         test_str = 'just a fake content'
 
-
         mock_handler_list.return_value = [
             ('application/xml', lambda req, res, ct: HttpResponse(dumps(res), 'text/plain')),
         ]
@@ -98,7 +97,6 @@ class TestUsingAcceptHandler(TestCase):
         xml.as_xml = Mock()
         test_str = 'just a fake content'
 
-
         mock_handler_list.return_value = [
             ('application/json', lambda req, res, ct: HttpResponse(dumps(res), 'text/plain')),
             ('application/xml', xml.as_xml),
@@ -108,7 +106,7 @@ class TestUsingAcceptHandler(TestCase):
         def view(request, response):
             response['fake_content'] = test_str
 
-        view( self.test_request() )
+        view(self.test_request())
         self.assertTrue(xml.as_xml.called)
 
     @patch('slumber.server.accept_handler.get_handlers_list')
