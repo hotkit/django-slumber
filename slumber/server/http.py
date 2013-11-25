@@ -65,7 +65,6 @@ def view_handler(view):
         """The decorated implementation.
         """
         meta = request.META
-        print 'meta ', meta.items()
         if meta.get('CONTENT_TYPE', '').startswith('application/json') and \
                 meta.get('CONTENT_LENGTH'):
             request.POST = loads(request.raw_post_data)
