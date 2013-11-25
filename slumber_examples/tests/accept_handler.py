@@ -46,9 +46,7 @@ class TestAcceptHandler(TestCase):
 
 
 class TestUsingAcceptHandler(TestCase):
-    @patch('slumber.server.accept_handler.get_handlers_list')
-    def test_with_accept_header_value(self, mock_handler_list):
-        test_str = 'just a fake content'
+    def setUp(self):
         class Request(object):
             META = {'accept': 'application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;'}
             class user(object):
@@ -56,6 +54,12 @@ class TestUsingAcceptHandler(TestCase):
                 def is_authenticated(cls):
                     return True
                 username = 'testuser'
+        self.test_request = Request
+
+    @patch('slumber.server.accept_handler.get_handlers_list')
+    def test_with_accept_header_value(self, mock_handler_list):
+        test_str = 'just a fake content'
+
 
         mock_handler_list.return_value = [
             ('application/xml', lambda req, res, ct: HttpResponse(dumps(res), 'text/plain')),
@@ -65,7 +69,7 @@ class TestUsingAcceptHandler(TestCase):
         def view(request, response):
             response['fake_content'] = test_str
 
-        http_response = view(Request())
+        http_response = view( self.test_request() )
         content = loads(http_response.content)
         self.assertEquals(content, dict(
             fake_content=str(test_str),
@@ -75,13 +79,7 @@ class TestUsingAcceptHandler(TestCase):
     def test_with_accept_header_as_xml(self, mock_handler_list):
         xml.as_xml = Mock()
         test_str = 'just a fake content'
-        class Request(object):
-            META = {'accept': 'application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;'}
-            class user(object):
-                @classmethod
-                def is_authenticated(cls):
-                    return True
-                username = 'testuser'
+
 
         mock_handler_list.return_value = [
             ('application/json', lambda req, res, ct: HttpResponse(dumps(res), 'text/plain')),
@@ -92,6 +90,7 @@ class TestUsingAcceptHandler(TestCase):
         def view(request, response):
             response['fake_content'] = test_str
 
-        view(Request())
+        view( self.test_request() )
         self.assertTrue(xml.as_xml.called)
 
+ 
