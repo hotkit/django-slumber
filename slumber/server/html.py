@@ -1,14 +1,26 @@
+"""Implements the conversion of the response data to valid html data.
+"""
+
 import collections
 from BeautifulSoup import BeautifulSoup
-from types import NoneType
+from django.conf import settings
 from django.http import HttpResponse
+from types import NoneType
 
 
 def build_html(request, response, content_type):
-    dom = BeautifulSoup(convert(response)).prettify()
+    """Return http response object in text/html format.
+    """
+    html_template = '<!DOCTYPE HTML><html><body>%s</body></html>'
+    dom = html_template % convert(response)
+    if settings.DEBUG:
+        dom = BeautifulSoup(dom).prettify()
+
     return HttpResponse(dom, 'text/HTML', status=response['_meta']['status'])
 
 def convert(obj):
+    """This is the recursively converter.
+    """
     if type(obj) in (int, float, str, unicode, bool, NoneType):
         return convert_atom(obj)
     if isinstance(obj, dict):
@@ -18,6 +30,9 @@ def convert(obj):
     raise TypeError('Unsupported data type')
 
 def convert_atom(val):
+    """Return xml element for atom which are 'int', 'float',
+    'long', 'string', 'boolean' and 'null'.
+    """
     if type(val) is int:
         val_type = "int"
     elif type(val) is float:
@@ -34,6 +49,8 @@ def convert_atom(val):
     return '<span class="%s">%s</span>' % (val_type, val)
 
 def convert_dict(obj):
+    """Return xml element for dict.
+    """
     output = "<dl>"
     for k, v in obj.items():
         output += '<dt>%s</dt>' % k
@@ -42,6 +59,8 @@ def convert_dict(obj):
     return output
 
 def convert_list(items):
+    """Return xml element for list.
+    """
     output = "<ol>"
     for item in items:
         output += '<li>%s</li>' % convert(item)
