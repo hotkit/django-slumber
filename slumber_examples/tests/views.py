@@ -4,6 +4,7 @@ from simplejson import dumps, loads
 
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.test import TestCase
 
@@ -477,6 +478,8 @@ class UserViews(ViewTests):
         self.user = User(username='test-user')
         self.user.set_password('password')
         self.user.save()
+        # The actual model doesn't matter so long as it is in auth
+        self.content_type = ContentType.objects.get(model='user')
         super(UserViews, self).setUp()
 
     def test_user_data(self):
@@ -522,8 +525,8 @@ class UserViews(ViewTests):
         self.assertEquals(json['permissions']['foo.example'], False, json)
 
     def test_user_permission_is_allowed(self):
-        permission = Permission(content_type_id=1, name='Can something',
-            codename='can_something')
+        permission = Permission(content_type=self.content_type,
+            name='Can something', codename='can_something')
         permission.save()
         self.user.user_permissions.add(permission)
         response, json = self.do_get(self.perm % (self.user.pk, 'auth.can_something'))
@@ -531,8 +534,8 @@ class UserViews(ViewTests):
         self.assertEquals(json['is-allowed'], True, json)
 
     def test_current_user_permission_is_allowed(self):
-        permission = Permission(content_type_id=1, name='Can something',
-            codename='can_something')
+        permission = Permission(content_type=self.content_type,
+            name='Can something', codename='can_something')
         permission.save()
         self.user.user_permissions.add(permission)
         response, json = self.do_get(self.user_perm % 'auth.can_something',
@@ -541,16 +544,16 @@ class UserViews(ViewTests):
         self.assertEquals(json['permissions']['auth.can_something'], True, json)
 
     def test_user_permission_not_allowed(self):
-        permission = Permission(content_type_id=1, name='Can something',
-            codename='can_something')
+        permission = Permission(content_type=self.content_type,
+            name='Can something', codename='can_something')
         permission.save()
         response, json = self.do_get(self.perm % (self.user.pk, 'auth.can_something'))
         self.assertEquals(response.status_code, 200)
         self.assertEquals(json['is-allowed'], False, json)
 
     def test_current_user_permission_not_allowed(self):
-        permission = Permission(content_type_id=1, name='Can something',
-            codename='can_something')
+        permission = Permission(content_type=self.content_type,
+            name='Can something', codename='can_something')
         permission.save()
         response, json = self.do_get(self.user_perm % 'auth.can_something',
                 username=self.user.username)
@@ -558,12 +561,12 @@ class UserViews(ViewTests):
         self.assertEquals(json['permissions']['auth.can_something'], False, json)
 
     def test_current_user_multiple_permissions(self):
-        can_perm = Permission(content_type_id=1, name='Can something',
-            codename='can_something')
+        can_perm = Permission(content_type=self.content_type,
+            name='Can something', codename='can_something')
         can_perm.save()
         self.user.user_permissions.add(can_perm)
-        cannot_perm = Permission(content_type_id=1, name='Cannot something',
-            codename='cannot_something')
+        cannot_perm = Permission(content_type=self.content_type,
+            name='Cannot something', codename='cannot_something')
         cannot_perm.save()
         response, json = self.do_get(self.user_perm_q,
             dict(q=['foo.example', 'auth.can_something', 'auth.cannot_something']),
