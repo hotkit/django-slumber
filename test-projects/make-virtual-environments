@@ -33,3 +33,7 @@ deactivate
 mkvirtualenv --no-site-package slumber1-5
 check_worked pip install -r setup.pip -r django1_5/setup.pip
 deactivate
+
+mkvirtualenv --no-site-package slumber1-6
+check_worked pip install -r setup.pip -r django1_6/setup.pip
+deactivate
