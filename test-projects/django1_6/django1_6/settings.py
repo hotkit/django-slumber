@@ -36,16 +36,42 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django_nose',
+
+    # Slumber test applications
+    'slumber_examples',
+    'slumber_examples.nested1',
+    'slumber_examples.nested1.nested2',
+    'slumber_examples.no_models',
+
+    'slumber_ex_shop',
 )
+SLUMBER_CLIENT_APPS = ['slumber_examples']
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'fost_authn.Middleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+#AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
+
+# Needed to get the Django nose test runner working
+TEST_RUNNER='django_nose.NoseTestSuiteRunner'
+
+AUTHENTICATION_BACKENDS = [
+        'django.contrib.auth.backends.ModelBackend',
+        'fost_authn.FostBackend',
+    ]
+
+TEMPLATE_DIRS = [
+        os.path.join(BASE_DIR, '../../templates'),
+    ]
 
 ROOT_URLCONF = 'django1_6.urls'
 
@@ -73,7 +99,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
