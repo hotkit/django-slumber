@@ -49,7 +49,7 @@ INSTALLED_APPS = (
 )
 SLUMBER_CLIENT_APPS = ['slumber_examples']
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -57,9 +57,9 @@ MIDDLEWARE_CLASSES = (
     'fost_authn.Middleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
-#AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
+AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
 
 # Needed to get the Django nose test runner working
 TEST_RUNNER='django_nose.NoseTestSuiteRunner'
