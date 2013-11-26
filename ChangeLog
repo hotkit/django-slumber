@@ -1,5 +1,6 @@
 2013-11-26  Kirit Saelensminde  <kirit@felspar.com>
  Changed the way that the URLs are configured to be compatible with Django 1.6.
+ Other changes for Django 1.6 compatibility.
 
 2013-11-25  Siraset Jirapatchandej  <siraset@proteus-tech.com>
  Merge html response handler from nattakit

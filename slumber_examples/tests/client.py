@@ -51,7 +51,7 @@ class TestLoads(ConfigureUser, TestCase):
         client = Client()
         self.assertTrue(hasattr(client, 'django'), client.__dict__.keys())
         self.assertTrue(hasattr(client.django, 'contrib'), client.django.__dict__.keys())
-        self.assertTrue(hasattr(client.django.contrib, 'sites'),
+        self.assertTrue(hasattr(client.django.contrib, 'auth'),
             (type(client.django.contrib), client.django.contrib.__dict__.keys()))
         try:
             client.django.NotAModelOrApp
