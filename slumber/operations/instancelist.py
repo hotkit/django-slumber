@@ -3,11 +3,13 @@
 """
 from slumber.operations import ModelOperation
 from slumber.server import get_slumber_root
+from slumber.server.http import require_user
 
 
 class InstanceList(ModelOperation):
     """Allows access to the instances.
     """
+    @require_user
     def get(self, request, response, _appname, _modelname):
         """Return a paged set of instances for this model.
         """
