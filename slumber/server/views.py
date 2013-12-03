@@ -22,16 +22,17 @@ def service_root(request, response):
     # We have many return statements, but there's no point in artificially
     # breaking the function up to reduce them
     # pylint: disable = R0911
+    # pylint: disable = too-many-branches
     if not request.path.endswith('/'):
         return HttpResponsePermanentRedirect(request.path + '/')
     path = request.path[len(reverse('slumber.server.views.service_root')):-1]
 
     longest = None
-    for op in OPERATION_URIS.keys():
-        if not longest or len(op) > len(longest):
-            logging.debug("Comparing %s with %s", path, op)
-            if path.startswith(op):
-                longest = op
+    for op_name in OPERATION_URIS.keys():
+        if not longest or len(op_name) > len(longest):
+            logging.debug("Comparing %s with %s", path, op_name)
+            if path.startswith(op_name):
+                longest = op_name
     if longest:
         operation = OPERATION_URIS[longest]
         return operation.operation(request, response,

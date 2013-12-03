@@ -81,6 +81,6 @@ def _model(django_model, to_json, properties_ro, operations_extra):
             ops.append(operation(model, name))
         elif len(conf) == 3:
             operation, name, uri = conf
-            op = operation(model, name)
-            ops.append(op)
-            OPERATION_URIS[uri] = op
+            slumber_op = operation(model, name)
+            ops.append(slumber_op)
+            OPERATION_URIS[uri] = slumber_op
