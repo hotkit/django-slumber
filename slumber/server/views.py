@@ -23,6 +23,7 @@ def service_root(request, response):
     # breaking the function up to reduce them
     # pylint: disable = R0911
     # pylint: disable = too-many-branches
+    # pylint: disable = too-many-locals
     if not request.path.endswith('/'):
         return HttpResponsePermanentRedirect(request.path + '/')
     path = request.path[len(reverse('slumber.server.views.service_root')):-1]
