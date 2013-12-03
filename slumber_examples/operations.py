@@ -10,7 +10,7 @@ class OrderPizza(InstanceOperation):
 
 
 class ShopList(ModelOperation):
-    def get(self, request, response, app, model, pk):
+    def get(self, _request, response, _app, _model):
         response['shops'] = [{
                 'name': 'Hard Coded Pizza Parlour'
             }]

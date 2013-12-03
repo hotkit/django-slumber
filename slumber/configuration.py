@@ -2,7 +2,7 @@
     Implements configuration of the Slumber models available on the server.
 """
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL, \
-    SLUMBER_MODEL_OPERATIONS
+    OPERATION_URIS, SLUMBER_MODEL_OPERATIONS
 from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.server.json import DATA_MAPPING
 from slumber.server.meta import get_application
@@ -80,6 +80,7 @@ def _model(django_model, to_json, properties_ro, operations_extra):
             operation, name = conf
             ops.append(operation(model, name))
         elif len(conf) == 3:
-            operation, name, _uri = conf
-            ops.append(operation(model, name))
-
+            operation, name, uri = conf
+            op = operation(model, name)
+            ops.append(op)
+            OPERATION_URIS[uri] = op

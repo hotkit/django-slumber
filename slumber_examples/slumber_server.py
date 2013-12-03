@@ -11,5 +11,5 @@ configure(Pizza,
     operations_extra = [(OrderPizza, 'order')])
 
 configure(Shop,
-    operations_extra = [(ShopList, 'shops', '/shops/')],
+    operations_extra = [(ShopList, 'shops1', 'shops/mount1')],
     properties_ro = ['web_address'])

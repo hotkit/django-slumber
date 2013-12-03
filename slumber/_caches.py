@@ -12,6 +12,8 @@ DJANGO_MODEL_TO_SLUMBER_MODEL = {}
 # Stores the slumber models for given model URLs
 MODEL_URL_TO_SLUMBER_MODEL = {}
 
+# Store the URIs for special operations
+OPERATION_URIS = {}
 
 # Stores the operations used for a given model on the server
 SLUMBER_MODEL_OPERATIONS = {}

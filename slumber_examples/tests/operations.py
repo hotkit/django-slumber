@@ -83,3 +83,17 @@ class OrderTests(ConfigureUser, TestCase):
         pizza2 = self.cnx.slumber_examples.Pizza.create(id=2, name='S2', for_sale=True)
         pizza3 = Pizza.objects.create(name='S3', for_sale=True)
         self.assertEqual(Pizza.objects.count(), 3)
+
+
+class ShopListTests(TestCase):
+    def setUp(self):
+        super(ShopListTests, self).setUp()
+        self.cnx = Client()
+
+    def test_mount_point(self):
+        response, json = get('/slumber/shops/mount1/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json, dict(_meta={'message': 'OK', 'status': 200},
+            shops=[{
+                'name': 'Hard Coded Pizza Parlour'
+            }]))

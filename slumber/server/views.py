@@ -1,10 +1,13 @@
 """
     Some basic server views.
 """
+import logging
+
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, \
     HttpResponsePermanentRedirect, HttpResponseNotFound
 
+from slumber._caches import OPERATION_URIS
 from slumber.server import get_slumber_service, get_slumber_root, \
     get_slumber_services
 from slumber.server.http import view_handler
@@ -22,6 +25,18 @@ def service_root(request, response):
     if not request.path.endswith('/'):
         return HttpResponsePermanentRedirect(request.path + '/')
     path = request.path[len(reverse('slumber.server.views.service_root')):-1]
+
+    longest = None
+    for op in OPERATION_URIS.keys():
+        if not longest or len(op) > len(longest):
+            logging.debug("Comparing %s with %s", path, op)
+            if path.startswith(op):
+                longest = op
+    if longest:
+        operation = OPERATION_URIS[longest]
+        return operation.operation(request, response,
+            operation.model.app, operation.model)
+
     service = get_slumber_service()
     if service:
         if not path:
