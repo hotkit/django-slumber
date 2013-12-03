@@ -14,5 +14,5 @@ configure(Pizza,
 configure(Shop,
     operations_extra = [
         (ShopList, 'shops1', 'shops/mount1'),
-        (InstanceData, 'self', 'shop')],
+        (InstanceData, 'instance', 'shop')],
     properties_ro = ['web_address'])
