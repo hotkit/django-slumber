@@ -16,9 +16,10 @@ class ModelOperation(object):
     """
     METHODS = ['GET', 'OPTIONS', 'POST', 'PUT', 'DELETE']
     model_operation = True
-    def __init__(self, model, name):
+    def __init__(self, model, name, uri = None):
         self.model = model
         self.name = name
+        self.uri = uri
         self.regex = ''
         self.path = model.path + name + '/'
 

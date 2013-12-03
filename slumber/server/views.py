@@ -123,6 +123,6 @@ def get_model(_, response, model):
         list(model.model._meta.unique_together)
     response['data_arrays'] = model.data_arrays
     response['operations'] = dict(
-        [(op.name, root + op.path)
+        [(op.name, op.uri or root + op.path)
             for op in model.operations() if op.model_operation])
 

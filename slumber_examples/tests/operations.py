@@ -97,3 +97,12 @@ class ShopListTests(TestCase):
             shops=[{
                 'name': 'Hard Coded Pizza Parlour'
             }]))
+
+    def test_operation_model_uri(self):
+        self.assertTrue(
+            self.cnx.slumber_examples.Shop._operations.has_key('shops1'),
+            self.cnx.slumber_examples.Shop._operations.keys())
+        self.assertEqual(
+            self.cnx.slumber_examples.Shop._operations["shops1"],
+            'http://localhost:8000/slumber/shops/mount1/')
+
