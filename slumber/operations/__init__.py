@@ -58,6 +58,6 @@ class InstanceOperation(ModelOperation):
     """Base class for operations on instances.
     """
     model_operation = False
-    def __init__(self, model, name):
-        super(InstanceOperation, self).__init__(model, name)
+    def __init__(self, model, name, uri = None):
+        super(InstanceOperation, self).__init__(model, name, uri)
         self.regex = '([^/]+)/'

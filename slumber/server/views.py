@@ -35,8 +35,13 @@ def service_root(request, response):
                 longest = op_name
     if longest:
         operation = OPERATION_URIS[longest]
+        if len(path) > len(longest) + 1:
+            path_remainder = path[len(longest)+1:].split('/')
+        else:
+            path_remainder = []
+        logging.debug("%s %s %s", path, longest, path_remainder)
         return operation.operation(request, response,
-            operation.model.app, operation.model)
+            operation.model.app, operation.model, *path_remainder)
 
     service = get_slumber_service()
     if service:

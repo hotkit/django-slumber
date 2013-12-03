@@ -6,7 +6,7 @@ from django.test import TestCase
 from slumber import Client
 from slumber.connector.ua import post, get
 
-from slumber_examples.models import Pizza, PizzaCrust
+from slumber_examples.models import Pizza, PizzaCrust, Shop
 from slumber_examples.tests.configurations import ConfigureUser
 
 
@@ -105,4 +105,12 @@ class ShopListTests(TestCase):
         self.assertEqual(
             self.cnx.slumber_examples.Shop._operations["shops1"],
             'http://localhost:8000/slumber/shops/mount1/')
+
+
+class ShopInstanceTests(ConfigureUser, TestCase):
+    def test_mount_point(self):
+        shop = Shop.objects.create(name='Test One')
+        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
+            response, json = get('/slumber/shop/%s/' % shop.pk)
+        self.assertEqual(response.status_code, 200)
 
