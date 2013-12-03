@@ -113,4 +113,8 @@ class ShopInstanceTests(ConfigureUser, TestCase):
         with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
             response, json = get('/slumber/shop/%s/' % shop.pk)
         self.assertEqual(response.status_code, 200)
+        self.assertTrue(json['operations'].has_key('self'), json)
+        self.assertEqual(json['operations']['self'],
+            '/slumber/shop/%s/' % shop.pk)
+
 
