@@ -1,3 +1,6 @@
+2013-12-03  Kirit Saelensminde  <kirit@felspar.com>
+ Allow operations to be mounted at any URL below the Slumber mount point.
+
 2013-11-26  Kirit Saelensminde  <kirit@felspar.com>
  Changed the way that the URLs are configured to be compatible with Django 1.6.
  Other changes for Django 1.6 compatibility.
