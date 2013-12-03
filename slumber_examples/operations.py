@@ -1,4 +1,4 @@
-from slumber.operations import InstanceOperation
+from slumber.operations import InstanceOperation, ModelOperation
 
 
 class OrderPizza(InstanceOperation):

@@ -75,6 +75,11 @@ def _model(django_model, to_json, properties_ro, operations_extra):
         DATA_MAPPING[type_name] = function
 
     ops = SLUMBER_MODEL_OPERATIONS[model]
-    for operation, name in operations_extra or []:
-        ops.append(operation(model, name))
+    for conf in operations_extra or []:
+        if len(conf) == 2:
+            operation, name = conf
+            ops.append(operation(model, name))
+        elif len(conf) == 3:
+            operation, name, _uri = conf
+            ops.append(operation(model, name))
 
