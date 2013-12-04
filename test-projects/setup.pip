@@ -3,12 +3,12 @@ simplejson
 httplib2
 dicttoxml
 dougrain
+BeautifulSoup
 
 django-fost-authn >= 0.3.8
 django_ip_authn
 
 # Used for testing
-BeautifulSoup
 coverage
 mock
 unittest2
