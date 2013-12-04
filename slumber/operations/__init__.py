@@ -27,7 +27,7 @@ class ModelOperation(object):
 
     def __call__(self, *args):
         root = get_slumber_root()
-        uri = root + self.path
+        uri = self.uri or (root + self.path)
         for part in args:
             uri += str(part) + '/'
         return uri

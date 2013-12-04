@@ -15,8 +15,14 @@ class TestPizzaURIs(TestCase):
         self.assertEqual(type(pizza).slumber_model.operations['data'](pizza.pk),
             '/slumber/slumber_examples/Pizza/data/%s/' % pizza.pk)
 
+
 class TestShopURIs(TestCase):
     def test_model_has_slumber_model(self):
         self.assertEqual(Shop.slumber_model,
             DJANGO_MODEL_TO_SLUMBER_MODEL[Shop])
+
+    def test_instance_data_uri(self):
+        shop = Shop.objects.create(name="Test Cafe")
+        self.assertEqual(type(shop).slumber_model.operations['data'](shop.pk),
+            '/slumber/pizzas/shop/1/')
 
