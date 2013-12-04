@@ -3,7 +3,7 @@
     data.
 """
 import logging
-from simplejson import JSONEncoder, loads
+from simplejson import loads
 
 from django.core.exceptions import ObjectDoesNotExist
 try:
@@ -13,16 +13,6 @@ except ImportError: # pragma: no cover
     USE_CSRF = False
 
 from slumber.server import NotAuthorised, Forbidden, accept_handler
-
-
-class _proxyEncoder(JSONEncoder):
-    """If we don't know how to deal with the attribute type we'll just
-    convert to a string and hope that's ok for now.
-    """
-    # An attribute inherited from JSONEncoder hide this method
-    # pylint: disable=E0202
-    def default(self, obj):
-        return unicode(obj)
 
 
 def require_user(function):
@@ -94,9 +84,9 @@ def view_handler(view):
             response['_meta']['username'] = request.user.username
         else:
             logging.debug("Request user %s not authenticated", request.user)
-        http_response = accept_handler.accept(meta.get('HTTP_ACCEPT', ''))(
-            request, response, meta.get('CONTENT_TYPE', '')
-        )
+        accepting = meta.get('HTTP_ACCEPT', 'text/plain')
+        content_type, handler = accept_handler.accept(accepting)
+        http_response = handler(request, response, content_type)
         for header, value in response['_meta'].get('headers', {}).items():
             http_response[header] = value
         return http_response
