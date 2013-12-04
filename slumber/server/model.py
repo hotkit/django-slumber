@@ -18,12 +18,6 @@ from slumber.operations.update import UpdateInstance
 from slumber.server import get_slumber_root
 
 
-class NotAnOperation(Exception):
-    """Thrown when an operation is looked for by name, but doesn't exist.
-    """
-    pass
-
-
 class DjangoModel(object):
     """Describes a Django model.
     """

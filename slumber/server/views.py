@@ -12,7 +12,6 @@ from slumber.server import get_slumber_service, get_slumber_root, \
     get_slumber_services
 from slumber.server.http import view_handler
 from slumber.server.meta import applications
-from slumber.server.model import NotAnOperation
 
 
 @view_handler
