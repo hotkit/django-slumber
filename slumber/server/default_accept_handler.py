@@ -1,10 +1,11 @@
 """ Handler for handle http accept header
 """
+from simplejson import dumps
+
+from django.http import HttpResponse
+from django.conf import settings
 
 import slumber
-from django.http import HttpResponse
-from simplejson import dumps
-from django.conf import settings
 
 
 def default_handler(_request, response, _content_type):

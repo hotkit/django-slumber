@@ -2,8 +2,8 @@
 """
 
 from slumber.server.default_accept_handler import default_handler
-from slumber.server.xml import as_xml
 from slumber.server.html import build_html as as_html
+from slumber.server.xml import as_xml
 
 
 def get_handlers_list():
@@ -24,3 +24,4 @@ def accept(request_meta_data, accept_handlers_list=None):
         if accept_str in request_meta_data:
             return fn_handler
     return default_handler
+
