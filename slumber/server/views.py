@@ -76,10 +76,10 @@ def service_root(request, response):
         try:
             # Execute the operation (if it can be found)
             operation_name = models.pop(0)
-            operation = model.operation_by_name(operation_name)
+            operation = model.operations[operation_name]
             return operation.operation(request, response,
                 application.path, model.name, *models)
-        except NotAnOperation:
+        except KeyError:
             return HttpResponseNotFound()
 
 
