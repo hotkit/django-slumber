@@ -26,3 +26,6 @@ class TestShopURIs(TestCase):
         self.assertEqual(type(shop).slumber_model.operations['data'](shop.pk),
             '/slumber/pizzas/shop/1/')
 
+    def test_spaces_in_url_fragment(self):
+        self.assertEqual(Shop.slumber_model.operations['shops1']('with space'),
+            r'/slumber/shops/mount1/with%20space/')

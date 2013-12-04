@@ -1,6 +1,8 @@
 """
     Implements the server side operations on models and instances.
 """
+from urllib import quote
+
 from django.core.urlresolvers import reverse
 
 from slumber.server import get_slumber_root
@@ -29,7 +31,7 @@ class ModelOperation(object):
         root = get_slumber_root()
         uri = self.uri or (root + self.path)
         for part in args:
-            uri += str(part) + '/'
+            uri += quote(str(part)) + '/'
         return uri
 
     def headers(self, retvalue, request, response):
