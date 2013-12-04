@@ -2,6 +2,7 @@
 simplejson
 httplib2
 dicttoxml
+dougrain
 
 django-fost-authn >= 0.3.8
 django_ip_authn
