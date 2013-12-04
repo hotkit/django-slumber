@@ -6,12 +6,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.operations import InstanceOperation
 from slumber.operations.instancedata import instance_data
+from slumber.server.http import require_user
 
 
 class GetProfile(InstanceOperation):
     """Fetches the user proflle from the auth remote server.
     """
-
+    @require_user
     def get(self, _request, response, _appname, _modelname, pk):
         """Implements the profile lookup.
         """
