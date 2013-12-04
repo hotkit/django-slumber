@@ -83,8 +83,8 @@ class URLHandlingFromDatabase(TestCase):
 
 
 class TestQueries(ConfigureUser, ServiceTestsWithDirectory, DBTestCase):
-    REAL_URL = 'http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/'
-    SLUMBER_URL = 'slumber://pizzas/slumber_examples/Shop/data/1/'
+    REAL_URL = 'http://localhost:8000/slumber/pizzas/shop/1/'
+    SLUMBER_URL = 'slumber://pizzas/shop/1/'
 
     def setUp(self):
         super(TestQueries, self).setUp()
