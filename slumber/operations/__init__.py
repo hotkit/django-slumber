@@ -4,6 +4,7 @@
 from urllib import quote, urlencode
 
 from django.core.urlresolvers import reverse
+from django.db.models import Model
 
 from slumber.server import get_slumber_root
 
@@ -31,6 +32,8 @@ class ModelOperation(object):
         root = get_slumber_root()
         uri = self.uri or (root + self.path)
         for part in args:
+            if issubclass(type(part), Model):
+                part = part.pk
             uri += quote(str(part)) + '/'
         if qs:
             uri += '?' + urlencode(qs)

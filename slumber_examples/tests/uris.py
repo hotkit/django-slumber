@@ -15,6 +15,11 @@ class TestPizzaURIs(TestCase):
         self.assertEqual(type(pizza).slumber_model.operations['data'](pizza.pk),
             '/slumber/slumber_examples/Pizza/data/%s/' % pizza.pk)
 
+    def test_instance_data_url_when_passed_instance(self):
+        pizza = Pizza.objects.create(name="Test pizza")
+        self.assertEqual(type(pizza).slumber_model.operations['data'](pizza),
+            '/slumber/slumber_examples/Pizza/data/%s/' % pizza.pk)
+
 
 class TestShopURIs(TestCase):
     def test_model_has_slumber_model(self):
