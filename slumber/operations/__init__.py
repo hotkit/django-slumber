@@ -3,6 +3,8 @@
 """
 from django.core.urlresolvers import reverse
 
+from slumber.server import get_slumber_root
+
 
 def _forbidden(_request, response, *_):
     """Return an error to say that the method type is not allowed.
@@ -22,6 +24,13 @@ class ModelOperation(object):
         self.uri = uri
         self.regex = ''
         self.path = model.path + name + '/'
+
+    def __call__(self, *args):
+        root = get_slumber_root()
+        uri = root + self.path
+        for part in args:
+            uri += str(part) + '/'
+        return uri
 
     def headers(self, retvalue, request, response):
         """Calculate and place extra headers needed for certain types of

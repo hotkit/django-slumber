@@ -10,6 +10,10 @@ class TestPizzaURIs(TestCase):
         self.assertEqual(Pizza.slumber_model,
             DJANGO_MODEL_TO_SLUMBER_MODEL[Pizza])
 
+    def test_instance_data_url(self):
+        pizza = Pizza.objects.create(name="Test pizza")
+        self.assertEqual(type(pizza).slumber_model.operations['data'](pizza.pk),
+            '/slumber/slumber_examples/Pizza/data/%s/' % pizza.pk)
 
 class TestShopURIs(TestCase):
     def test_model_has_slumber_model(self):
