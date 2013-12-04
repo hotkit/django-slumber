@@ -68,7 +68,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         self.sameSoup(form,
             '''<p><label for="id_rfk">Rfk:</label> '''
                 '''<input type="text" name="rfk" '''
-                    '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
+                    '''value="http://localhost:8000/slumber/pizzas/shop/1/" '''
                     '''id="id_rfk" /></p>''')
 
     def test_default_widget_with_submit_data(self):
@@ -96,14 +96,14 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
-                    '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
+                    '''value="http://localhost:8000/slumber/pizzas/shop/1/" '''
                     '''id="id_shop" /></p>''')
         self.assertEquals(type(form.fields['shop']), RemoteForeignKeyField)
         self.assertTrue(form.is_valid())
         self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
-                    '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
+                    '''value="http://localhost:8000/slumber/pizzas/shop/1/" '''
                     '''id="id_shop" /></p>''')
         self.assertEquals(form.cleaned_data['shop'].id, shop.id)
 
@@ -114,14 +114,14 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
-                    '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
+                    '''value="http://localhost:8000/slumber/pizzas/shop/1/" '''
                     '''id="id_shop" /></p>''')
         self.assertEquals(type(form.fields['shop']), RemoteForeignKeyField)
         self.assertTrue(form.is_valid())
         self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
-                    '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
+                    '''value="http://localhost:8000/slumber/pizzas/shop/1/" '''
                     '''id="id_shop" /></p>''')
 
     def test_model_form_submission_with_instance_get_instance(self):
@@ -133,7 +133,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
-                    '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
+                    '''value="http://localhost:8000/slumber/pizzas/shop/1/" '''
                     '''id="id_shop" /></p>''')
         self.assertEquals(type(form.fields['shop']), RemoteForeignKeyField)
         self.assertTrue(form.is_valid())
@@ -141,7 +141,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
-                    '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
+                    '''value="http://localhost:8000/slumber/pizzas/shop/1/" '''
                     '''id="id_shop" /></p>''')
 
     def test_model_form_with_order(self):
@@ -153,7 +153,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
-                    '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
+                    '''value="http://localhost:8000/slumber/pizzas/shop/1/" '''
                     '''id="id_shop" /></p>''')
 
     def test_model_form_with_order_from_database(self):
@@ -166,7 +166,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         self.sameSoup(form,
             '''<p><label for="id_shop">Shop:</label> '''
                 '''<input type="text" name="shop" '''
-                    '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
+                    '''value="http://localhost:8000/slumber/pizzas/shop/1/" '''
                     '''id="id_shop" /></p>''')
 
     def test_admin_form_with_order(self):
@@ -176,5 +176,5 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
         self.sameSoup(form,
             '''<p><label for="id_rfk">Rfk:</label> '''
                 '''<input type="text" name="rfk" '''
-                    '''value="http://localhost:8000/slumber/pizzas/slumber_examples/Shop/data/1/" '''
+                    '''value="http://localhost:8000/slumber/pizzas/shop/1/" '''
                     '''id="id_rfk" /></p>''')

@@ -111,10 +111,10 @@ class ShopInstanceTests(ConfigureUser, TestCase):
     def test_mount_point(self):
         shop = Shop.objects.create(name='Test One')
         with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
-            response, json = get('/slumber/shop/%s/' % shop.pk)
+            response, json = get('/slumber/pizzas/shop/%s/' % shop.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json['operations'].has_key('instance'), json)
-        self.assertEqual(json['operations']['instance'],
-            '/slumber/shop/%s/' % shop.pk)
+        self.assertTrue(json['operations'].has_key('data'), json)
+        self.assertEqual(json['operations']['data'],
+            '/slumber/pizzas/shop/%s/' % shop.pk)
 
 

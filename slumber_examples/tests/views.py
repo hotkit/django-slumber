@@ -314,9 +314,7 @@ class BasicViews(ViewTests):
             identity=self.url('/slumber_examples/Shop/data/1/'),
             display='Test shop',
             operations=dict(
-                data=self.url('/slumber_examples/Shop/data/1/'),
-                delete=self.url('/slumber_examples/Shop/delete/1/'),
-                instance='/slumber/shop/%s/' % s.pk,
+                data='/slumber/pizzas/shop/%s/' % s.pk,
                 update=self.url('/slumber_examples/Shop/update/1/')),
             fields=dict(
                 id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),
@@ -440,7 +438,7 @@ class BasicViewsService(ConfigureUser, BasicViews, ServiceTests, TestCase):
             "SELECT shop FROM slumber_examples_order WHERE id=%s",
             [order.pk])
         row = cursor.fetchone()
-        self.assertEquals(row[0], 'slumber://pizzas/slumber_examples/Shop/data/1/')
+        self.assertEquals(row[0], 'slumber://pizzas/shop/1/')
         order2 = Order.objects.get(pk=order.pk)
         self.assertEquals(unicode(order2.shop), unicode(order.shop))
         self.assertEquals(order2.shop.id, order.shop.id)
@@ -461,7 +459,7 @@ class BasicViewsWithServiceDirectory(ConfigureUser, BasicViews,
             [order.pk])
         row = cursor.fetchone()
         self.assertEquals(row[0],
-            'slumber://pizzas/slumber_examples/Shop/data/%s/' % shop.id)
+            'slumber://pizzas/shop/%s/' % shop.id)
         order2 = Order.objects.get(pk=order.pk)
         self.assertEquals(unicode(order2.shop), unicode(order.shop))
         self.assertEquals(order2.shop.id, order.shop.id)
