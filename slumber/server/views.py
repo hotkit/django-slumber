@@ -1,10 +1,13 @@
 """
     Some basic server views.
 """
+import logging
+
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, \
     HttpResponsePermanentRedirect, HttpResponseNotFound
 
+from slumber._caches import OPERATION_URIS
 from slumber.server import get_slumber_service, get_slumber_root, \
     get_slumber_services
 from slumber.server.http import view_handler
@@ -19,9 +22,28 @@ def service_root(request, response):
     # We have many return statements, but there's no point in artificially
     # breaking the function up to reduce them
     # pylint: disable = R0911
+    # pylint: disable = too-many-branches
+    # pylint: disable = too-many-locals
     if not request.path.endswith('/'):
         return HttpResponsePermanentRedirect(request.path + '/')
     path = request.path[len(reverse('slumber.server.views.service_root')):-1]
+
+    longest = None
+    for op_name in OPERATION_URIS.keys():
+        if not longest or len(op_name) > len(longest):
+            logging.debug("Comparing %s with %s", path, op_name)
+            if path.startswith(op_name):
+                longest = op_name
+    if longest:
+        operation = OPERATION_URIS[longest]
+        if len(path) > len(longest) + 1:
+            path_remainder = path[len(longest)+1:].split('/')
+        else:
+            path_remainder = []
+        logging.debug("%s %s %s", path, longest, path_remainder)
+        return operation.operation(request, response,
+            operation.model.app, operation.model, *path_remainder)
+
     service = get_slumber_service()
     if service:
         if not path:
@@ -107,6 +129,6 @@ def get_model(_, response, model):
         list(model.model._meta.unique_together)
     response['data_arrays'] = model.data_arrays
     response['operations'] = dict(
-        [(op.name, root + op.path)
+        [(op.name, op.uri or root + op.path)
             for op in model.operations() if op.model_operation])
 

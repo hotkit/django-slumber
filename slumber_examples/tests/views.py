@@ -316,6 +316,7 @@ class BasicViews(ViewTests):
             operations=dict(
                 data=self.url('/slumber_examples/Shop/data/1/'),
                 delete=self.url('/slumber_examples/Shop/delete/1/'),
+                instance='/slumber/shop/%s/' % s.pk,
                 update=self.url('/slumber_examples/Shop/update/1/')),
             fields=dict(
                 id=dict(data=s.pk, kind='value', type='django.db.models.fields.AutoField'),
