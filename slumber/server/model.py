@@ -21,6 +21,7 @@ from slumber.server import get_slumber_root
 class DjangoModel(object):
     """Describes a Django model.
     """
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, app, model_instance):
         DJANGO_MODEL_TO_SLUMBER_MODEL[model_instance] = self
         self.app = app
@@ -39,12 +40,18 @@ class DjangoModel(object):
             'update': UpdateInstance(self, 'update')
         }
         if self.path == 'django/contrib/auth/User/':
-            self.operations['do-i-have-perm'] = CheckMyPermission(self, 'do-i-have-perm')
-            self.operations['authenticate'] = AuthenticateUser(self, 'authenticate')
-            self.operations['has-permission'] = PermissionCheck(self, 'has-permission')
-            self.operations['get-permissions'] = GetPermissions(self, 'get-permissions')
-            self.operations['get-profile'] = GetProfile(self, 'get-profile')
-            self.operations['module-permissions'] = ModulePermissions(self, 'module-permissions')
+            self.operations['do-i-have-perm'] = \
+                CheckMyPermission(self, 'do-i-have-perm')
+            self.operations['authenticate'] = \
+                AuthenticateUser(self, 'authenticate')
+            self.operations['has-permission'] = \
+                PermissionCheck(self, 'has-permission')
+            self.operations['get-permissions'] = \
+                GetPermissions(self, 'get-permissions')
+            self.operations['get-profile'] = \
+                GetProfile(self, 'get-profile')
+            self.operations['module-permissions'] = \
+                ModulePermissions(self, 'module-permissions')
 
     def __repr__(self):
         return "%s.%s" % (self.app, self.name)
