@@ -10,8 +10,8 @@ def get_handlers_list():
     """The default set of content encoders.
     """
     return [
-        ('application/xml', as_xml),
         ('text/html', as_html),
+        ('application/xml', as_xml),
     ]
 
 
