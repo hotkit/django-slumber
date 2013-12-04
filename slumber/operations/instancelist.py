@@ -24,11 +24,11 @@ class InstanceList(ModelOperation):
 
         response['page'] = [
                 dict(pk=o.pk, display=unicode(o),
-                    data=root + self.model.path + 'data/%s/' % o.pk)
+                    data=self.model.operations['data'](o))
             for o in query[:10]]
         if len(response['page']) > 0:
-            response['next_page'] = root +self.model.path + \
-                'instances/?start_after=%s' % response['page'][-1]['pk']
+            response['next_page'] = self(
+                start_after=response['page'][-1]['pk'])
 
 
 class InstanceDataHal(ModelOperation):
