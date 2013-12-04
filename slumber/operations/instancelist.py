@@ -1,6 +1,8 @@
 """
     Implements a listing of all instances for a given model.
 """
+from dougrain import Builder
+
 from slumber.operations import ModelOperation
 from slumber.server import get_slumber_root
 from slumber.server.http import require_user
@@ -33,8 +35,20 @@ class InstanceDataHal(ModelOperation):
     """Allow us to get an instance list in HAL format.
     """
     @require_user
-    def get(self, request, response, _appname, _modelname):
+    def get(self, _request, response, _appname, _modelname):
         """Return a HAL formatted version of the instance list.
         """
-        pass
+        root = get_slumber_root()
+
+        hal = Builder(self.uri)
+        hal.add_link('model', root + self.model.path)
+
+        query = self.model.model.objects.order_by('-pk')
+        for instance in query.iterator():
+            item = Builder(
+                self.model.operations['data'].uri + str(instance.pk) + '/')
+            item.set_property('display', unicode(instance))
+            hal.embed('page', item)
+
+        response["instances"] = hal.as_object()
 
