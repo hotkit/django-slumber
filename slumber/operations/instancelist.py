@@ -27,3 +27,14 @@ class InstanceList(ModelOperation):
         if len(response['page']) > 0:
             response['next_page'] = root +self.model.path + \
                 'instances/?start_after=%s' % response['page'][-1]['pk']
+
+
+class InstanceDataHal(ModelOperation):
+    """Allow us to get an instance list in HAL format.
+    """
+    @require_user
+    def get(self, request, response, _appname, _modelname):
+        """Return a HAL formatted version of the instance list.
+        """
+        pass
+
