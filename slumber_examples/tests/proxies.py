@@ -4,7 +4,7 @@ from slumber import client
 from slumber.connector import Client
 from slumber.connector.proxies import UserInstanceProxy
 from slumber_examples.models import Pizza
-from slumber_examples.tests.configurations import PatchForAuthnService
+from slumber_examples.tests.configurations import ConfigureUser, PatchForAuthnService
 
 
 class UserProxyTests(PatchForAuthnService, TestCase):
@@ -30,7 +30,7 @@ class UserProxyTests(PatchForAuthnService, TestCase):
         self.assertEqual(self.user.get_all_permissions(), perms)
 
 
-class ProxyConfigurationTests(TestCase):
+class ProxyConfigurationTests(ConfigureUser, TestCase):
     def test_shop_has_model_proxy(self):
         self.assertTrue(
             client.slumber_examples.Shop.has_shop_proxy())
@@ -38,6 +38,5 @@ class ProxyConfigurationTests(TestCase):
     def test_pizza_has_instance_proxy(self):
         lpizza = Pizza(name='Test pizza')
         lpizza.save()
-        rpizza = client.slumber_examples.Pizza.get(
-            pk=lpizza.pk)
+        rpizza = client.slumber_examples.Pizza.get(pk=lpizza.pk)
         self.assertTrue(rpizza.has_pizza_proxy())
