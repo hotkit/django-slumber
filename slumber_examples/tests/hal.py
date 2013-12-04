@@ -9,7 +9,6 @@ from slumber_examples.tests.configurations import ConfigureUser
 class TestInstanceList(ConfigureUser, TestCase):
     def test_empty_hal_version(self):
         response, json = get('/slumber/shops/mount2/')
-        print response.content
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.has_key('instances'))
@@ -23,7 +22,6 @@ class TestInstanceList(ConfigureUser, TestCase):
         for s in xrange(1, 6):
             Shop.objects.create(name="Shop %d" % s, slug="shop%d" % s)
         response, json = get('/slumber/shops/mount2/')
-        print response.content
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.has_key('instances'))
