@@ -13,5 +13,6 @@ from proxies import *
 from server import *
 from services import *
 from ua import *
+from uris import *
 from views import *
 from xml import *
