@@ -23,6 +23,9 @@ def service_root(request, response):
     # pylint: disable = R0911
     # pylint: disable = too-many-branches
     # pylint: disable = too-many-locals
+    service = get_slumber_service()
+    apps = applications()
+
     if not request.path.endswith('/'):
         return HttpResponsePermanentRedirect(request.path + '/')
     path = request.path[len(reverse('slumber.server.views.service_root')):-1]
@@ -43,7 +46,6 @@ def service_root(request, response):
         return operation.operation(request, response,
             operation.model.app, operation.model, *path_remainder)
 
-    service = get_slumber_service()
     if service:
         if not path:
             return get_service_directory(request, response)
@@ -52,16 +54,16 @@ def service_root(request, response):
         path = path[len(service) + 1:]
 
     if not path:
-        return get_applications(request, response)
+        return _get_applications(request, response, apps)
     else:
         # Find the app with the longest matching path
-        apps = [a for a in applications() if path.startswith(a.path)]
+        apps = [a for a in apps if path.startswith(a.path)]
         application = None
         for app in apps:
             if not application or len(app.path) > len(application.path):
                 application = app
         if not application:
-            return HttpResponseNotFound()
+            return HttpResponseNotFound("No app")
         remaining_path = path[len(application.path)+1:]
         if not remaining_path:
             return get_models(request, response, application)
@@ -79,7 +81,7 @@ def service_root(request, response):
             return operation.operation(request, response,
                 application.path, model.name, *models)
         except KeyError:
-            return HttpResponseNotFound()
+            return HttpResponseNotFound("No op")
 
 
 def get_service_directory(_request, response):
@@ -88,7 +90,7 @@ def get_service_directory(_request, response):
     response['services'] = get_slumber_services()
 
 
-def get_applications(request, response):
+def _get_applications(request, response, apps):
     """Return the list of applications and the data connection URLs for them.
     """
     root = get_slumber_root()
@@ -99,9 +101,9 @@ def get_applications(request, response):
                 return HttpResponseRedirect(root + app.models[modelname].path)
         return HttpResponseNotFound()
     response['apps'] = dict([(app.name, root + app.path + '/')
-        for app in applications()])
+        for app in apps])
     response['configuration'] = dict([(app.name, app.configuration)
-        for app in applications() if getattr(app, 'configuration', None)])
+        for app in apps if getattr(app, 'configuration', None)])
     get_service_directory(request, response)
 
 
