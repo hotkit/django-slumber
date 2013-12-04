@@ -79,7 +79,10 @@ def _model(django_model, to_json, properties_ro, operations_extra):
     for conf in operations_extra or []:
         if len(conf) == 2:
             operation, name = conf
-            model.operations[name] = operation(model, name)
+            if operation is None:
+                del model.operations[name]
+            else:
+                model.operations[name] = operation(model, name)
         elif len(conf) == 3:
             operation, name, uri = conf
             slumber_op = operation(model, name,
