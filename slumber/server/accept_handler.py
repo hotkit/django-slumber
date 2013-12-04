@@ -11,6 +11,7 @@ def get_handlers_list():
     """
     return [
         ('text/html', as_html),
+        ('text/xml', as_xml),
         ('application/xml', as_xml),
     ]
 
