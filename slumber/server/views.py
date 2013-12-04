@@ -130,5 +130,5 @@ def get_model(_, response, model):
     response['data_arrays'] = model.data_arrays
     response['operations'] = dict(
         [(op.name, op.uri or root + op.path)
-            for op in model.operations() if op.model_operation])
+            for op in model.operations.values() if op.model_operation])
 
