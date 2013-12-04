@@ -19,7 +19,7 @@ def instance_data(into, model, instance):
     into['display'] = unicode(instance)
     into['operations'] = dict(
         [(op.name, (op.uri or root + op.path) + '%s/' % instance.pk)
-            for op in model.operations() if not op.model_operation])
+            for op in model.operations.values() if not op.model_operation])
     into['fields'] = {}
     for field, meta in model.fields.items():
         into['fields'][field] = dict(

@@ -13,6 +13,8 @@ configure(Pizza,
 
 configure(Shop,
     operations_extra = [
+        (None, 'delete'),
         (ShopList, 'shops1', 'shops/mount1'),
-        (InstanceData, 'instance', 'shop')],
+        (InstanceData, 'data', 'pizzas/shop'),
+    ],
     properties_ro = ['web_address'])

@@ -12,7 +12,6 @@ from slumber.server import get_slumber_service, get_slumber_root, \
     get_slumber_services
 from slumber.server.http import view_handler
 from slumber.server.meta import applications
-from slumber.server.model import NotAnOperation
 
 
 @view_handler
@@ -76,10 +75,10 @@ def service_root(request, response):
         try:
             # Execute the operation (if it can be found)
             operation_name = models.pop(0)
-            operation = model.operation_by_name(operation_name)
+            operation = model.operations[operation_name]
             return operation.operation(request, response,
                 application.path, model.name, *models)
-        except NotAnOperation:
+        except KeyError:
             return HttpResponseNotFound()
 
 
@@ -130,5 +129,5 @@ def get_model(_, response, model):
     response['data_arrays'] = model.data_arrays
     response['operations'] = dict(
         [(op.name, op.uri or root + op.path)
-            for op in model.operations() if op.model_operation])
+            for op in model.operations.values() if op.model_operation])
 
