@@ -29,3 +29,7 @@ class TestShopURIs(TestCase):
     def test_spaces_in_url_fragment(self):
         self.assertEqual(Shop.slumber_model.operations['shops1']('with space'),
             r'/slumber/shops/mount1/with%20space/')
+
+    def test_query_string(self):
+        self.assertEqual(Shop.slumber_model.operations['shops1'](key='v1'),
+            r'/slumber/shops/mount1/?key=v1')

@@ -1,7 +1,7 @@
 """
     Implements the server side operations on models and instances.
 """
-from urllib import quote
+from urllib import quote, urlencode
 
 from django.core.urlresolvers import reverse
 
@@ -27,11 +27,13 @@ class ModelOperation(object):
         self.regex = ''
         self.path = model.path + name + '/'
 
-    def __call__(self, *args):
+    def __call__(self, *args, **qs):
         root = get_slumber_root()
         uri = self.uri or (root + self.path)
         for part in args:
             uri += quote(str(part)) + '/'
+        if qs:
+            uri += '?' + urlencode(qs)
         return uri
 
     def headers(self, retvalue, request, response):
