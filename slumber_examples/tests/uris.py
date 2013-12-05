@@ -48,3 +48,8 @@ class TestShopURIs(TestCase):
     def test_query_string(self):
         self.assertEqual(Shop.slumber_model.operations['shops1'](key='v1'),
             r'/slumber/shops/mount1/?key=v1')
+
+    def test_argument_which_re_roots(self):
+        self.assertEqual(Shop.slumber_model.operations['shops1']('/shops/mount1'),
+            r'/slumber/shops/mount1/')
+

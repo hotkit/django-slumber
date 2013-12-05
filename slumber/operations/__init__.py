@@ -34,7 +34,13 @@ class ModelOperation(object):
         for part in args:
             if issubclass(type(part), Model):
                 part = part.pk
-            uri += quote(str(part)) + '/'
+            part = str(part)
+            if part.startswith('/'):
+                uri = root + part[1:]
+            else:
+                uri += quote(part)
+            if not uri.endswith('/'):
+                uri += '/'
         if qs:
             uri += '?' + urlencode(qs)
         return uri

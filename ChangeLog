@@ -1,6 +1,7 @@
 2013-12-04  Kirit Saelensminde  <kirit@felspar.com>
  Allow the removal of built-in operations from models and also changes to the URIs they are mounted at.
  Make HTML the default for browsers rather than XML.
+ Add new APIs for building URIs for operations.
 
 2013-12-03  Kirit Saelensminde  <kirit@felspar.com>
  Allow operations to be mounted at any URL below the Slumber mount point.
