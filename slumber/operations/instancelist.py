@@ -31,7 +31,7 @@ class InstanceList(ModelOperation):
                 start_after=response['page'][-1]['pk'])
 
 
-class InstanceDataHal(ModelOperation):
+class InstanceListHal(ModelOperation):
     """Allow us to get an instance list in HAL format.
     """
     @require_user
