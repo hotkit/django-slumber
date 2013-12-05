@@ -1,5 +1,6 @@
 2013-12-05  Kirit Saelensminde  <kirit@felspar.com>
  Implemented proper pagination support for the HAL instance list and broke out a re-usable API for them over any query set.
+ Guess at some output to linkify in the HTML output.
 
 2013-12-04  Kirit Saelensminde  <kirit@felspar.com>
  Allow the removal of built-in operations from models and also changes to the URIs they are mounted at.

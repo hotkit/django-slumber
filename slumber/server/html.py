@@ -41,7 +41,10 @@ def _convert_atom(val):
         val_type = "float"
     elif type(val) in (str, unicode):
         val_type = "string"
-        val = "<br>".join(val.split("\n"))
+        if val.startswith('/') or val.startswith('http:'):
+            val = '<a href="%s">%s</a>' % (val, val)
+        else:
+            val = "<br>".join(val.split("\n"))
     elif type(val) is bool:
         val_type = "boolean"
     elif type(val) is NoneType:
