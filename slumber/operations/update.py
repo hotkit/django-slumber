@@ -2,7 +2,6 @@
     Implements updating of instances.
 """
 from slumber.operations import InstanceOperation
-from slumber.server import get_slumber_root
 from slumber.server.http import require_permission
 
 
@@ -22,6 +21,6 @@ class UpdateInstance(InstanceOperation):
             for k, v in request.POST.items():
                 setattr(instance, k, v)
             instance.save()
-            response['self'] = dict(url=get_slumber_root() +
-                self.model.path + 'data/%s/' % instance.pk)
+            response['self'] = dict(
+                url=self.model.operations['data'](instance))
         return do_update(self, request)

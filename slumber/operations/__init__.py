@@ -1,7 +1,12 @@
 """
     Implements the server side operations on models and instances.
 """
+from urllib import quote, urlencode
+
 from django.core.urlresolvers import reverse
+from django.db.models import Model
+
+from slumber.server import get_slumber_root
 
 
 def _forbidden(_request, response, *_):
@@ -22,6 +27,17 @@ class ModelOperation(object):
         self.uri = uri
         self.regex = ''
         self.path = model.path + name + '/'
+
+    def __call__(self, *args, **qs):
+        root = get_slumber_root()
+        uri = self.uri or (root + self.path)
+        for part in args:
+            if issubclass(type(part), Model):
+                part = part.pk
+            uri += quote(str(part)) + '/'
+        if qs:
+            uri += '?' + urlencode(qs)
+        return uri
 
     def headers(self, retvalue, request, response):
         """Calculate and place extra headers needed for certain types of

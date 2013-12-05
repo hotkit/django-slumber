@@ -24,3 +24,12 @@ class _ClientProxy(object):
 # This is exactly the name we want to use here
 # pylint: disable=C0103
 client = _ClientProxy()
+
+
+def data_link(instance, *args, **kwargs):
+    """Convenience function to return the default 'data' operation link
+    for an instance.
+    """
+    operation = type(instance).slumber_model.operations['data']
+    return operation(instance, *args, **kwargs)
+

@@ -26,6 +26,7 @@ class DjangoModel(object):
         DJANGO_MODEL_TO_SLUMBER_MODEL[model_instance] = self
         self.app = app
         self.model = model_instance
+        self.model.slumber_model = self
         self.name = model_instance.__name__
         self.path = app.path + '/' + self.name + '/'
 
