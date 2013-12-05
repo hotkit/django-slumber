@@ -36,7 +36,6 @@ def hal_instance_list(operation, control, builder, query_set, page_size=10):
     """
     from slumber import data_link
     starter = control.get('lpk', None)
-    print control, starter
     if starter:
         query_set = query_set.filter(pk__lt=starter)
     lpk = None
