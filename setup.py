@@ -10,7 +10,7 @@ def read(fname1, fname2):
 
 setup(
     name = "django_slumber",
-    version = "0.7.8.8",
+    version = "0.7.8.9",
     author = "Kirit Saelensminde",
     author_email = "kirit@felspar.com",
     url='https://github.com/KayEss/django-slumber',

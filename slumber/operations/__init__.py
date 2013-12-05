@@ -36,7 +36,10 @@ class ModelOperation(object):
                 part = part.pk
             part = str(part)
             if part.startswith('/'):
-                uri = root + part[1:]
+                if part.startswith(root):
+                    uri = part
+                else:
+                    uri = root + part[1:]
             else:
                 uri += quote(part)
             if not uri.endswith('/'):

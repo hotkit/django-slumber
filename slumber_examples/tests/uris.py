@@ -50,6 +50,11 @@ class TestShopURIs(TestCase):
             r'/slumber/shops/mount1/?key=v1')
 
     def test_argument_which_re_roots(self):
-        self.assertEqual(Shop.slumber_model.operations['shops1']('/shops/mount1'),
+        self.assertEqual(
+            Shop.slumber_model.operations['shops1']('/shops/mount1'),
             r'/slumber/shops/mount1/')
 
+    def test_argument_which_re_roots_all_the_way(self):
+        self.assertEqual(
+            Shop.slumber_model.operations['shops1']('/slumber/shops/mount1'),
+            r'/slumber/shops/mount1/')
