@@ -46,7 +46,7 @@ class InstanceListHal(ModelOperation):
         query = self.model.model.objects.order_by('-pk')
         for instance in query.iterator():
             item = Builder(
-                self.model.operations['data'].uri + str(instance.pk) + '/')
+                self.model.operations['data'](instance))
             item.set_property('display', unicode(instance))
             hal.embed('page', item)
 
