@@ -31,6 +31,16 @@ class InstanceList(ModelOperation):
                 start_after=response['page'][-1]['pk'])
 
 
+def hal_instance_list(builder, query_set):
+    """Return a page of JSON-HAL based results across the query set.
+    """
+    from slumber import data_link
+    for instance in query_set.order_by('-pk').iterator():
+        item = Builder(data_link(instance))
+        item.set_property('display', unicode(instance))
+        builder.embed('page', item)
+
+
 class InstanceListHal(ModelOperation):
     """Allow us to get an instance list in HAL format.
     """
@@ -43,12 +53,7 @@ class InstanceListHal(ModelOperation):
         hal = Builder(self.uri)
         hal.add_link('model', root + self.model.path)
 
-        query = self.model.model.objects.order_by('-pk')
-        for instance in query.iterator():
-            item = Builder(
-                self.model.operations['data'](instance))
-            item.set_property('display', unicode(instance))
-            hal.embed('page', item)
+        query = self.model.model.objects
+        hal_instance_list(hal, query)
 
         response["instances"] = hal.as_object()
-
