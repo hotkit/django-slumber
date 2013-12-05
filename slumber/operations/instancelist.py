@@ -31,14 +31,18 @@ class InstanceList(ModelOperation):
                 start_after=response['page'][-1]['pk'])
 
 
-def hal_instance_list(operation, _control, builder, query_set, page_size=10):
+def hal_instance_list(operation, control, builder, query_set, page_size=10):
     """Return a page of JSON-HAL based results across the query set.
     """
     from slumber import data_link
+    starter = control.get('lpk', None)
+    print control, starter
+    if starter:
+        query_set = query_set.filter(pk__lt=starter)
     lpk = None
     for instance in query_set.order_by('-pk').iterator():
         if page_size == 0:
-            builder.add_link('next-page', operation(pk=lpk))
+            builder.add_link('next', operation(lpk=lpk))
             return
         else:
             page_size -= 1
@@ -57,7 +61,7 @@ class InstanceListHal(ModelOperation):
         """
         root = get_slumber_root()
 
-        hal = Builder(self.uri)
+        hal = Builder(self())
         hal.add_link('model', root + self.model.path)
 
         query = self.model.model.objects
