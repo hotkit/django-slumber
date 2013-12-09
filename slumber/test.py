@@ -149,7 +149,7 @@ def mock_ua(test_method):
             """
             self.expectations.append(('post', url, edata, rdata))
 
-        def do_get(self, url, _ttl = 0, _codes = None):
+        def do_get(self, url, _ttl=0, _codes=None, _headers=None):
             """The patch for the user agent get.
             """
             self.test.assertTrue(self.expectations,

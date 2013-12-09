@@ -109,3 +109,12 @@ class TestInstanceList(ConfigureUser, TestCase):
         self.assertEqual(page[0], dict(
             _links={'self': dict(href='/slumber/pizzas/shop/5/')},
             display="Shop 5"))
+
+    def test_xml(self):
+        response, _ = get('/slumber/shops/mount2/?lpk=6',
+            headers=dict(Accept='application/xml'))
+        print response
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/xml')
+
+

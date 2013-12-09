@@ -127,22 +127,23 @@ def _sign_request(method, url, body, for_fake_client):
         return {}
 
 
-def get(url, ttl=0, codes=None):
+def get(url, ttl=0, codes=None, headers=None):
     """Perform a GET request against a Slumber server.
     """
-    return _get(url, ttl, codes)
+    return _get(url, ttl, codes, headers)
 
 
-def _get(url, ttl, codes):
+def _get(url, ttl, codes, headers):
     """Mockable version of the user agent get.
     """
     # Pylint gets confused by the fake HTTP client
     # pylint: disable=E1103
-    url_fragment = _use_fake(url)
     codes = codes or [200]
+    headers = headers or {}
+    url_fragment = _use_fake(url)
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
-        headers = _sign_request('GET', file_spec, query, True)
+        headers.update(_sign_request('GET', file_spec, query, True))
         response = FakeClient().get(file_spec, query,
             HTTP_HOST='localhost:8000', **headers)
         if response.status_code in [301, 302] and \
