@@ -21,7 +21,7 @@ def _perform(client, method, url, data, content_type=None, username=None):
         return client.get(*a, REQUEST_METHOD=method.upper(), **kw)
     logging.info("%s with data %s", method, data)
     headers = _calculate_signature('service',
-        method.upper(), url, data, username, True)
+        method.upper(), url, data, username)
     response = getattr(client, method, method_wrapper)(
         url, data, content_type=content_type, **_fake_http_headers(headers))
     if response.status_code == 200:

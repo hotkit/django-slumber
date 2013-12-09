@@ -26,11 +26,11 @@ class ConfigureUser(object):
         [p.stop() for p in self.__patchers]
 
     def signed_get(self,  username, url='/'):
-        headers = _calculate_signature('service', 'GET', url, '', username, True)
+        headers = _calculate_signature('service', 'GET', url, '', username)
         return self.client.get(url, **_fake_http_headers(headers))
 
     def signed_post(self, username, url, data):
-        headers = _calculate_signature('service', 'POST', url, data, username, True)
+        headers = _calculate_signature('service', 'POST', url, data, username)
         return self.client.post(url, data, **_fake_http_headers(headers))
 
 

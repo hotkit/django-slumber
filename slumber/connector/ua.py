@@ -53,8 +53,7 @@ def _use_fake(url):
     logging.debug("Using real HTTP for %s", url)
 
 
-def _calculate_signature(authn_name, method, url, body,
-        username, for_fake_client):
+def _calculate_signature(authn_name, method, url, body, username):
     """Do the signed request calculation.
     """
     # We need all arguments and all locals
@@ -107,7 +106,7 @@ def for_user(name):
     return decorator
 
 
-def _sign_request(method, url, body, for_fake_client):
+def _sign_request(method, url, body):
     """Calculate the request headers that need to be added so that the
     request is properly signed and the Slumber server will consider
     the current user to be authenticated.
@@ -118,7 +117,7 @@ def _sign_request(method, url, body, for_fake_client):
     if authn_name:
         name = getattr(PER_THREAD, 'username', None)
         return _calculate_signature(
-            authn_name, method, url, body, name, for_fake_client)
+            authn_name, method, url, body, name)
     else:
         return {}
 
@@ -146,7 +145,7 @@ def _get(url, ttl, codes, headers):
     url_fragment = _use_fake(url)
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
-        headers.update(_sign_request('GET', file_spec, query, True))
+        headers.update(_sign_request('GET', file_spec, query))
         response = FakeClient().get(file_spec, query,
             HTTP_HOST='localhost:8000', **_fake_http_headers(headers))
         if response.status_code in [301, 302] and \
@@ -163,7 +162,7 @@ def _get(url, ttl, codes, headers):
                 url, cache_key)
             _, _, path, _, query, _ = urlparse(url)
             for _ in range(0, 3):
-                headers.update(_sign_request('GET', path, query or '', False))
+                headers.update(_sign_request('GET', path, query or ''))
                 response, content = _real().request(
                     url, headers=headers)
                 if response.status in codes:
@@ -199,7 +198,7 @@ def _post(url, data, codes):
     body = dumps(data) if data else ''
     url_fragment = _use_fake(url)
     if url_fragment:
-        headers.update(_sign_request('POST', url_fragment, body, True))
+        headers.update(_sign_request('POST', url_fragment, body))
         response = FakeClient().post(url_fragment, body,
             content_type='application/json',
             HTTP_HOST='localhost:8000',
@@ -208,7 +207,7 @@ def _post(url, data, codes):
             (url_fragment, response, response.content)
         content = response.content
     else:
-        headers.update(_sign_request('POST', urlparse(url).path, body, False))
+        headers.update(_sign_request('POST', urlparse(url).path, body))
         headers['Content-Type'] = 'application/json'
         response, content = _real().request(url, "POST", body=body,
             headers = headers)
