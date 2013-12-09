@@ -1,4 +1,7 @@
+from __future__ import absolute_import
+
 from django.test import TestCase
+from xml.dom.minidom import parseString
 
 from slumber.connector.ua import get
 
@@ -113,8 +116,8 @@ class TestInstanceList(ConfigureUser, TestCase):
     def test_xml(self):
         response, _ = get('/slumber/shops/mount2/?lpk=6',
             headers=dict(Accept='application/xml'))
-        print response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/xml')
 
-
+        xml = parseString(response.content)
+        self.assertEqual(xml.documentElement.tagName, 'instances')

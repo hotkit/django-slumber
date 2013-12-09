@@ -11,7 +11,14 @@ from xml.dom.minidom import parseString
 def as_xml(_request, response, content_type):
     """Return http response object in XML format.
     """
-    xml = dicttoxml.dicttoxml(response, root=True)
+    if hasattr(response, 'root'):
+        xml = dicttoxml.dicttoxml(response[response.root], root=False)
+    else:
+        xml = dicttoxml.dicttoxml(response, root=False)
+    xml = ('<?xml version="1.0" encoding="UTF-8" ?>\n'
+                    '<{root}>{document}</{root}>'.format(
+                root=getattr(response, 'root', 'root'),
+                document=xml))
     if settings.DEBUG:
         xml = parseString(xml).toprettyxml()
     return HttpResponse(xml, content_type,
