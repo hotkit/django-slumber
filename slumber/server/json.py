@@ -53,13 +53,18 @@ class _proxyEncoder(JSONEncoder):
 def as_json(_request, response, content_type):
     """Implement the default accept handling which will return JSON data.
     """
+    response_root = getattr(response, 'root', None)
+    if response_root:
+        to_dump = response[response.root]
+    else:
+        to_dump = response
     if settings.DEBUG:
         dump_content = dumps(
-            response, indent=4,
+            to_dump, indent=4,
             cls=_proxyEncoder)
     else:
         dump_content = dumps(
-            response, cls=_proxyEncoder)
+            to_dump, cls=_proxyEncoder)
 
     return HttpResponse(
         dump_content, content_type or 'text/plain',
