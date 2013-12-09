@@ -9,7 +9,7 @@ from django.db import connection
 from django.test import TestCase
 
 from slumber import Client
-from slumber.connector.ua import _calculate_signature
+from slumber.connector.ua import _calculate_signature, _fake_http_headers
 from slumber.scheme import SlumberServiceURLError
 from slumber_examples.models import Order, Pizza, PizzaPrice, Shop
 from slumber_examples.tests.configurations import ConfigureUser
@@ -21,9 +21,9 @@ def _perform(client, method, url, data, content_type=None, username=None):
         return client.get(*a, REQUEST_METHOD=method.upper(), **kw)
     logging.info("%s with data %s", method, data)
     headers = _calculate_signature('service',
-        method.upper(), url, data, username, True)
+        method.upper(), url, data, username)
     response = getattr(client, method, method_wrapper)(
-        url, data, content_type=content_type, **headers)
+        url, data, content_type=content_type, **_fake_http_headers(headers))
     if response.status_code == 200:
         return response, loads(response.content)
     else:

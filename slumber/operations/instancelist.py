@@ -67,3 +67,4 @@ class InstanceListHal(ModelOperation):
         hal_instance_list(self, request.GET, hal, query)
 
         response["instances"] = hal.as_object()
+        response.root = 'instances'

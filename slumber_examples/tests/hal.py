@@ -1,4 +1,7 @@
+from __future__ import absolute_import
+
 from django.test import TestCase
+from xml.dom.minidom import parseString
 
 from slumber.connector.ua import get
 
@@ -11,10 +14,10 @@ class TestInstanceList(ConfigureUser, TestCase):
         response, json = get('/slumber/shops/mount2/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.has_key('instances'))
+        self.assertFalse(json.has_key('instances'))
 
-        self.assertTrue(json['instances'].has_key('_links'))
-        links = json['instances']['_links']
+        self.assertTrue(json.has_key('_links'))
+        links = json['_links']
         self.assertEqual(links['self']['href'], '/slumber/shops/mount2/')
         self.assertEqual(links['model']['href'], '/slumber/slumber_examples/Shop/')
 
@@ -24,17 +27,17 @@ class TestInstanceList(ConfigureUser, TestCase):
         response, json = get('/slumber/shops/mount2/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.has_key('instances'))
+        self.assertFalse(json.has_key('instances'))
 
-        self.assertTrue(json['instances'].has_key('_links'))
-        links = json['instances']['_links']
+        self.assertTrue(json.has_key('_links'))
+        links = json['_links']
         self.assertEqual(links['self']['href'], '/slumber/shops/mount2/')
         self.assertEqual(links['model']['href'], '/slumber/slumber_examples/Shop/')
         self.assertFalse(links.has_key('next'), links)
 
-        self.assertTrue(json['instances'].has_key('_embedded'))
-        self.assertTrue(json['instances']['_embedded'].has_key('page'))
-        page = json['instances']['_embedded']['page']
+        self.assertTrue(json.has_key('_embedded'))
+        self.assertTrue(json['_embedded'].has_key('page'))
+        page = json['_embedded']['page']
 
         self.assertEqual(len(page), 5)
         self.assertEqual(page[0], dict(
@@ -47,17 +50,17 @@ class TestInstanceList(ConfigureUser, TestCase):
         response, json = get('/slumber/shops/mount2/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.has_key('instances'))
+        self.assertFalse(json.has_key('instances'))
 
-        self.assertTrue(json['instances'].has_key('_links'))
-        links = json['instances']['_links']
+        self.assertTrue(json.has_key('_links'))
+        links = json['_links']
         self.assertEqual(links['self']['href'], '/slumber/shops/mount2/')
         self.assertEqual(links['model']['href'], '/slumber/slumber_examples/Shop/')
         self.assertFalse(links.has_key('next'), links)
 
-        self.assertTrue(json['instances'].has_key('_embedded'))
-        self.assertTrue(json['instances']['_embedded'].has_key('page'))
-        page = json['instances']['_embedded']['page']
+        self.assertTrue(json.has_key('_embedded'))
+        self.assertTrue(json['_embedded'].has_key('page'))
+        page = json['_embedded']['page']
 
         self.assertEqual(len(page), 10)
         self.assertEqual(page[0], dict(
@@ -70,17 +73,17 @@ class TestInstanceList(ConfigureUser, TestCase):
         response, json = get('/slumber/shops/mount2/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.has_key('instances'))
+        self.assertFalse(json.has_key('instances'))
 
-        self.assertTrue(json['instances'].has_key('_links'))
-        links = json['instances']['_links']
+        self.assertTrue(json.has_key('_links'))
+        links = json['_links']
         self.assertEqual(links['self']['href'], '/slumber/shops/mount2/')
         self.assertEqual(links['model']['href'], '/slumber/slumber_examples/Shop/')
         self.assertTrue(links.has_key('next'), links)
 
-        self.assertTrue(json['instances'].has_key('_embedded'))
-        self.assertTrue(json['instances']['_embedded'].has_key('page'))
-        page = json['instances']['_embedded']['page']
+        self.assertTrue(json.has_key('_embedded'))
+        self.assertTrue(json['_embedded'].has_key('page'))
+        page = json['_embedded']['page']
 
         self.assertEqual(len(page), 10)
         self.assertEqual(page[0], dict(
@@ -95,17 +98,26 @@ class TestInstanceList(ConfigureUser, TestCase):
             Shop.objects.create(name="Shop %d" % s, slug="shop%2d" % s)
         response, json = get('/slumber/shops/mount2/?lpk=6')
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.has_key('instances'))
+        self.assertFalse(json.has_key('instances'))
 
-        self.assertTrue(json['instances'].has_key('_links'))
-        links = json['instances']['_links']
+        self.assertTrue(json.has_key('_links'))
+        links = json['_links']
         self.assertFalse(links.has_key('next'), links)
 
-        self.assertTrue(json['instances'].has_key('_embedded'))
-        self.assertTrue(json['instances']['_embedded'].has_key('page'))
-        page = json['instances']['_embedded']['page']
+        self.assertTrue(json.has_key('_embedded'))
+        self.assertTrue(json['_embedded'].has_key('page'))
+        page = json['_embedded']['page']
 
         self.assertEqual(len(page), 5)
         self.assertEqual(page[0], dict(
             _links={'self': dict(href='/slumber/pizzas/shop/5/')},
             display="Shop 5"))
+
+    def test_xml(self):
+        response, _ = get('/slumber/shops/mount2/?lpk=6',
+            headers=dict(Accept='application/xml'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/xml')
+
+        xml = parseString(response.content)
+        self.assertEqual(xml.documentElement.tagName, 'instances')

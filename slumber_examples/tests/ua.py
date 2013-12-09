@@ -143,8 +143,8 @@ class TestUsernameDecorator(ServiceTests, TestCase):
         super(TestUsernameDecorator, self).setUp()
         self.checked = False
 
-    def signature_with_username(self, authn_name, method, url,
-            body, username, for_fake_client):
+    def signature_with_username(self,
+            authn_name, method, url, body, username):
         self.checked = True
         self.assertEqual(username, 'test-user')
         return {}

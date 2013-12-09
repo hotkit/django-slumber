@@ -46,6 +46,12 @@ def require_permission(permission):
     return decorator
 
 
+class Response(dict):
+    """Subclass dict so that we can annotate it.
+    """
+    pass
+
+
 def view_handler(view):
     """Wrap a view function so it can return either JSON, HTML or some
     other response.
@@ -60,7 +66,7 @@ def view_handler(view):
                 request.POST = loads(request.body)
             else:
                 request.POST = loads(request.raw_post_data)
-        response = {'_meta': dict(status=200, message='OK')}
+        response = Response(_meta=dict(status=200, message='OK'))
         try:
             http_response = view(request, response, *args, **kwargs)
             if http_response:
