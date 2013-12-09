@@ -84,11 +84,7 @@ def _calculate_signature(authn_name, method, url, body,
         headers[key] = value
     logging.debug("_calculate_signature %s adding headers: %s",
         method, headers)
-    if for_fake_client:
-        return dict([('HTTP_' + k.upper().replace('-', '_'), v)
-            for k, v in headers.items()])
-    else:
-        return headers
+    return headers
 
 
 def for_user(name):
@@ -127,6 +123,13 @@ def _sign_request(method, url, body, for_fake_client):
         return {}
 
 
+def _fake_http_headers(headers):
+    """Convert the headers into a form suitable for the Fake HTTP client.
+    """
+    return dict([('HTTP_' + k.upper().replace('-', '_'), v)
+            for k, v in headers.items()])
+
+
 def get(url, ttl=0, codes=None, headers=None):
     """Perform a GET request against a Slumber server.
     """
@@ -139,13 +142,13 @@ def _get(url, ttl, codes, headers):
     # Pylint gets confused by the fake HTTP client
     # pylint: disable=E1103
     codes = codes or [200]
-    headers = headers or {}
+    headers = headers or dict(Accept='application/json')
     url_fragment = _use_fake(url)
     if url_fragment:
         file_spec, query = _parse_qs(url_fragment)
         headers.update(_sign_request('GET', file_spec, query, True))
         response = FakeClient().get(file_spec, query,
-            HTTP_HOST='localhost:8000', **headers)
+            HTTP_HOST='localhost:8000', **_fake_http_headers(headers))
         if response.status_code in [301, 302] and \
                 response.status_code not in codes:
             return get(response['location'], ttl, codes)
@@ -160,7 +163,7 @@ def _get(url, ttl, codes, headers):
                 url, cache_key)
             _, _, path, _, query, _ = urlparse(url)
             for _ in range(0, 3):
-                headers = _sign_request('GET', path, query or '', False)
+                headers.update(_sign_request('GET', path, query or '', False))
                 response, content = _real().request(
                     url, headers=headers)
                 if response.status in codes:
@@ -173,7 +176,10 @@ def _get(url, ttl, codes, headers):
             logging.debug("Fetched %s from cache key %s", url, cache_key)
             response, content = cached
             response.from_cache = True
-    return response, loads(content)
+    try:
+        return response, loads(content)
+    except JSONDecodeError:
+        return response, {}
 
 
 def post(url, data, codes=None):
@@ -189,18 +195,20 @@ def _post(url, data, codes):
     # pylint: disable=E1101
     # Pylint gets confused by the fake HTTP client
     # pylint: disable=E1103
+    headers = dict(Accept='application/json')
     body = dumps(data) if data else ''
     url_fragment = _use_fake(url)
     if url_fragment:
+        headers.update(_sign_request('POST', url_fragment, body, True))
         response = FakeClient().post(url_fragment, body,
             content_type='application/json',
             HTTP_HOST='localhost:8000',
-            **_sign_request('POST', url_fragment, body, True))
+            **_fake_http_headers(headers))
         assert response.status_code in (codes or [200]), \
             (url_fragment, response, response.content)
         content = response.content
     else:
-        headers = _sign_request('POST', urlparse(url).path, body, False)
+        headers.update(_sign_request('POST', urlparse(url).path, body, False))
         headers['Content-Type'] = 'application/json'
         response, content = _real().request(url, "POST", body=body,
             headers = headers)
