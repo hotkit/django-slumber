@@ -8,15 +8,17 @@ from django.http import HttpResponse
 from types import NoneType
 
 
-def build_html(_request, response, _content_type):
+def build_html(_request, response, content_type):
     """Return http response object in text/html format.
     """
     html_template = '<!DOCTYPE HTML>\n<html><body>%s</body></html>'
-    dom = html_template % _convert(response)
+    if hasattr(response, 'root'):
+        dom = html_template % _convert(response[response.root])
+    else:
+        dom = html_template % _convert(response)
     if settings.DEBUG:
         dom = BeautifulSoup(dom).prettify()
-
-    return HttpResponse(dom, 'text/HTML', status=response['_meta']['status'])
+    return HttpResponse(dom, content_type, status=response['_meta']['status'])
 
 
 def _convert(obj):
