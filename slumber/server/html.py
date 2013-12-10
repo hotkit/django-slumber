@@ -30,7 +30,7 @@ def _convert(obj):
         return _convert_dict(obj)
     if type(obj) in (list, set, tuple) or isinstance(obj, collections.Iterable):
         return _convert_list(obj)
-    raise TypeError('Unsupported data type')
+    return _convert_atom(unicode(obj))
 
 
 def _convert_atom(val):
