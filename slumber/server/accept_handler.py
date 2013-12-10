@@ -16,13 +16,13 @@ def get_handlers_list():
     ]
 
 
-def accept(request_meta_data, accept_handlers_list=None):
+def accept(accept_header, accept_handlers_list=None):
     """Perform the content type negotiation.
     """
     if not accept_handlers_list:
         accept_handlers_list = get_handlers_list()
     for accept_str, fn_handler in accept_handlers_list:
-        if accept_str in request_meta_data:
+        if accept_str in accept_header:
             return accept_str, fn_handler
 
     return None, as_json
