@@ -1,7 +1,6 @@
 """
     Implements the server side for the instance operators.
 """
-from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.operations import InstanceOperation
 from slumber.server import get_slumber_root
 from slumber.server.http import require_user
@@ -18,8 +17,8 @@ def instance_data(into, model, instance):
         '%s/%s/' % ('data', instance.pk)
     into['display'] = unicode(instance)
     into['operations'] = dict(
-        [(op.name, root + op.path + '%s/' % instance.pk)
-            for op in model.operations() if not op.model_operation])
+        [(op.name, op(instance))
+            for op in model.operations.values() if not op.model_operation])
     into['fields'] = {}
     for field, meta in model.fields.items():
         into['fields'][field] = dict(
@@ -53,8 +52,7 @@ class InstanceData(InstanceOperation):
         """Return one page of the array data.
         """
         root = get_slumber_root()
-        response['instance'] = root + self.model.path + '%s/%s/%s/' % (
-            self.name, str(instance.pk), dataset)
+        response['instance'] = self(instance, dataset)
 
         try:
             query = getattr(instance, dataset + '_set')
@@ -66,14 +64,13 @@ class InstanceData(InstanceOperation):
 
         response['page'] = []
         for obj in query[:10]:
-            model = DJANGO_MODEL_TO_SLUMBER_MODEL[type(obj)]
+            model = type(obj).slumber_model
             response['page'].append(dict(
                     type=root + model.path,
                     pk=obj.pk, display=unicode(obj),
-                    data=root + model.path + 'data/%s/' % obj.pk))
+                    data=model.operations['data'](obj)))
 
         if query.count() > len(response['page']):
-            response['next_page'] = root + self.model.path + \
-                '%s/%s/%s/?start_after=%s' % (
-                    self.name, instance.pk, dataset,
-                    response['page'][-1]['pk'])
+            response['next_page'] = self(instance, dataset,
+                start_after=response['page'][-1]['pk'])
+

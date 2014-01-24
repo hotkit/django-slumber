@@ -1,8 +1,10 @@
 """
     Implements configuration of the Slumber models available on the server.
 """
+from django.core.urlresolvers import reverse
+
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL, \
-    SLUMBER_MODEL_OPERATIONS
+    OPERATION_URIS
 from slumber.connector.configuration import INSTANCE_PROXIES, MODEL_PROXIES
 from slumber.server.json import DATA_MAPPING
 from slumber.server.meta import get_application
@@ -74,7 +76,16 @@ def _model(django_model, to_json, properties_ro, operations_extra):
     for type_name, function in (to_json or {}).items():
         DATA_MAPPING[type_name] = function
 
-    ops = SLUMBER_MODEL_OPERATIONS[model]
-    for operation, name in operations_extra or []:
-        ops.append(operation(model, name))
-
+    for conf in operations_extra or []:
+        if len(conf) == 2:
+            operation, name = conf
+            if operation is None:
+                del model.operations[name]
+            else:
+                model.operations[name] = operation(model, name)
+        elif len(conf) == 3:
+            operation, name, uri = conf
+            slumber_op = operation(model, name,
+                reverse('slumber.server.views.service_root') + uri + '/')
+            model.operations[name] = slumber_op
+            OPERATION_URIS[uri] = slumber_op

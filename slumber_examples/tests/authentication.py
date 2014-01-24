@@ -101,7 +101,7 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
     def test_signing_function_signs(self):
         headers = {}
         def check_request(request):
-            for k, v in _sign_request('GET', '/', '', False).items():
+            for k, v in _sign_request('GET', '/', '').items():
                 headers[k] = v
             return HttpResponse('ok', 'text/plain')
         with patch('slumber_examples.views._ok_text', check_request):
@@ -113,7 +113,7 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
         self.user.save()
         headers = {}
         def check_request(request):
-            for k, v in _sign_request('GET', '/', '', False).items():
+            for k, v in _sign_request('GET', '/', '').items():
                 headers[k] = v
             return HttpResponse('ok', 'text/plain')
         with patch('slumber_examples.views._ok_text', check_request):
@@ -127,7 +127,7 @@ class TestAuthnForwarding(ConfigureUser, TestCase):
         self.user.save()
         headers = {}
         def check_request(request):
-            for k, v in _sign_request('GET', '/', '', False).items():
+            for k, v in _sign_request('GET', '/', '').items():
                 headers[k] = v
             return HttpResponse('ok', 'text/plain')
         with patch('slumber_examples.views._ok_text', check_request):

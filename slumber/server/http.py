@@ -3,27 +3,16 @@
     data.
 """
 import logging
-from simplejson import dumps, JSONEncoder, loads
+from simplejson import loads
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
 try:
     from django.views.decorators.csrf import csrf_exempt
     USE_CSRF = True
 except ImportError: # pragma: no cover
     USE_CSRF = False
 
-from slumber.server import NotAuthorised, Forbidden
-
-
-class _proxyEncoder(JSONEncoder):
-    """If we don't know how to deal with the attribute type we'll just
-    convert to a string and hope that's ok for now.
-    """
-    # An attribute inherited from JSONEncoder hide this method
-    # pylint: disable=E0202
-    def default(self, obj):
-        return unicode(obj)
+from slumber.server import NotAuthorised, Forbidden, accept_handler
 
 
 def require_user(function):
@@ -57,6 +46,12 @@ def require_permission(permission):
     return decorator
 
 
+class Response(dict):
+    """Subclass dict so that we can annotate it.
+    """
+    pass
+
+
 def view_handler(view):
     """Wrap a view function so it can return either JSON, HTML or some
     other response.
@@ -67,8 +62,11 @@ def view_handler(view):
         meta = request.META
         if meta.get('CONTENT_TYPE', '').startswith('application/json') and \
                 meta.get('CONTENT_LENGTH'):
-            request.POST = loads(request.raw_post_data)
-        response = {'_meta': dict(status=200, message='OK')}
+            if hasattr(request, 'body'):
+                request.POST = loads(request.body)
+            else:
+                request.POST = loads(request.raw_post_data)
+        response = Response(_meta=dict(status=200, message='OK'))
         try:
             http_response = view(request, response, *args, **kwargs)
             if http_response:
@@ -92,9 +90,9 @@ def view_handler(view):
             response['_meta']['username'] = request.user.username
         else:
             logging.debug("Request user %s not authenticated", request.user)
-        http_response = HttpResponse(dumps(response, indent=4,
-                cls=_proxyEncoder), 'text/plain',
-            status=response['_meta']['status'])
+        accepting = meta.get('HTTP_ACCEPT', 'text/plain')
+        content_type, handler = accept_handler.accept(accepting)
+        http_response = handler(request, response, content_type)
         for header, value in response['_meta'].get('headers', {}).items():
             http_response[header] = value
         return http_response

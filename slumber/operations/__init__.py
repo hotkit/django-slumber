@@ -1,7 +1,12 @@
 """
     Implements the server side operations on models and instances.
 """
+from urllib import quote, urlencode
+
 from django.core.urlresolvers import reverse
+from django.db.models import Model
+
+from slumber.server import get_slumber_root
 
 
 def _forbidden(_request, response, *_):
@@ -16,11 +21,32 @@ class ModelOperation(object):
     """
     METHODS = ['GET', 'OPTIONS', 'POST', 'PUT', 'DELETE']
     model_operation = True
-    def __init__(self, model, name):
+    def __init__(self, model, name, uri = None):
         self.model = model
         self.name = name
+        self.uri = uri
         self.regex = ''
         self.path = model.path + name + '/'
+
+    def __call__(self, *args, **qs):
+        root = get_slumber_root()
+        uri = self.uri or (root + self.path)
+        for part in args:
+            if issubclass(type(part), Model):
+                part = part.pk
+            part = str(part)
+            if part.startswith('/'):
+                if part.startswith(root):
+                    uri = part
+                else:
+                    uri = root + part[1:]
+            else:
+                uri += quote(part)
+            if not uri.endswith('/'):
+                uri += '/'
+        if qs:
+            uri += '?' + urlencode(qs)
+        return uri
 
     def headers(self, retvalue, request, response):
         """Calculate and place extra headers needed for certain types of
@@ -57,6 +83,6 @@ class InstanceOperation(ModelOperation):
     """Base class for operations on instances.
     """
     model_operation = False
-    def __init__(self, model, name):
-        super(InstanceOperation, self).__init__(model, name)
+    def __init__(self, model, name, uri = None):
+        super(InstanceOperation, self).__init__(model, name, uri)
         self.regex = '([^/]+)/'

@@ -1,3 +1,32 @@
+2013-12-10  Chirapat Harigulrak  <chirapat@proteus-tech.com>
+ make html parser support any type of object
+
+2013-12-09  Kirit Saelensminde  <kirit@felspar.com>
+ Allow sub-parts of the response object to be used for JSON and XML output.
+
+2013-12-05  Kirit Saelensminde  <kirit@felspar.com>
+ Implemented proper pagination support for the HAL instance list and broke out a re-usable API for them over any query set.
+ Guess at some output to linkify in the HTML output.
+
+2013-12-04  Kirit Saelensminde  <kirit@felspar.com>
+ Allow the removal of built-in operations from models and also changes to the URIs they are mounted at.
+ Make HTML the default for browsers rather than XML.
+ Add new APIs for building URIs for operations.
+
+2013-12-03  Kirit Saelensminde  <kirit@felspar.com>
+ Allow operations to be mounted at any URL below the Slumber mount point.
+
+2013-11-26  Kirit Saelensminde  <kirit@felspar.com>
+ Changed the way that the URLs are configured to be compatible with Django 1.6.
+ Other changes for Django 1.6 compatibility.
+
+2013-11-25  Siraset Jirapatchandej  <siraset@proteus-tech.com>
+ Merge html response handler from nattakit
+ Merge xml response handler chirapat
+
+2013-11-20  Chirapat Harigulrak  <chirapat@proteus-tech.com>
+ Create xml response handler
+
 2013-11-12  Kirit Saelensminde  <kirit@felspar.com>
  Django applicatoins that are imported on the server side are now able to take a configuration that appears when the service URL is fetched.
 

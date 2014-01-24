@@ -6,7 +6,7 @@ from django.test import TestCase
 from slumber import Client
 from slumber.connector.ua import post, get
 
-from slumber_examples.models import Pizza, PizzaCrust
+from slumber_examples.models import Pizza, PizzaCrust, Shop
 from slumber_examples.tests.configurations import ConfigureUser
 
 
@@ -83,3 +83,38 @@ class OrderTests(ConfigureUser, TestCase):
         pizza2 = self.cnx.slumber_examples.Pizza.create(id=2, name='S2', for_sale=True)
         pizza3 = Pizza.objects.create(name='S3', for_sale=True)
         self.assertEqual(Pizza.objects.count(), 3)
+
+
+class ShopListTests(TestCase):
+    def setUp(self):
+        super(ShopListTests, self).setUp()
+        self.cnx = Client()
+
+    def test_mount_point(self):
+        response, json = get('/slumber/shops/mount1/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json, dict(_meta={'message': 'OK', 'status': 200},
+            shops=[{
+                'name': 'Hard Coded Pizza Parlour'
+            }]))
+
+    def test_operation_model_uri(self):
+        self.assertTrue(
+            self.cnx.slumber_examples.Shop._operations.has_key('shops1'),
+            self.cnx.slumber_examples.Shop._operations.keys())
+        self.assertEqual(
+            self.cnx.slumber_examples.Shop._operations["shops1"],
+            'http://localhost:8000/slumber/shops/mount1/')
+
+
+class ShopInstanceTests(ConfigureUser, TestCase):
+    def test_mount_point(self):
+        shop = Shop.objects.create(name='Test One')
+        with patch('slumber.connector._get_slumber_authn_name', lambda: 'service'):
+            response, json = get('/slumber/pizzas/shop/%s/' % shop.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json['operations'].has_key('data'), json)
+        self.assertEqual(json['operations']['data'],
+            '/slumber/pizzas/shop/%s/' % shop.pk)
+
+

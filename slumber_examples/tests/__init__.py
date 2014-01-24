@@ -1,7 +1,10 @@
+from accept_handler import *
 from application_configuration import *
 from authentication import *
 from client import *
 from forms import *
+from hal import *
+from html import *
 from middleware import *
 from models import *
 from mock_client import *
@@ -10,4 +13,6 @@ from proxies import *
 from server import *
 from services import *
 from ua import *
+from uris import *
 from views import *
+from xml import *

@@ -1,6 +1,11 @@
 """
-    Implements the JSON formatting for both the server.
+    Implements the JSON formatting for the server.
 """
+from simplejson import dumps, JSONEncoder
+
+from django.http import HttpResponse
+from django.conf import settings
+
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.server import get_slumber_root
 
@@ -33,3 +38,35 @@ def to_json_data(model, instance, fieldname, fieldmeta):
             return None
         else:
             return unicode(value)
+
+
+class _proxyEncoder(JSONEncoder):
+    """If we don't know how to deal with the attribute type we'll just
+    convert to a string and hope that's ok for now.
+    """
+    # An attribute inherited from JSONEncoder hide this method
+    # pylint: disable=E0202
+    def default(self, obj):
+        return unicode(obj)
+
+
+def as_json(_request, response, content_type):
+    """Implement the default accept handling which will return JSON data.
+    """
+    response_root = getattr(response, 'root', None)
+    if response_root:
+        to_dump = response[response.root]
+    else:
+        to_dump = response
+    if settings.DEBUG:
+        dump_content = dumps(
+            to_dump, indent=4,
+            cls=_proxyEncoder)
+    else:
+        dump_content = dumps(
+            to_dump, cls=_proxyEncoder)
+
+    return HttpResponse(
+        dump_content, content_type or 'text/plain',
+        status=response['_meta']['status'])
+
