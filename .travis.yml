@@ -1,7 +1,15 @@
 language: python
+
 python:
     - "2.7"
 
-install: "pip install -r test-projects/setup.pip -r test-projects/django1_4/setup.pip"
+env:
+    - DJANGO=1_3
+    - DJANGO=1_4
+    - DJANGO=1_5
+    - DJANGO=1_6
+    - DJANGO=1_0
 
-script: "cd test-projects/django1_4 && python manage.py test slumber_examples"
+install: "pip install -r test-projects/setup.pip -r test-projects/django$(DJANGO)/setup.pip"
+
+script: "cd test-projects/django$(DJANGO) && python manage.py test slumber_examples"
