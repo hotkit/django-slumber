@@ -99,16 +99,6 @@ class TestHTML(ConfigureUser, TestCase):
         # Assert
         self.assertEqual(result, expect_result)
 
-    def test_convert_with_Mock_type(self):
-        # Arrange
-        test_dict = mock
-
-        # Assert
-        with self.assertRaises(TypeError) as e:
-            convert(test_dict)
-
-        self.assertEqual(e.exception.message, 'Unsupported data type')
-
     def test_convert_atom_with_Mock_type(self):
         # Arrange
         test_dict = mock
