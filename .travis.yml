@@ -10,6 +10,6 @@ env:
     - DJANGO=1_6
     - DJANGO=1_0
 
-install: "pip install -r test-projects/setup.pip -r test-projects/django$(DJANGO)/setup.pip"
+install: "pip install -r test-projects/setup.pip -r test-projects/django${DJANGO}/setup.pip"
 
-script: "cd test-projects/django$(DJANGO) && python manage.py test slumber_examples"
+script: "cd test-projects/django${DJANGO} && python manage.py test slumber_examples"
