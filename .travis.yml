@@ -1,0 +1,7 @@
+language: python
+python:
+    - "2.7"
+
+install: "pip install -r test-projects/setup.pip -r test-projects/django1_4/setup.pip"
+
+script: cd test-projects/django1_4 && python manage.py test slumber_examples
