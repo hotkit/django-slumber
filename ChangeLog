@@ -1,4 +1,8 @@
+2014-03-13  Eddy Zhow  <eddy@proteus-tech.com>
+ Add charset to html response content type.
+
 2013-12-10  Chirapat Harigulrak  <chirapat@proteus-tech.com>
+ make html parser support any type of object
  make html parser support any type of object
 
 2013-12-09  Kirit Saelensminde  <kirit@felspar.com>
