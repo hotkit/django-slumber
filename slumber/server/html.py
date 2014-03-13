@@ -16,6 +16,9 @@ def build_html(_request, response, content_type):
         dom = html_template % _convert(response[response.root])
     else:
         dom = html_template % _convert(response)
+    if content_type is not None:
+        if not 'charset' in content_type:
+            content_type += '; charset=utf-8'
     if settings.DEBUG:
         dom = BeautifulSoup(dom).prettify()
     return HttpResponse(dom, content_type, status=response['_meta']['status'])
