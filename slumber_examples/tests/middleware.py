@@ -39,22 +39,19 @@ class TestMiddleware(TestsWithPizza):
         super(TestMiddleware, self).tearDown()
         self.middleware.process_response(None, None)
 
-
-    # TODO: The following test is broken until we can get the threading
-    # done in such a way that all of this still works as it should
-    #def test_alias_writes_are_visible(self):
-        #m1 = client.slumber_examples.Pizza.get(pk=1)
-        #m2 = client.slumber_examples.Pizza.get(pk=1)
-        #self.assertEqual(m1.id, m2.id)
-        #self.assertTrue(PER_THREAD.cache.get(m1._url, None),
-        #(m1._url, PER_THREAD.cache.keys()))
-        #with self.assertRaises(AttributeError):
-            #m1.attr
-        #with self.assertRaises(AttributeError):
-            #m2.attr
-        #m1.attr = 'attribute data'
-        #self.assertEqual(m1.attr, 'attribute data')
-        #self.assertEqual(m1.attr, m2.attr)
+    def test_alias_writes_are_visible(self):
+        m1 = client.slumber_examples.Pizza.get(pk=1)
+        m2 = client.slumber_examples.Pizza.get(pk=1)
+        self.assertEqual(m1.id, m2.id)
+        self.assertTrue(PER_THREAD.cache.get(m1._url, None),
+        (m1._url, PER_THREAD.cache.keys()))
+        with self.assertRaises(AttributeError):
+            m1.attr
+        with self.assertRaises(AttributeError):
+            m2.attr
+        m1.attr = 'attribute data'
+        self.assertEqual(m1.attr, 'attribute data')
+        self.assertEqual(m1.attr, m2.attr)
 
 
 class TestSetting(ConfigureUser, TestCase):

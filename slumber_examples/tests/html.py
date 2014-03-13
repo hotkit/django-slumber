@@ -127,13 +127,6 @@ class TestHTML(ConfigureUser, TestCase):
         # Assert
         self.assertEqual(result, expect_result)
 
-    def test_convert_with_Mock_type(self):
-        # Arrange
-        test_dict = mock.Mock()
-
-        # Assert
-        self.assertTrue('Mock' in convert(test_dict))
-
     def test_convert_atom_with_Mock_type(self):
         # Arrange
         test_dict = mock
