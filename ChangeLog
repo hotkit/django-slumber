@@ -1,3 +1,6 @@
+2014-04-10 Chirapat Harigulrak  <chirapat@proteus-tech.com>
+Implement require permissions decorator which take list of permissions as parameter.
+
 2014-03-13  Eddy Zhow  <eddy@proteus-tech.com>
  Add charset to html response content type.
 

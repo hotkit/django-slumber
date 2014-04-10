@@ -1,16 +1,17 @@
 from datetime import date
 from simplejson import loads
-from mock import patch
+from mock import patch, Mock
 
 from django.test import TestCase
 
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.server import get_slumber_services, get_slumber_local_url_prefix, \
-    NoServiceSpecified, AbsoluteURIRequired
-from slumber.server.http import view_handler
+    NoServiceSpecified, AbsoluteURIRequired, Forbidden
+from slumber.server.http import view_handler, require_permissions
 from slumber.server.meta import get_application
 
 from slumber_examples.models import Pizza
+from slumber_examples.tests import ConfigureUser
 
 
 class TestJSON(TestCase):
@@ -97,3 +98,43 @@ class InternalAPIs(TestCase):
         model = DJANGO_MODEL_TO_SLUMBER_MODEL[Pizza]
         self.assertEqual(str(model), "slumber_examples.Pizza")
         self.assertEqual(str(model.app), "slumber_examples")
+
+
+class TestRequirePermissions(ConfigureUser, TestCase):
+    def setUp(self):
+        super(TestRequirePermissions, self).setUp()
+        self.request = Mock()
+        self.request.user = self.user
+        self.has_perm = self.request.user.has_perm
+        self.request.user.has_perm = Mock()
+
+    def tearDown(self):
+        super(TestRequirePermissions, self).tearDown()
+        self.request.user.has_perm = self.has_perm
+
+    def test_require_permissions__have_no_permission(self):
+        view = Mock(return_value='fake response')
+        required_permissions = ['test_permission1', 'test_permission2']
+        self.request.user.has_perm.return_value = False
+
+        decorator = require_permissions(required_permissions)
+        decorated = decorator(view)
+        with self.assertRaises(Forbidden):
+            decorated(self, self.request)
+
+    def test_require_permissions__have_all_required_permissions(self):
+        view = Mock(return_value='fake response')
+        required_permissions = ['test_permission1', 'test_permission2']
+        self.request.user.has_perm.return_value = True
+
+        decorator = require_permissions(required_permissions)
+        decorated = decorator(view)
+        decorated(self, self.request)
+
+        # It will check each permission in the list.
+        self.assertEqual(self.request.user.has_perm.call_count, len(required_permissions))
+        self.request.user.has_perm.assert_any_call(required_permissions[0])
+        self.request.user.has_perm.assert_any_call(required_permissions[1])
+
+        # After the permissions are checked, it will call the view function.
+        view.assert_called_once_with(self, self.request)
