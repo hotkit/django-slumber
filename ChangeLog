@@ -1,4 +1,4 @@
-2014-04-10 Chirapat Harigulrak  <chirapat@proteus-tech.com>
+2014-04-10  Chirapat Harigulrak  <chirapat@proteus-tech.com>
 Implement require permissions decorator which take list of permissions as parameter.
 
 2014-03-13  Eddy Zhow  <eddy@proteus-tech.com>
