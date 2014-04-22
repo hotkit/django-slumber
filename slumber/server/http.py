@@ -81,9 +81,9 @@ def view_handler(view):
         if meta.get('CONTENT_TYPE', '').startswith('application/json') and \
                 meta.get('CONTENT_LENGTH'):
             if hasattr(request, 'body'):
-                request.POST = loads(request.body)
+                request.POST = loads(request.body or '""')
             else:
-                request.POST = loads(request.raw_post_data)
+                request.POST = loads(request.raw_post_data or '""')
         response = Response(_meta=dict(status=200, message='OK'))
         try:
             http_response = view(request, response, *args, **kwargs)
