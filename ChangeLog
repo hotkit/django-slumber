@@ -1,8 +1,11 @@
-2014-04-22 Siraset Jirapatchandej <siraset@proteus-tech.com>
-Handle blank request.body
+2014-04-22  Suhrid Satyal  <suhridsatyal@proteus-tech.com>
+ Add utf-8 charset to json and xml response by default
+
+2014-04-22  Siraset Jirapatchandej  <siraset@proteus-tech.com>
+ Handle blank request.body
 
 2014-04-10  Chirapat Harigulrak  <chirapat@proteus-tech.com>
-Implement require permissions decorator which take list of permissions as parameter.
+ Implement require permissions decorator which take list of permissions as parameter.
 
 2014-03-13  Eddy Zhow  <eddy@proteus-tech.com>
  Add charset to html response content type.
