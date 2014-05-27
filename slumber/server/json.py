@@ -67,7 +67,7 @@ def as_json(_request, response, content_type):
             to_dump, cls=_proxyEncoder)
 
     if content_type is not None and 'charset' not in content_type:
-            content_type += '; charset=utf-8'
+        content_type += '; charset=utf-8'
 
     return HttpResponse(
         dump_content, content_type or 'text/plain',

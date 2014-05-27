@@ -23,7 +23,7 @@ def as_xml(_request, response, content_type):
         xml = parseString(xml).toprettyxml()
 
     if content_type is not None and 'charset' not in content_type:
-            content_type += '; charset=utf-8'
+        content_type += '; charset=utf-8'
 
     return HttpResponse(xml, content_type,
         status=response['_meta']['status'])
