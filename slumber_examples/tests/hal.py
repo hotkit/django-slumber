@@ -117,7 +117,7 @@ class TestInstanceList(ConfigureUser, TestCase):
         response, _ = get('/slumber/shops/mount2/?lpk=6',
             headers=dict(Accept='application/xml'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/xml')
+        self.assertEqual(response['Content-Type'], 'application/xml; charset=utf-8')
 
         xml = parseString(response.content)
         self.assertEqual(xml.documentElement.tagName, 'instances')

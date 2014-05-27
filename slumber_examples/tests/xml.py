@@ -31,7 +31,8 @@ class TestXML(ConfigureUser, TestCase):
         xml_snippet = dicttoxml.dicttoxml(response, root=True)
         dom = parseString(xml_snippet).toprettyxml()
 
-        expected_response = HttpResponse(dom, content_type, 200)
+        expected_content_type = "%s; charset=utf-8" % content_type
+        expected_response = HttpResponse(dom, expected_content_type, 200)
 
         # Act
         http_response = as_xml(request, response, content_type)
@@ -39,3 +40,16 @@ class TestXML(ConfigureUser, TestCase):
         # Assert
         self.assertEqual(str(http_response), str(expected_response))
 
+
+    def test_as_xml_should_not_append_charset_if_its_provided(self):
+        # Arrange
+        request = {}
+        response = {'_meta': dict(status=200, message='OK'),
+                    'fake_content': 'sputnik'}
+        content_type = 'text/xml; charset=utf-16'
+
+        # Act
+        http_response = as_xml(request, response, content_type)
+
+        # Assert
+        self.assertEqual(http_response['Content-Type'], 'text/xml; charset=utf-16')

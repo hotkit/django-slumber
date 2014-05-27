@@ -66,7 +66,9 @@ def as_json(_request, response, content_type):
         dump_content = dumps(
             to_dump, cls=_proxyEncoder)
 
+    if content_type is not None and 'charset' not in content_type:
+            content_type += '; charset=utf-8'
+
     return HttpResponse(
         dump_content, content_type or 'text/plain',
         status=response['_meta']['status'])
-
