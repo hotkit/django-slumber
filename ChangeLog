@@ -1,4 +1,7 @@
-2014-04-22  Suhrid Satyal  <suhridsatyal@proteus-tech.com>
+2014-05-27  Kirit Saelensminde  <kirit@felspar.com>
+ Fix a problem when using the create operation on a model where the primary key is also a foreign key.
+
+2014-05-27  Suhrid Satyal  <suhridsatyal@proteus-tech.com>
  Add utf-8 charset to json and xml response by default
 
 2014-04-22  Siraset Jirapatchandej  <siraset@proteus-tech.com>
