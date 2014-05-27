@@ -40,19 +40,8 @@ class TestXML(ConfigureUser, TestCase):
         # Assert
         self.assertEqual(str(http_response), str(expected_response))
 
-    def test_as_XML_should_append_charset_if_none_provided(self):
-        # Arrange
-        request = {}
-        response = {'_meta': dict(status=200, message='OK'),
-                    'fake_content': 'sputnik'}
 
-        # Act
-        http_response = as_xml(request, response, content_type='text/xml')
-
-        # Assert
-        self.assertEqual(http_response['Content-Type'], 'text/xml; charset=utf-8')
-
-    def test_as_XML_should_not_append_charset_if_its_provided(self):
+    def test_as_xml_should_not_append_charset_if_its_provided(self):
         # Arrange
         request = {}
         response = {'_meta': dict(status=200, message='OK'),
