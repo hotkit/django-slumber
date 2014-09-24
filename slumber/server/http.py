@@ -46,6 +46,24 @@ def require_permission(permission):
     return decorator
 
 
+def require_permissions(permissions):
+    """Throw Forbidden if the user does not have the required permissions
+    """
+    def decorator(function):
+        """The decorator returned from its configuration function.
+        """
+        @require_user
+        def decorated(cls, request, *args, **kwargs):
+            """The decorated view function.
+            """
+            for permission in permissions:
+                if not request.user.has_perm(permission):
+                    raise Forbidden("Requires permission %s" % permission)
+            return function(cls, request, *args, **kwargs)
+        return decorated
+    return decorator
+
+
 class Response(dict):
     """Subclass dict so that we can annotate it.
     """
@@ -63,9 +81,9 @@ def view_handler(view):
         if meta.get('CONTENT_TYPE', '').startswith('application/json') and \
                 meta.get('CONTENT_LENGTH'):
             if hasattr(request, 'body'):
-                request.POST = loads(request.body)
+                request.POST = loads(request.body or '{}')
             else:
-                request.POST = loads(request.raw_post_data)
+                request.POST = loads(request.raw_post_data or '{}')
         response = Response(_meta=dict(status=200, message='OK'))
         try:
             http_response = view(request, response, *args, **kwargs)

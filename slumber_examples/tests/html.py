@@ -34,6 +34,34 @@ class TestHTML(ConfigureUser, TestCase):
 
         self.assertEqual(response.content, expected_html_response)
 
+    @patch("slumber.server.html._convert")
+    def test_as_HTML_should_append_charset_to_content_type(self, convert_mocked):
+        # Arrange
+        request = {}
+        response = {'_meta': dict(status=200, message='OK')}
+        content_type = 'text/html'
+        convert_mocked.return_value = 'text'
+
+        # Act
+        response = build_html(request, response, content_type)
+
+        # Assert
+        self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8')
+
+    @patch("slumber.server.html._convert")
+    def test_as_HTML_should_not_append_charset_to_content_type_if_there_is_one(self, convert_mocked):
+        # Arrange
+        request = {}
+        response = {'_meta': dict(status=200, message='OK')}
+        content_type = 'text/html; charset=utf-8'
+        convert_mocked.return_value = 'text'
+
+        # Act
+        response = build_html(request, response, content_type)
+
+        # Assert
+        self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8')
+
     def test_convert_with_int_type(self):
         # Arrange
         test_dict = {'a':5}
@@ -98,16 +126,6 @@ class TestHTML(ConfigureUser, TestCase):
 
         # Assert
         self.assertEqual(result, expect_result)
-
-    def test_convert_with_Mock_type(self):
-        # Arrange
-        test_dict = mock
-
-        # Assert
-        with self.assertRaises(TypeError) as e:
-            convert(test_dict)
-
-        self.assertEqual(e.exception.message, 'Unsupported data type')
 
     def test_convert_atom_with_Mock_type(self):
         # Arrange

@@ -41,7 +41,7 @@ class CreateInstance(ModelOperation):
                 cursor.execute(';'.join(reset_sequence_command_lines))
 
             instance_data(response, self.model, instance)
-            response['pk'] = to_json_data(self.model, instance, 'pk',
+            response['pk'] = to_json_data(self.model, instance, key_name,
                 self.model.fields[key_name])
             response['created'] = created
 
