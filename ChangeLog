@@ -1,3 +1,6 @@
+2014-09-29  Kirit Saelensminde  <kirit@felspar.com>
+ Add a new operation superclass `Operation` that does not pass along the application name or model name parameters (as they're already on the operation).
+
 2014-05-27  Kirit Saelensminde  <kirit@felspar.com>
  Fix a problem when using the create operation on a model where the primary key is also a foreign key.
 

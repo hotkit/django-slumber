@@ -4,10 +4,20 @@
 from django.core.management.color import no_style
 from django.db import connection
 
-from slumber.operations import InstanceOperation
+from slumber.operations import Operation
 from slumber.server import get_slumber_root
 from slumber.server.http import require_user, require_permission
 from slumber.server.json import to_json_data
+
+
+def _reset_sequence_number(model):
+    """Private utility function to perform a SQL sequence number reset.
+    """
+    cursor = connection.cursor()
+    reset_sequence_command_lines = connection.ops.sequence_reset_sql(
+        no_style(), [model])
+    if len(reset_sequence_command_lines) != 0:
+        cursor.execute(';'.join(reset_sequence_command_lines))
 
 
 def instance_data(into, model, instance):
@@ -33,12 +43,13 @@ def instance_data(into, model, instance):
             into['identity'] + '%s/' % field
 
 
-class InstanceData(InstanceOperation):
+class InstanceData(Operation):
     """Return the instance data.
     """
+    model_operation = False
 
     @require_user
-    def get(self, request, response, _appname, _modelname, pk, dataset = None):
+    def get(self, request, response, pk, dataset = None):
         """Implement the fetching of attribute data for an instance.
         """
         instance = self.model.model.objects.get(pk=pk)
@@ -47,16 +58,18 @@ class InstanceData(InstanceOperation):
         else:
             self._get_instance_data(request, response, instance)
 
-    def put(self, request, response, appname, modelname, pk):
+    def put(self, request, response, pk):
         """Allow a new version of the resource to be PUT here.
         """
-        @require_permission('%s.add_%s' % (appname, modelname.lower()))
+        @require_permission('%s.add_%s' % (
+                self.model.app, self.model.name.lower()))
         def do_put(_cls, request):
             """Apply the permission check to this inner function.
             """
             key_name = self.model.model._meta.pk.name
             pk_filter = {key_name: pk}
-            created = (self.model.model.objects.filter(**pk_filter).count() == 0)
+            created = (
+                self.model.model.objects.filter(**pk_filter).count() == 0)
 
             instance = self.model.model(**dict(pk_filter.items() +
                 [(k, v) for k, v in request.POST.items()]))
@@ -64,12 +77,7 @@ class InstanceData(InstanceOperation):
 
             if created:
                 response['_meta']['status'] = 201
-                # Reset the sequence point as there was a PK set
-                cursor = connection.cursor()
-                reset_sequence_command_lines = connection.ops.sequence_reset_sql(
-                    no_style(), [self.model.model])
-                if len(reset_sequence_command_lines) != 0:
-                    cursor.execute(';'.join(reset_sequence_command_lines))
+                _reset_sequence_number(self.model.model)
 
             instance_data(response, self.model, instance)
             response['pk'] = to_json_data(self.model, instance, key_name,
