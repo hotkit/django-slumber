@@ -1,9 +1,12 @@
 """
     Implements the server side for the instance operators.
 """
+from django.core.management.color import no_style
+from django.db import connection
+
 from slumber.operations import InstanceOperation
 from slumber.server import get_slumber_root
-from slumber.server.http import require_user
+from slumber.server.http import require_user, require_permission
 from slumber.server.json import to_json_data
 
 
@@ -33,6 +36,7 @@ def instance_data(into, model, instance):
 class InstanceData(InstanceOperation):
     """Return the instance data.
     """
+
     @require_user
     def get(self, request, response, _appname, _modelname, pk, dataset = None):
         """Implement the fetching of attribute data for an instance.
@@ -42,6 +46,36 @@ class InstanceData(InstanceOperation):
             self._get_dataset(request, response, instance, dataset)
         else:
             self._get_instance_data(request, response, instance)
+
+    def put(self, request, response, appname, modelname, pk):
+        """Allow a new version of the resource to be PUT here.
+        """
+        @require_permission('%s.add_%s' % (appname, modelname.lower()))
+        def do_put(_cls, request):
+            """Apply the permission check to this inner function.
+            """
+            key_name = self.model.model._meta.pk.name
+            pk_filter = {key_name: pk}
+            created = (self.model.model.objects.filter(**pk_filter).count() == 0)
+
+            instance = self.model.model(**dict(pk_filter.items() +
+                [(k, v) for k, v in request.POST.items()]))
+            instance.save()
+
+            if created:
+                response['_meta']['status'] = 201
+                # Reset the sequence point as there was a PK set
+                cursor = connection.cursor()
+                reset_sequence_command_lines = connection.ops.sequence_reset_sql(
+                    no_style(), [self.model.model])
+                if len(reset_sequence_command_lines) != 0:
+                    cursor.execute(';'.join(reset_sequence_command_lines))
+
+            instance_data(response, self.model, instance)
+            response['pk'] = to_json_data(self.model, instance, key_name,
+                self.model.fields[key_name])
+
+        return do_put(self, request)
 
     def _get_instance_data(self, _request, response, instance):
         """Return the base field data for the instance.
