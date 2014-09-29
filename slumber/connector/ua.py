@@ -181,6 +181,36 @@ def _get(url, ttl, codes, headers):
         return response, {}
 
 
+def put(url, data, codes=None, headers=None):
+    """Perform a PUT request against a Slumber server
+    """
+    return _put(url, data, codes, headers)
+
+
+def _put(url, data, codes, headers):
+    """Mockable version of the user agent put.
+    """
+    codes = codes or [200, 201, 204]
+    headers = headers or dict(Accept='application/json')
+    body = dumps(data)
+    url_fragment = _use_fake(url)
+    if url_fragment:
+        headers.update(_sign_request('PUT', url_fragment, body))
+        response = FakeClient().put(url_fragment, body,
+            content_type='application/json',
+            HTTP_HOST='localhost:8000',
+            **_fake_http_headers(headers))
+        assert response.status_code in codes, \
+            (url_fragment, response, response.content)
+        content = response.content
+    else:
+        raise NotImplementedError
+    try:
+        return response, loads(content)
+    except JSONDecodeError:
+        return response, {}
+
+
 def post(url, data, codes=None):
     """Perform a POST request against a Slumber server.
     """
