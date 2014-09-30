@@ -190,15 +190,17 @@ def put(url, data, codes=None, headers=None):
 def _put(url, data, codes, headers):
     """Mockable version of the user agent put.
     """
+    # pylint: disable=maybe-no-member
     codes = codes or [200, 201, 204]
     headers = headers or dict(Accept='application/json')
     body = dumps(data)
     url_fragment = _use_fake(url)
     if url_fragment:
         headers.update(_sign_request('PUT', url_fragment, body))
-        response = FakeClient().put(url_fragment, body,
+        response = FakeClient().post(url_fragment, body,
             content_type='application/json',
             HTTP_HOST='localhost:8000',
+            REQUEST_METHOD='PUT', # Django 1.0 compatible
             **_fake_http_headers(headers))
         assert response.status_code in codes, \
             (url_fragment, response, response.content)
