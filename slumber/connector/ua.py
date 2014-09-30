@@ -205,7 +205,10 @@ def _delete(url, codes, headers):
             (url_fragment, response, response.content)
         content = response.content
     else:
-        raise NotImplementedError
+        headers.update(_sign_request('DELETE', urlparse(url).path, ''))
+        headers['Content-Type'] = 'application/json'
+        response, content = _real().request(url, "DELETE", headers=headers)
+        assert response.status in codes, (url, response, content)
     try:
         return response, loads(content)
     except JSONDecodeError:

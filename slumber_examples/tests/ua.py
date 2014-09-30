@@ -60,6 +60,14 @@ class TestDelete(TestCase):
             response, json = delete('/local/')
         self.assertEqual(response.status_code, 200)
 
+    def test_real(self):
+        def _request(_self, url, method, headers={}):
+            self.assertEqual(method, 'DELETE')
+            return _response_httplib2(), "123"
+        with patch('slumber.connector.ua.Http.request', _request):
+            response, json = delete('http://example.com')
+        self.assertEqual(json, 123)
+
 
 class TestGet(TestCase):
     def setUp(self):
