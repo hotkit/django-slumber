@@ -4,7 +4,7 @@ from mock import Mock, patch
 import socket
 from unittest2 import TestCase
 
-from slumber.connector.ua import for_user, get, post
+from slumber.connector.ua import for_user, get, post, put
 from slumber_examples.tests.views import ServiceTests
 
 
@@ -37,6 +37,17 @@ class TestPost(TestCase):
     def test_404_allowed_for_fake(self):
         response, json = post('/slumber/does-not-exist/', {}, [404])
         self.assertEqual(response.status_code, 404)
+
+
+class TestPut(TestCase):
+    def test_real(self):
+        def _request(_self, url, method, body, headers={}):
+            self.assertEqual(body, '{"data": 23}')
+            return _response_httplib2(), "123"
+        with patch('slumber.connector.ua.Http.request', _request):
+            response, json = put('http://example.com/',
+                {'data': 23})
+        self.assertEqual(json, 123)
 
 
 class TestGet(TestCase):

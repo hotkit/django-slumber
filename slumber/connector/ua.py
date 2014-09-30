@@ -206,7 +206,11 @@ def _put(url, data, codes, headers):
             (url_fragment, response, response.content)
         content = response.content
     else:
-        raise NotImplementedError
+        headers.update(_sign_request('PUT', urlparse(url).path, body))
+        headers['Content-Type'] = 'application/json'
+        response, content = _real().request(url, "PUT", body=body,
+            headers=headers)
+        assert response.status in codes, (url, response, content)
     try:
         return response, loads(content)
     except JSONDecodeError:
