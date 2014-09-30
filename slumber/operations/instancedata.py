@@ -85,6 +85,18 @@ class InstanceData(Operation):
 
         return do_put(self, request)
 
+    def delete(self, request, _response, pk):
+        """Implement deletion of the instance.
+        """
+        @require_permission('%s.delete_%s' % (
+                self.model.app, self.model.name.lower()))
+        def do_delete(_cls, _request):
+            """Apply the permission check to this inner function.
+            """
+            instance = self.model.model.objects.get(pk=pk)
+            instance.delete()
+        return do_delete(self, request)
+
     def _get_instance_data(self, _request, response, instance):
         """Return the base field data for the instance.
         """
