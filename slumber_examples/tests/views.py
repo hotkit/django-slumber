@@ -41,6 +41,9 @@ class ViewTests(object):
         return _perform(self.client, 'post', self.url(url), dumps(body),
             'application/json')
 
+    def do_delete(self, url):
+        return _perform(self.client, 'delete', self.url(url), '')
+
     def do_options(self, url):
         return _perform(self.client, 'options', self.url(url), {})
 
@@ -371,7 +374,7 @@ class BasicViews(ViewTests):
             'pk': 5, 'data': self.url('/slumber_examples/PizzaPrice/data/5/'), 'display': 'PizzaPrice object'})
         self.assertFalse(json.has_key('next_page'), json.keys())
 
-    def test_delete_instance(self):
+    def test_delete_instance_with_post(self):
         self.user.is_superuser = True
         self.user.save()
         s = Pizza(name='P')
@@ -383,6 +386,21 @@ class BasicViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         with self.assertRaises(Pizza.DoesNotExist):
             Pizza.objects.get(pk=s.pk)
+
+    def test_delete_instance_with_delete(self):
+        self.user.is_superuser = True
+        self.user.save()
+        s = Pizza(name='P')
+        s.save()
+        response, json = self.do_get('/slumber_examples/Pizza/data/%s/' % s.pk)
+        self.assertEquals(response.status_code, 200)
+        response, _json = self.do_delete(json['operations']['data'])
+        self.assertEquals(response.status_code, 200)
+        with self.assertRaises(Pizza.DoesNotExist):
+            Pizza.objects.get(pk=s.pk)
+        response, _json = self.do_delete(json['operations']['data'])
+        self.assertEquals(response.status_code, 404)
+
 
 
 class BasicViewsPlain(ConfigureUser, BasicViews, PlainTests, TestCase):
