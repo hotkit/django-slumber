@@ -4,7 +4,7 @@ from mock import Mock, patch
 import socket
 from unittest2 import TestCase
 
-from slumber.connector.ua import for_user, get, post, put
+from slumber.connector.ua import for_user, delete, get, post, put
 from slumber_examples.tests.views import ServiceTests
 
 
@@ -48,6 +48,16 @@ class TestPut(TestCase):
             response, json = put('http://example.com/',
                 {'data': 23})
         self.assertEqual(json, 123)
+
+
+class TestDelete(TestCase):
+    def test_fake(self):
+        def _delete(self, url, **kw):
+            self.assertEqual(ks['REQUEST_METHOD'], 'DELETE')
+            return _response_fake()
+        with patch('slumber.connector.ua.FakeClient.get', _delete):
+            response, json = delete('/local/')
+        self.assertEqual(json, 200)
 
 
 class TestGet(TestCase):
