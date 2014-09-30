@@ -181,6 +181,38 @@ def _get(url, ttl, codes, headers):
         return response, {}
 
 
+def delete(url, codes=None, headers=None):
+    """Perform a DELETE request against a Slumber server.
+    """
+    return _delete(url, codes, headers)
+
+
+def _delete(url, codes, headers):
+    """Mockable version of the user agent DELETE.
+    """
+    # Pylint gets confused by the fake HTTP client
+    # pylint: disable=E1103
+    codes = codes or [200, 404, 410]
+    headers = headers or dict(Accept='application/json')
+    url_fragment = _use_fake(url)
+    if url_fragment:
+        headers.update(_sign_request('DELETE', url_fragment, ''))
+        response = FakeClient().get(url_fragment, {},
+            HTTP_HOST='localhost:8000',
+            REQUEST_METHOD='DELETE', # Django 1.0 compatible
+            **_fake_http_headers(headers))
+        assert response.status_code in codes, \
+            (url_fragment, response, response.content)
+        content = response.content
+    else:
+        raise NotImplementedError
+    try:
+        return response, loads(content)
+    except JSONDecodeError:
+        return response, {}
+
+
+
 def put(url, data, codes=None, headers=None):
     """Perform a PUT request against a Slumber server
     """

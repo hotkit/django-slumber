@@ -52,12 +52,13 @@ class TestPut(TestCase):
 
 class TestDelete(TestCase):
     def test_fake(self):
-        def _delete(self, url, **kw):
-            self.assertEqual(ks['REQUEST_METHOD'], 'DELETE')
+        def _delete(_self, url, query, **kw):
+            self.assertEqual(query, {})
+            self.assertEqual(kw['REQUEST_METHOD'], 'DELETE')
             return _response_fake()
         with patch('slumber.connector.ua.FakeClient.get', _delete):
             response, json = delete('/local/')
-        self.assertEqual(json, 200)
+        self.assertEqual(response.status_code, 200)
 
 
 class TestGet(TestCase):
