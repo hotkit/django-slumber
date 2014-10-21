@@ -24,7 +24,6 @@
 
 2013-12-10  Chirapat Harigulrak  <chirapat@proteus-tech.com>
  make html parser support any type of object
- make html parser support any type of object
 
 2013-12-09  Kirit Saelensminde  <kirit@felspar.com>
  Allow sub-parts of the response object to be used for JSON and XML output.
