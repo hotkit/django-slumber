@@ -49,7 +49,7 @@ class InstanceData(Operation):
     model_operation = False
 
     @require_user
-    def get(self, request, response, pk, dataset = None):
+    def get(self, request, response, pk, dataset=None):
         """Implement the fetching of attribute data for an instance.
         """
         instance = self.model.model.objects.get(pk=pk)

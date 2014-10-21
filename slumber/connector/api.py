@@ -19,7 +19,7 @@ def _ensure_absolute(url):
     assert urlparse(url)[0], "The URL <%s> must be absolute" % url
 
 
-def get_instance(model, instance_url, display_name, fields = None):
+def get_instance(model, instance_url, display_name, fields=None):
     """Return an instance of the specified model etc.
     """
     if isinstance(model, basestring):
@@ -128,7 +128,7 @@ class _InstanceProxy(object):
     by the application code and the underlying object. This allows us to
     better handle the cache.
     """
-    def __init__(self, url, display, fields = None):
+    def __init__(self, url, display, fields=None):
         super(_InstanceProxy, self).__init__()
         self._url = url
         self._display = display

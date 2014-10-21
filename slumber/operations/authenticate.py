@@ -19,8 +19,8 @@ class AuthenticateUser(ModelOperation):
         response['authenticated'] = bool(user)
         if user:
             response['user'] = dict(
-                pk = user.pk,
-                display_name = unicode(user),
-                url = self.model.operations['data'](user))
+                pk=user.pk,
+                display_name=unicode(user),
+                url=self.model.operations['data'](user))
         else:
             response['user'] = None

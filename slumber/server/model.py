@@ -84,7 +84,7 @@ class DjangoModel(object):
                 fields[field] = dict(
                     name=field,
                     kind='object',
-                    type= get_slumber_root() +
+                    type=get_slumber_root() +
                         DJANGO_MODEL_TO_SLUMBER_MODEL[definition.rel.to].path,
                     verbose_name=definition.verbose_name)
             else:

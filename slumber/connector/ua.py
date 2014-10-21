@@ -281,7 +281,7 @@ def _post(url, data, codes):
         headers.update(_sign_request('POST', urlparse(url).path, body))
         headers['Content-Type'] = 'application/json'
         response, content = _real().request(url, "POST", body=body,
-            headers = headers)
+            headers=headers)
         assert response.status in (codes or [200]), \
             (url, response, content)
     try:

@@ -22,7 +22,7 @@ class Operation(object):
     """
     METHODS = ['GET', 'OPTIONS', 'POST', 'PUT', 'DELETE']
 
-    def __init__(self, model, name, uri = None):
+    def __init__(self, model, name, uri=None):
         self.model = model
         self.name = name
         self.uri = uri
@@ -99,6 +99,7 @@ class InstanceOperation(ModelOperation):
     """Base class for operations on instances.
     """
     model_operation = False
-    def __init__(self, model, name, uri = None):
+    def __init__(self, model, name, uri=None):
         super(InstanceOperation, self).__init__(model, name, uri)
         self.regex = '([^/]+)/'
+

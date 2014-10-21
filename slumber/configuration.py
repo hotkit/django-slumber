@@ -11,11 +11,11 @@ from slumber.server.meta import get_application
 
 
 def configure(arg,
-        properties_ro = None,
-        to_json = None,
-        operations_extra = None,
-        instance_proxy = None,
-        model_proxy = None):
+        properties_ro=None,
+        to_json=None,
+        operations_extra=None,
+        instance_proxy=None,
+        model_proxy=None):
     """Configure Slumber for the provided model.
 
     When configuring the server side the model is a model instance. When

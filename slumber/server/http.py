@@ -92,7 +92,7 @@ def view_handler(view):
         except NotAuthorised, _:
             response = {
                 '_meta': dict(status=401, message='Unauthorized',
-                    headers= {'WWW-Authenticate':'FOST Realm="Slumber"'}),
+                    headers={'WWW-Authenticate':'FOST Realm="Slumber"'}),
                 'error': 'No user is logged in'}
         except Forbidden, exception:
             response = {'_meta': dict(status=403, message='Forbidden'),
