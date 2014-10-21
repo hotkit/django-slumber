@@ -1,3 +1,6 @@
+2014-10-21  Kirit Saelensminde  <kirit@felspar.com>
+ Fix the data_link function so that it works with instances that happen to be `None`.
+
 2014-09-30  Kirit Saelensminde  <kirit@felspar.com>
  Add PUT and DELETE support to the instance data (normally `/data/`). This will soon deprecate the current update and delete operations.
 
