@@ -1,3 +1,6 @@
+2015-04-02 Yothin Muangsommuk <yothin@proteus-tech.com>
+ Add Field deconstruction to support Django 1.7 migration.
+
 2014-10-21  Kirit Saelensminde  <kirit@felspar.com>
  Fix the data_link function so that it works with instances that happen to be `None`.
 
