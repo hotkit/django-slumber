@@ -124,6 +124,8 @@ class BasicViews(ViewTests):
         self.assertTrue(bool(self.user))
         self.assertEqual(self.user.pk, 1)
         response, json = self.do_get('/')
+        logging.debug(response)
+        logging.debug(dumps(json, indent=4))
         apps = json['apps']
         self.assertEquals(apps['slumber_examples'], self.url('/slumber_examples/'))
         self.assertTrue(json.has_key('configuration'), json)
