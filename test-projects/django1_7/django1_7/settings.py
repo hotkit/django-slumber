@@ -36,7 +36,18 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django_nose',
+
+    # Slumber test applications
+    'slumber_examples',
+    'slumber_examples.nested1',
+    'slumber_examples.nested1.nested2',
+    'slumber_examples.no_models',
+
+    'slumber_ex_shop',
 )
+SLUMBER_CLIENT_APPS = ['slumber_examples']
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -47,6 +58,20 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
+
+# Needed to get the Django nose test runner working
+TEST_RUNNER='django_nose.NoseTestSuiteRunner'
+
+AUTHENTICATION_BACKENDS = [
+        'django.contrib.auth.backends.ModelBackend',
+        'fost_authn.FostBackend',
+    ]
+
+TEMPLATE_DIRS = [
+        os.path.join(BASE_DIR, '../../templates'),
+    ]
 
 ROOT_URLCONF = 'django1_7.urls'
 
