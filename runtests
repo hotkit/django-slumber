@@ -29,8 +29,13 @@ check_worked pylint --rcfile=pylintrc slumber
 # echo Django 1.4 with psycopg 2.4.1
 # check_worked python manage.py test slumber_examples
 
+workon slumber1-8
+cd test-projects/django1_8
+echo Django 1.8
+check_worked python manage.py test slumber_examples
+
 workon slumber1-4
-cd test-projects/django1_4
+cd ../django1_4
 echo Django 1.4
 check_worked python manage.py test slumber_examples
 
