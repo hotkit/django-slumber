@@ -32,7 +32,7 @@ check_worked pylint --rcfile=pylintrc slumber
 workon slumber1-8
 cd test-projects/django1_8
 echo Django 1.8
-check_worked python manage.py test slumber_examples
+check_worked python manage.py test slumber_examples.tests
 
 workon slumber1-4
 cd ../django1_4
