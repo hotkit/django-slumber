@@ -65,7 +65,7 @@ class DjangoModel(object):
         for field in self.model._meta.get_all_field_names():
             try:
                 definition = self.model._meta.get_field(field)
-                if type(definition) == ManyToManyField:
+                if isinstance(definition, ManyToManyField):
                     self._data_arrays.append(field)
                 else:
                     self._fields[field] = definition
