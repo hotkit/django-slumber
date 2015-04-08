@@ -8,8 +8,13 @@ try:
     from django.conf.urls import patterns
 except ImportError:
     from django.conf.urls.defaults import patterns
+try:
+    # pylint: disable=no-name-in-module
+    from django.conf.urls import url
+except ImportError:
+    url = lambda *x: x
 
 
 # The name urlpatterns is defined by Django and we can't change it
 # pylint: disable=C0103
-urlpatterns = patterns('', ('.*', 'slumber.server.views.service_root'))
+urlpatterns = patterns('', url('.*', 'slumber.server.views.service_root'))
