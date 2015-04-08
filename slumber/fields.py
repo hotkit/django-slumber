@@ -25,6 +25,8 @@ class RemoteForeignKey(URLField):
         super(RemoteForeignKey, self).__init__(**kwargs)
 
     def deconstruct(self):
+        """Added to support Django 1.7 migrations
+        """
         name, path, args, kwargs = super(RemoteForeignKey, self).deconstruct()
         if self.model_url != ",":
             kwargs['model_url'] = self.model_url
