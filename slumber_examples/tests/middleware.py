@@ -17,11 +17,14 @@ class _FailingMiddleware:
 
 class TestAddMiddleware(ConfigureUser, TestCase):
     def setUp(self):
+        super(TestAddMiddleware, self).setUp()
         settings.MIDDLEWARE_CLASSES.append(
             'slumber_examples.tests.middleware._FailingMiddleware')
     def tearDown(self):
         settings.MIDDLEWARE_CLASSES.remove(
             'slumber_examples.tests.middleware._FailingMiddleware')
+        #self.client.get('/') # This doesn't work as expected....
+        super(TestAddMiddleware, self).tearDown()
 
     def test_middleware_fails(self):
         with self.assertRaises(AssertionError):
