@@ -3,6 +3,7 @@
 """
 from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.fields import FieldDoesNotExist
+from django.db.models.fields.related import ManyToOneRel
 
 from slumber._caches import DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.operations.authenticate import AuthenticateUser
@@ -65,7 +66,8 @@ class DjangoModel(object):
         for field in self.model._meta.get_all_field_names():
             try:
                 definition = self.model._meta.get_field(field)
-                if isinstance(definition, ManyToManyField):
+                if isinstance(definition, ManyToManyField) or \
+                        isinstance(definition, ManyToOneRel):
                     self._data_arrays.append(field)
                 else:
                     self._fields[field] = definition
