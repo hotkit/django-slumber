@@ -4,11 +4,12 @@ python:
     - "2.7"
 
 env:
+    - DJANGO=1_0
     - DJANGO=1_3
     - DJANGO=1_4
     - DJANGO=1_5
     - DJANGO=1_6
-    - DJANGO=1_0
+    - DJANGO=1_7
 
 install: "pip install -r test-projects/setup.pip -r test-projects/django${DJANGO}/setup.pip"
 

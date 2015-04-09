@@ -1,3 +1,6 @@
+2015-04-09  Kirit Saelensminde  <kirit@felspar.com>
+ Add Django 1.7 to the test set.
+
 2015-04-08  Kirit Saelensminde  <kirit@felspar.com>
  Fix some pylint errors about use of `type` and `isinstance`.
 

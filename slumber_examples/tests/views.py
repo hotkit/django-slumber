@@ -2,6 +2,7 @@ import logging
 from mock import patch
 from simplejson import dumps, loads
 
+from django import get_version
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -124,6 +125,8 @@ class BasicViews(ViewTests):
         self.assertTrue(bool(self.user))
         self.assertEqual(self.user.pk, 1)
         response, json = self.do_get('/')
+        logging.debug(response)
+        logging.debug(dumps(json, indent=4))
         apps = json['apps']
         self.assertEquals(apps['slumber_examples'], self.url('/slumber_examples/'))
         self.assertTrue(json.has_key('configuration'), json)
@@ -287,7 +290,7 @@ class BasicViews(ViewTests):
         s.save()
         response, json = self.do_get('/slumber_examples/Pizza/data/%s/' % s.pk)
         self.maxDiff = None
-        self.assertEquals(json, dict(
+        expected = dict(
             _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/Pizza/'),
             identity=self.url('/slumber_examples/Pizza/data/1/'),
@@ -304,14 +307,18 @@ class BasicViews(ViewTests):
                 name=dict(data=s.name, kind='value', type='django.db.models.fields.CharField'),
                 exclusive_to={'data': None, 'kind': 'object', 'type': self.url('/slumber_examples/Shop/')}),
             data_arrays=dict(
-                prices=self.url('/slumber_examples/Pizza/data/%s/prices/' % s.pk))))
+                prices=self.url('/slumber_examples/Pizza/data/%s/prices/' % s.pk)))
+        if get_version() > "1.7":
+            expected['data_arrays']['exclusive_to_id'] = self.url(
+                    '/slumber_examples/Pizza/data/1/exclusive_to_id/')
+        self.assertEquals(json, expected)
 
     def test_instance_data_shop_with_null_active(self):
         s = Shop(name='Test shop', slug='test-shop')
         s.save()
         response, json = self.do_get('/slumber_examples/Shop/data/%s/' % s.pk)
         self.maxDiff = None
-        self.assertEquals(json, dict(
+        expected = dict(
             _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/Shop/'),
             identity=self.url('/slumber_examples/Shop/data/1/'),
@@ -326,7 +333,8 @@ class BasicViews(ViewTests):
                 slug={'data': 'test-shop', 'kind': 'value', 'type': 'django.db.models.fields.CharField'},
                 web_address={'data': 'http://www.example.com/test-shop/', 'kind': 'property',
                     'type': 'slumber_examples.Shop.web_address'}),
-            data_arrays={'pizza': self.url('/slumber_examples/Shop/data/1/pizza/')}))
+            data_arrays={'pizza': self.url('/slumber_examples/Shop/data/1/pizza/')})
+        self.assertEquals(json, expected)
 
     def test_instance_data_pizzaprice(self):
         s = Pizza(name='p1', for_sale=True)
@@ -334,7 +342,7 @@ class BasicViews(ViewTests):
         p = PizzaPrice(pizza=s, date='2010-01-01')
         p.save()
         response, json = self.do_get('/slumber_examples/PizzaPrice/data/%s/' % p.pk)
-        self.assertEquals(json, dict(
+        expected = dict(
             _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/PizzaPrice/'),
             identity=self.url('/slumber_examples/PizzaPrice/data/1/'),
@@ -351,7 +359,11 @@ class BasicViews(ViewTests):
                     'kind': 'object', 'type': self.url('/slumber_examples/Pizza/')},
                 date={'data': '2010-01-01', 'kind': 'value', 'type': 'django.db.models.fields.DateField'},
             ),
-            data_arrays={'amounts': self.url('/slumber_examples/PizzaPrice/data/1/amounts/')}))
+            data_arrays={'amounts': self.url('/slumber_examples/PizzaPrice/data/1/amounts/')})
+        if get_version() > "1.7":
+            expected['data_arrays']['pizza_id'] = self.url(
+                    '/slumber_examples/PizzaPrice/data/1/pizza_id/')
+        self.assertEquals(json, expected)
 
     def test_instance_data_array(self):
         s = Pizza(name='P', for_sale=True)
