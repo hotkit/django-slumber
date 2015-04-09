@@ -86,13 +86,13 @@ class DjangoModel(object):
                     kind='object',
                     type=get_slumber_root() +
                         DJANGO_MODEL_TO_SLUMBER_MODEL[definition.rel.to].path,
-                    verbose_name=definition.verbose_name)
+                    verbose_name=getattr(definition, 'verbose_name', field))
             else:
                 type_name = field_type.__module__ + '.' + \
                     field_type.__name__
                 fields[field] = dict(name=field,
                     kind='value', type=type_name,
-                    verbose_name=definition.verbose_name)
+                    verbose_name=getattr(definition, 'verbose_name', field))
         for prop in self.properties['r']:
             fields[prop] = dict(
                 name=prop,
