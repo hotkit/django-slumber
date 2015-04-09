@@ -60,8 +60,6 @@ MIDDLEWARE_CLASSES = [
     'fost_authn.Middleware',
 ]
 
-AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
-
 # Needed to get the Django nose test runner working
 TEST_RUNNER='django_nose.NoseTestSuiteRunner'
 
