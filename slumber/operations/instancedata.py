@@ -34,12 +34,9 @@ def instance_data(into, model, instance):
             for op in model.operations.values() if not op.model_operation])
     into['fields'] = {}
     for field, meta in model.fields.items():
-        try:
-            into['fields'][field] = dict(
-                data=to_json_data(model, instance, field, meta),
-                kind=meta['kind'], type=meta['type'])
-        except AttributeError:
-            pass
+        into['fields'][field] = dict(
+            data=to_json_data(model, instance, field, meta),
+            kind=meta['kind'], type=meta['type'])
     into['data_arrays'] = {}
     for field in model.data_arrays:
         into['data_arrays'][field] = \
