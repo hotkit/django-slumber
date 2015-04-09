@@ -308,7 +308,7 @@ class BasicViews(ViewTests):
                 exclusive_to={'data': None, 'kind': 'object', 'type': self.url('/slumber_examples/Shop/')}),
             data_arrays=dict(
                 prices=self.url('/slumber_examples/Pizza/data/%s/prices/' % s.pk)))
-        if get_version() > "1.7":
+        if get_version() >= "1.7" and get_version() < "1.8":
             expected['data_arrays']['exclusive_to_id'] = self.url(
                     '/slumber_examples/Pizza/data/1/exclusive_to_id/')
         self.assertEquals(json, expected)
