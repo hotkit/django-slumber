@@ -205,7 +205,7 @@ class BasicViews(ViewTests):
     def test_instance_puttable(self):
         response, json = self.do_get('/slumber_examples/Pizza/')
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(json['puttable'], [['id'], ['name']])
+        self.assertEquals(set([tuple(i) for i in json['puttable']]), set([('id',), ('name',)]))
 
     def test_model_operation_instances_no_instances(self):
         response, json = self.do_get('/slumber_examples/Pizza/instances/')
