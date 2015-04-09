@@ -3,6 +3,7 @@ import logging
 from mock import patch
 from simplejson import loads
 
+from django import get_version
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -294,17 +295,19 @@ class TestBackend(PatchForAuthnService, TestCase):
         self.assertFalse(self.backend.has_perm(user, 'not-an-app..not-a-perm'))
 
     def test_user_profile_when_no_profile(self):
-        user = self.backend.get_user(self.user.username)
-        with self.assertRaises(AssertionError):
-            profile = user.get_profile()
+        if get_version() < "1.7":
+            user = self.backend.get_user(self.user.username)
+            with self.assertRaises(AssertionError):
+                profile = user.get_profile()
 
     def test_user_profile_when_there_is_a_profile(self):
-        profile = Profile(user=self.user)
-        profile.save()
-        user = self.backend.get_user(self.user.username)
-        remote_profile = user.get_profile()
-        self.assertEqual(remote_profile.id, profile.id)
-        self.assertEqual(remote_profile.user.id, self.user.id)
+        if get_version() < "1.7":
+            profile = Profile(user=self.user)
+            profile.save()
+            user = self.backend.get_user(self.user.username)
+            remote_profile = user.get_profile()
+            self.assertEqual(remote_profile.id, profile.id)
+            self.assertEqual(remote_profile.user.id, self.user.id)
 
 
 class AuthenticationTests(ConfigureAuthnBackend, TestCase):
