@@ -2,6 +2,7 @@ import logging
 from mock import patch
 from simplejson import dumps, loads
 
+from django import get_version
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -289,7 +290,7 @@ class BasicViews(ViewTests):
         s.save()
         response, json = self.do_get('/slumber_examples/Pizza/data/%s/' % s.pk)
         self.maxDiff = None
-        self.assertEquals(json, dict(
+        expected = dict(
             _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/Pizza/'),
             identity=self.url('/slumber_examples/Pizza/data/1/'),
@@ -306,7 +307,11 @@ class BasicViews(ViewTests):
                 name=dict(data=s.name, kind='value', type='django.db.models.fields.CharField'),
                 exclusive_to={'data': None, 'kind': 'object', 'type': self.url('/slumber_examples/Shop/')}),
             data_arrays=dict(
-                prices=self.url('/slumber_examples/Pizza/data/%s/prices/' % s.pk))))
+                prices=self.url('/slumber_examples/Pizza/data/%s/prices/' % s.pk)))
+        if get_version() > "1.7":
+            expected['data_arrays']['exclusive_to_id'] = \
+                    '/slumber/pizzas/slumber_examples/Pizza/data/1/exclusive_to_id/'
+        self.assertEquals(json, expected)
 
     def test_instance_data_shop_with_null_active(self):
         s = Shop(name='Test shop', slug='test-shop')
