@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     The Django URLs for the server.
 """
@@ -7,6 +6,7 @@ try:
     # pylint: disable=no-name-in-module
     from django.conf.urls import url
 except ImportError:
+    # pylint: disable=no-name-in-module, import-error
     from django.conf.urls.defaults import url
 
 
