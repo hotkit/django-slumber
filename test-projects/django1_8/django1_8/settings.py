@@ -47,7 +47,7 @@ INSTALLED_APPS = (
 )
 SLUMBER_CLIENT_APPS = ['slumber_examples']
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -57,7 +57,7 @@ MIDDLEWARE_CLASSES = (
     'fost_authn.Middleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-)
+]
 
 AUTH_PROFILE_MODULE = 'slumber_examples.Profile'
 
