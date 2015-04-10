@@ -205,7 +205,7 @@ class BasicViews(ViewTests):
     def test_instance_puttable(self):
         response, json = self.do_get('/slumber_examples/Pizza/')
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(json['puttable'], [['id'], ['name']])
+        self.assertEquals(set([tuple(i) for i in json['puttable']]), set([('id',), ('name',)]))
 
     def test_model_operation_instances_no_instances(self):
         response, json = self.do_get('/slumber_examples/Pizza/instances/')
@@ -308,7 +308,9 @@ class BasicViews(ViewTests):
                 exclusive_to={'data': None, 'kind': 'object', 'type': self.url('/slumber_examples/Shop/')}),
             data_arrays=dict(
                 prices=self.url('/slumber_examples/Pizza/data/%s/prices/' % s.pk)))
-        if get_version() > "1.7":
+        if get_version() >= "1.8":
+            expected['fields']['exclusive_to_id'] = expected['fields']['exclusive_to']
+        elif get_version() >= "1.7":
             expected['data_arrays']['exclusive_to_id'] = self.url(
                     '/slumber_examples/Pizza/data/1/exclusive_to_id/')
         self.assertEquals(json, expected)
@@ -342,6 +344,7 @@ class BasicViews(ViewTests):
         p = PizzaPrice(pizza=s, date='2010-01-01')
         p.save()
         response, json = self.do_get('/slumber_examples/PizzaPrice/data/%s/' % p.pk)
+        self.assertEquals(response.status_code, 200)
         expected = dict(
             _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/PizzaPrice/'),
@@ -360,7 +363,7 @@ class BasicViews(ViewTests):
                 date={'data': '2010-01-01', 'kind': 'value', 'type': 'django.db.models.fields.DateField'},
             ),
             data_arrays={'amounts': self.url('/slumber_examples/PizzaPrice/data/1/amounts/')})
-        if get_version() > "1.7":
+        if get_version() >= "1.7":
             expected['data_arrays']['pizza_id'] = self.url(
                     '/slumber_examples/PizzaPrice/data/1/pizza_id/')
         self.assertEquals(json, expected)
