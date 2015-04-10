@@ -344,6 +344,7 @@ class BasicViews(ViewTests):
         p = PizzaPrice(pizza=s, date='2010-01-01')
         p.save()
         response, json = self.do_get('/slumber_examples/PizzaPrice/data/%s/' % p.pk)
+        self.assertEquals(response.status_code, 200)
         expected = dict(
             _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/PizzaPrice/'),
