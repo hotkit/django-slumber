@@ -10,11 +10,11 @@ env:
     - DJANGO=1_5
     - DJANGO=1_6
     - DJANGO=1_7
-    - DJANGO=1_8
+    - DJANGO=1_8 TESTS=.test
 
 install: "pip install -r test-projects/setup.pip -r test-projects/django${DJANGO}/setup.pip"
 
-script: "cd test-projects/django${DJANGO} && python manage.py test slumber_examples"
+script: "cd test-projects/django${DJANGO} && python manage.py test slumber_examples${TESTS}"
 
 matrix:
     allow_failures:
