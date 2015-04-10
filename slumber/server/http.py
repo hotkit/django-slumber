@@ -11,6 +11,16 @@ try:
     USE_CSRF = True
 except ImportError: # pragma: no cover
     USE_CSRF = False
+try:
+    #pylint: disable=no-name-in-module
+    from django.db.transaction import atomic as django_atomic
+except ImportError:
+    def django_atomic(view_function):
+        """An atomic wrapper that does nothing. Correctness for the
+        view now relies on the use of the transaction middleware.
+        """
+        return view_function
+
 
 from slumber.server import NotAuthorised, Forbidden, accept_handler
 
@@ -70,6 +80,7 @@ class Response(dict):
     pass
 
 
+@django_atomic
 def view_handler(view):
     """Wrap a view function so it can return either JSON, HTML or some
     other response.
