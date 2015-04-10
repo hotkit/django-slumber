@@ -18,4 +18,4 @@ script: "cd test-projects/django${DJANGO} && python manage.py test slumber_examp
 
 matrix:
     allow_failures:
-        - env: DJANGO=1_8
+        - env: DJANGO=1_8 TESTS=.test
