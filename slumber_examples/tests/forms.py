@@ -24,6 +24,7 @@ class WidgetTest(ConfigureUser, ServiceTests, TestCase):
     class ModelForm(forms.ModelForm):
         class Meta:
             model = Order
+            exclude = []
     class AdminForm(forms.Form):
         rfk = RemoteForeignKeyField(
             model_url='http://localhost:8000/slumber/pizzas/slumber_examples/Pizza/',

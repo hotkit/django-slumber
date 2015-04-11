@@ -29,7 +29,7 @@ def to_json_data(model, instance, fieldname, fieldmeta):
             root = get_slumber_root()
             return dict(type=root + rel_to.path,
                 display=unicode(value),
-                data = root + rel_to.path + 'data/%s/' % value.pk)
+                data=root + rel_to.path + 'data/%s/' % value.pk)
     elif DATA_MAPPING.has_key(fieldmeta['type']):
         func = DATA_MAPPING[fieldmeta['type']]
         return func(model, instance, fieldmeta, value)

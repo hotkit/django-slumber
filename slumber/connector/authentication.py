@@ -57,6 +57,8 @@ class Backend(FostBackend):
         """
         _assert_properly_configured()
         if isinstance(user_id, int):
+            # The get method is added by Django in some odd way
+            # pylint: disable=no-member
             local_user = User.objects.get(id=user_id)
             remote_user = \
                 client.auth.django.contrib.auth.User.get(

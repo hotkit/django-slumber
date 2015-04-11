@@ -88,7 +88,7 @@ def get_slumber_local_url_prefix():
         '%s://%s/' % (parsed[0], parsed[1]))
 
 
-def get_slumber_services(directory = None):
+def get_slumber_services(directory=None):
     """Returns the slumber services from the directory (if specified)
     """
     if not directory:

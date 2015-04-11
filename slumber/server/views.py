@@ -126,7 +126,7 @@ def get_model(_, response, model):
     response['fields'] = model.fields
     response['puttable'] = [[f] for f, p in model.fields.items()
             if p['kind'] != 'property' and
-                model.model._meta.get_field(f).unique] + \
+                getattr(model.model._meta.get_field(f), 'unique', False)] + \
         list(model.model._meta.unique_together)
     response['data_arrays'] = model.data_arrays
     response['operations'] = dict(

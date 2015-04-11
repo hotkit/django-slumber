@@ -21,6 +21,9 @@ class TestPizzaURIs(TestCase):
         self.assertEqual(data_link(pizza),
             '/slumber/slumber_examples/Pizza/data/%s/' % pizza.pk)
 
+    def test_empty_data_link(self):
+        self.assertIsNone(data_link(None))
+
     def test_instance_data_url_when_passed_instance(self):
         pizza = Pizza.objects.create(name="Test pizza")
         self.assertEqual(type(pizza).slumber_model.operations['data'](pizza),

@@ -8,6 +8,10 @@ from django.http import HttpResponse
 from types import NoneType
 
 
+# This module uses type and isinstance in an appropriate way
+# pylint: disable=unidiomatic-typecheck
+
+
 def build_html(_request, response, content_type):
     """Return http response object in text/html format.
     """

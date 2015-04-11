@@ -13,6 +13,8 @@ from slumber.connector.ua import get, post
 def attach_to_local_user(remote_user):
     """Return the local user with the remote user object attached to it.
     """
+    # Django adds get_or_create in some add manner
+    # pylint: disable=no-member
     user, _ = User.objects.get_or_create(username=remote_user.username)
     for attr in ['is_active', 'is_staff', 'date_joined', 'is_superuser',
             'first_name', 'last_name', 'email']:

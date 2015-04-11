@@ -4,7 +4,7 @@ from simplejson import loads
 from django.test import TestCase
 
 from slumber import Client
-from slumber.connector.ua import post, get
+from slumber.connector.ua import post, get, put
 
 from slumber_examples.models import Pizza, PizzaCrust, Shop
 from slumber_examples.tests.configurations import ConfigureUser
@@ -19,6 +19,14 @@ class CreateTests(ConfigureUser, TestCase):
         self.assertEqual(json['pk'], 1, json)
         self.assertTrue(json.has_key('created'), json)
         self.assertTrue(json['created'], json)
+        self.assertEqual(Pizza.objects.all().count(), 1)
+
+    def test_put_pizza_infer_id(self):
+        response, json = put('/slumber/slumber_examples/Pizza/data/123/',
+            {'name': 'Test P', 'for_sale': True})
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(json['fields'].has_key('id'), json)
+        self.assertEqual(json['fields']['id']['data'], '123', json)
         self.assertEqual(Pizza.objects.all().count(), 1)
 
     def test_create_pizza_twice(self):

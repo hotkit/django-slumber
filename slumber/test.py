@@ -10,9 +10,6 @@ from slumber.connector.dictobject import DictObject
 class _Operations(object):
     """Allows us to fetch URLs for operations in mocks reliably.
     """
-    # Badly implemented Container, implements __getitem__ but not
-    # __delitem__, __len__, __setitem__
-    # pylint: disable=R0924
     def __init__(self, url):
         self._url = 'http://' + url
         self._suffix = '/'
@@ -160,7 +157,7 @@ def mock_ua(test_method):
             self.test.assertIsNone(edata)
             return None, rdata
 
-        def do_post(self, url, data, _codes = None):
+        def do_post(self, url, data, _codes=None):
             """The patch for the user agent post.
             """
             self.test.assertTrue(self.expectations,

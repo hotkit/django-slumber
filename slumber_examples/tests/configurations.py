@@ -9,6 +9,7 @@ from slumber.connector.ua import _calculate_signature, _fake_http_headers
 
 class ConfigureUser(object):
     def setUp(self):
+        self.maxDiff = None # Show all diffs
         self.user = User(username='user', is_active=True, is_staff=True,
             is_superuser=False)
         self.user.set_password('pass')

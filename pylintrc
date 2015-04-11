@@ -33,7 +33,7 @@ load-plugins=
 # R0903 Too few public methods
 # W0142 Used * or ** magic
 # W0212 Access to protected member
-disable=I0011, R0903, W0142, W0212
+disable=I0011, R0903, W0142, W0212, bad-continuation, cyclic-import
 
 
 [REPORTS]
@@ -41,9 +41,6 @@ disable=I0011, R0903, W0142, W0212
 # Set the output format. Available formats are text, parseable, colorized, msvs
 # (visual studio) and html
 output-format=colorized
-
-# Include message's id in output
-include-ids=yes
 
 # Put messages in a separate file for each module / package specified on the
 # command line instead of printing them on stdout. Reports (if any) will be

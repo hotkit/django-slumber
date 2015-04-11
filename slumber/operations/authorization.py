@@ -48,7 +48,7 @@ class GetPermissions(InstanceOperation):
     """Exposes the get_group_permissions API on Users.
     """
 
-    def get(self, _request , response, _appname, _modelname, pk):
+    def get(self, _request, response, _appname, _modelname, pk):
         """Implements the API.
         """
         user = self.model.model.objects.get(pk=pk)

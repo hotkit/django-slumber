@@ -24,6 +24,14 @@ class RemoteForeignKey(URLField):
         self.model_url = model_url
         super(RemoteForeignKey, self).__init__(**kwargs)
 
+    def deconstruct(self):
+        """Added to support Django 1.7 migrations
+        """
+        name, path, args, kwargs = super(RemoteForeignKey, self).deconstruct()
+        if self.model_url != ",":
+            kwargs['model_url'] = self.model_url
+        return name, path, args, kwargs
+
     def run_validators(self, value):
         # Do not rely on validators as we want to support Django 1.0
         pass

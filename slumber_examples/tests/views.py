@@ -2,6 +2,7 @@ import logging
 from mock import patch
 from simplejson import dumps, loads
 
+from django import get_version
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -40,6 +41,9 @@ class ViewTests(object):
     def do_post(self, url, body):
         return _perform(self.client, 'post', self.url(url), dumps(body),
             'application/json')
+
+    def do_delete(self, url):
+        return _perform(self.client, 'delete', self.url(url), '')
 
     def do_options(self, url):
         return _perform(self.client, 'options', self.url(url), {})
@@ -121,6 +125,8 @@ class BasicViews(ViewTests):
         self.assertTrue(bool(self.user))
         self.assertEqual(self.user.pk, 1)
         response, json = self.do_get('/')
+        logging.debug(response)
+        logging.debug(dumps(json, indent=4))
         apps = json['apps']
         self.assertEquals(apps['slumber_examples'], self.url('/slumber_examples/'))
         self.assertTrue(json.has_key('configuration'), json)
@@ -199,7 +205,7 @@ class BasicViews(ViewTests):
     def test_instance_puttable(self):
         response, json = self.do_get('/slumber_examples/Pizza/')
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(json['puttable'], [['id'], ['name']])
+        self.assertEquals(set([tuple(i) for i in json['puttable']]), set([('id',), ('name',)]))
 
     def test_model_operation_instances_no_instances(self):
         response, json = self.do_get('/slumber_examples/Pizza/instances/')
@@ -284,7 +290,7 @@ class BasicViews(ViewTests):
         s.save()
         response, json = self.do_get('/slumber_examples/Pizza/data/%s/' % s.pk)
         self.maxDiff = None
-        self.assertEquals(json, dict(
+        expected = dict(
             _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/Pizza/'),
             identity=self.url('/slumber_examples/Pizza/data/1/'),
@@ -301,14 +307,20 @@ class BasicViews(ViewTests):
                 name=dict(data=s.name, kind='value', type='django.db.models.fields.CharField'),
                 exclusive_to={'data': None, 'kind': 'object', 'type': self.url('/slumber_examples/Shop/')}),
             data_arrays=dict(
-                prices=self.url('/slumber_examples/Pizza/data/%s/prices/' % s.pk))))
+                prices=self.url('/slumber_examples/Pizza/data/%s/prices/' % s.pk)))
+        if get_version() >= "1.8":
+            expected['fields']['exclusive_to_id'] = expected['fields']['exclusive_to']
+        elif get_version() >= "1.7":
+            expected['data_arrays']['exclusive_to_id'] = self.url(
+                    '/slumber_examples/Pizza/data/1/exclusive_to_id/')
+        self.assertEquals(json, expected)
 
     def test_instance_data_shop_with_null_active(self):
         s = Shop(name='Test shop', slug='test-shop')
         s.save()
         response, json = self.do_get('/slumber_examples/Shop/data/%s/' % s.pk)
         self.maxDiff = None
-        self.assertEquals(json, dict(
+        expected = dict(
             _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/Shop/'),
             identity=self.url('/slumber_examples/Shop/data/1/'),
@@ -323,7 +335,8 @@ class BasicViews(ViewTests):
                 slug={'data': 'test-shop', 'kind': 'value', 'type': 'django.db.models.fields.CharField'},
                 web_address={'data': 'http://www.example.com/test-shop/', 'kind': 'property',
                     'type': 'slumber_examples.Shop.web_address'}),
-            data_arrays={'pizza': self.url('/slumber_examples/Shop/data/1/pizza/')}))
+            data_arrays={'pizza': self.url('/slumber_examples/Shop/data/1/pizza/')})
+        self.assertEquals(json, expected)
 
     def test_instance_data_pizzaprice(self):
         s = Pizza(name='p1', for_sale=True)
@@ -331,7 +344,8 @@ class BasicViews(ViewTests):
         p = PizzaPrice(pizza=s, date='2010-01-01')
         p.save()
         response, json = self.do_get('/slumber_examples/PizzaPrice/data/%s/' % p.pk)
-        self.assertEquals(json, dict(
+        self.assertEquals(response.status_code, 200)
+        expected = dict(
             _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/PizzaPrice/'),
             identity=self.url('/slumber_examples/PizzaPrice/data/1/'),
@@ -348,7 +362,11 @@ class BasicViews(ViewTests):
                     'kind': 'object', 'type': self.url('/slumber_examples/Pizza/')},
                 date={'data': '2010-01-01', 'kind': 'value', 'type': 'django.db.models.fields.DateField'},
             ),
-            data_arrays={'amounts': self.url('/slumber_examples/PizzaPrice/data/1/amounts/')}))
+            data_arrays={'amounts': self.url('/slumber_examples/PizzaPrice/data/1/amounts/')})
+        if get_version() >= "1.7":
+            expected['data_arrays']['pizza_id'] = self.url(
+                    '/slumber_examples/PizzaPrice/data/1/pizza_id/')
+        self.assertEquals(json, expected)
 
     def test_instance_data_array(self):
         s = Pizza(name='P', for_sale=True)
@@ -371,7 +389,7 @@ class BasicViews(ViewTests):
             'pk': 5, 'data': self.url('/slumber_examples/PizzaPrice/data/5/'), 'display': 'PizzaPrice object'})
         self.assertFalse(json.has_key('next_page'), json.keys())
 
-    def test_delete_instance(self):
+    def test_delete_instance_with_post(self):
         self.user.is_superuser = True
         self.user.save()
         s = Pizza(name='P')
@@ -383,6 +401,21 @@ class BasicViews(ViewTests):
         self.assertEquals(response.status_code, 200)
         with self.assertRaises(Pizza.DoesNotExist):
             Pizza.objects.get(pk=s.pk)
+
+    def test_delete_instance_with_delete(self):
+        self.user.is_superuser = True
+        self.user.save()
+        s = Pizza(name='P')
+        s.save()
+        response, json = self.do_get('/slumber_examples/Pizza/data/%s/' % s.pk)
+        self.assertEquals(response.status_code, 200)
+        response, _json = self.do_delete(json['operations']['data'])
+        self.assertEquals(response.status_code, 200)
+        with self.assertRaises(Pizza.DoesNotExist):
+            Pizza.objects.get(pk=s.pk)
+        response, _json = self.do_delete(json['operations']['data'])
+        self.assertEquals(response.status_code, 404)
+
 
 
 class BasicViewsPlain(ConfigureUser, BasicViews, PlainTests, TestCase):
