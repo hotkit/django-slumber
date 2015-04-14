@@ -1,3 +1,6 @@
+2015-04-14  Kirit Saelensminde  <kirit@felspar.com>
+ Fix a model lookup to use the correct API instead of looking in the data itself.
+
 2015-04-10  Kirit Saelensminde  <kirit@felspar.com>
  Added Django 1.8 to the test set, but the tests are not passing.
  Added the `atomic` wrapper around the Slumber views where available.
