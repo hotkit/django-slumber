@@ -19,8 +19,8 @@ class Shop(models.Model):
 class Pizza(models.Model):
     name = models.fields.CharField(max_length=200, unique=True, blank=False)
     for_sale = models.fields.BooleanField(default=False)
-    max_extra_toppings = models.fields.IntegerField(null=True, blank=False)
-    exclusive_to = models.ForeignKey(Shop, null=True,
+    max_extra_toppings = models.fields.IntegerField(null=True, blank=True)
+    exclusive_to = models.ForeignKey(Shop, null=True, blank=True,
         help_text="If specified then this pizza is exclusive to the specified shop")
 
     def __unicode__(self):
