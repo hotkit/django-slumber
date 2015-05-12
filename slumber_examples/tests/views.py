@@ -349,7 +349,7 @@ class BasicViews(ViewTests):
             _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/PizzaPrice/'),
             identity=self.url('/slumber_examples/PizzaPrice/data/1/'),
-            display="PizzaPrice object",
+            display="p1 2010-01-01",
             operations=dict(
                 data=self.url('/slumber_examples/PizzaPrice/data/1/'),
                 delete=self.url('/slumber_examples/PizzaPrice/delete/1/'),
@@ -386,7 +386,7 @@ class BasicViews(ViewTests):
         self.assertEquals(len(json['page']), 5)
         self.assertEquals(json['page'][0], {
             'type': self.url('/slumber_examples/PizzaPrice/'),
-            'pk': 5, 'data': self.url('/slumber_examples/PizzaPrice/data/5/'), 'display': 'PizzaPrice object'})
+            'pk': 5, 'data': self.url('/slumber_examples/PizzaPrice/data/5/'), 'display': 'P 2011-04-05'})
         self.assertFalse(json.has_key('next_page'), json.keys())
 
     def test_delete_instance_with_post(self):
@@ -625,4 +625,3 @@ class UserViewsPlain(ConfigureUser, UserViews, PlainTests, TestCase):
     pass
 class UserViewsService(ConfigureUser, UserViews, ServiceTests, TestCase):
     pass
-

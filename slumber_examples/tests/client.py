@@ -129,7 +129,7 @@ class TestsWithPizza(ConfigureUser, TestCase):
         prices = self.pizza.prices
         self.assertEquals(len(prices), 15)
         first_price = prices[0]
-        self.assertEquals(unicode(first_price), "PizzaPrice object")
+        self.assertEquals(unicode(first_price), "S1 2011-04-15")
         self.assertEquals(first_price.pizza.for_sale, True)
 
     def test_instance_data_with_nested_data_array(self):
