@@ -1,3 +1,6 @@
+2015-05-12  Kirit Saelensminde  <kirit@felspar.com>
+ Added some limited support for Django admin for the example projects.
+
 2015-04-14  Kirit Saelensminde  <kirit@felspar.com>
  Fix a model lookup to use the correct API instead of looking in the data itself.
 
