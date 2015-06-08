@@ -1,3 +1,6 @@
+2015-06-03 Yothin Muangsommuk <yothin@proteus-tech.com>
+ Add slumber RemoteForeignKey data_mapping in json formatting for server.
+
 2015-05-12  Kirit Saelensminde  <kirit@felspar.com>
  Added some limited support for Django admin for the example projects.
 
