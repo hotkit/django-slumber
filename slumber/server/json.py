@@ -14,7 +14,8 @@ DATA_MAPPING = {
         'django.db.models.fields.AutoField': lambda m, i, fm, v: v,
         'django.db.models.fields.BooleanField': lambda m, i, fm, v: v,
         'django.db.models.fields.NullBooleanField': lambda m, i, fm, v: v,
-        'slumber.fields.RemoteForeignKey': lambda m, i, fm, v: v._url,
+        'slumber.fields.RemoteForeignKey':
+            lambda m, i, fm, v: v._url if v else None,
     }
 
 

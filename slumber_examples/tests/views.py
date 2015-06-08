@@ -497,6 +497,34 @@ class BasicViewsWithServiceDirectory(ConfigureUser, BasicViews,
         self.assertEquals(unicode(order2.shop), unicode(order.shop))
         self.assertEquals(order2.shop.id, order.shop.id)
 
+    def test_instance_data_order(self):
+        shop = Shop(name="Home", slug='home', active=True)
+        shop.save()
+        order = Order(shop=self.url("/slumber_examples/Shop/data/%s/" % shop.pk))
+        order.save()
+        response, json = self.do_get('/slumber_examples/Order/data/%s/' % order.pk)
+        self.assertEquals(response.status_code, 200)
+        expected = dict(
+            _meta={'message': 'OK', 'status': 200, 'username': 'service'},
+            type=self.url('/slumber_examples/Order/'),
+            identity=self.url('/slumber_examples/Order/data/1/'),
+            display="Order object",
+            operations=dict(
+                data=self.url('/slumber_examples/Order/data/1/'),
+                delete=self.url('/slumber_examples/Order/delete/1/'),
+                update=self.url('/slumber_examples/Order/update/1/')),
+            fields=dict(
+                id={'data': 1, 'kind': 'value', 'type': 'django.db.models.fields.AutoField'},
+                nested={'data': None,
+                        'kind': 'value',
+                        'type': 'slumber.fields.RemoteForeignKey'},
+                shop={'data': self.url('/slumber_examples/Shop/data/%s/' % shop.pk),
+                      'kind': 'value',
+                      'type': 'slumber.fields.RemoteForeignKey'}
+            ),
+            data_arrays={})
+        self.assertEquals(json, expected)
+
 
 class UserViews(ViewTests):
     authn = '/django/contrib/auth/User/authenticate/'
