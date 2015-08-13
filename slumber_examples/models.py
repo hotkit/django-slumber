@@ -19,8 +19,8 @@ class Shop(models.Model):
 class Pizza(models.Model):
     name = models.fields.CharField(max_length=200, unique=True, blank=False)
     for_sale = models.fields.BooleanField(default=False)
-    max_extra_toppings = models.fields.IntegerField(null=True, blank=False)
-    exclusive_to = models.ForeignKey(Shop, null=True,
+    max_extra_toppings = models.fields.IntegerField(null=True, blank=True)
+    exclusive_to = models.ForeignKey(Shop, null=True, blank=True,
         help_text="If specified then this pizza is exclusive to the specified shop")
 
     def __unicode__(self):
@@ -30,6 +30,9 @@ class Pizza(models.Model):
 class PizzaPrice(models.Model):
     pizza = models.ForeignKey(Pizza, null=False, related_name='prices')
     date = models.fields.DateField()
+
+    def __unicode__(self):
+        return u"%s %s" % (self.pizza, self.date)
 
 
 PIZZA_SIZES = (
@@ -45,6 +48,9 @@ class PizzaSizePrice(models.Model):
 
     class Meta:
         unique_together=[('price', 'size')]
+
+    def __unicode__(self):
+        return u"%s %s : %s" % (dict(PIZZA_SIZES)[self.size], self.price.pizza, self.amount)
 
 
 class Profile(models.Model):
@@ -62,3 +68,6 @@ class Order(models.Model):
 class PizzaCrust(models.Model):
     code = models.fields.CharField(primary_key = True, unique = True, max_length = 3)
     full_name = models.fields.CharField(max_length = 200)
+
+    def __unicode__(self):
+        return self.full_name

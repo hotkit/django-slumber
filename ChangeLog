@@ -1,3 +1,15 @@
+2015-08-11 Nui Narongwet <narongwet@proteus-tech.com>
+ Add a lookup table from database table name to slumber model
+
+2015-06-03 Yothin Muangsommuk <yothin@proteus-tech.com>
+ Add slumber RemoteForeignKey data_mapping in json formatting for server.
+
+2015-05-12  Kirit Saelensminde  <kirit@felspar.com>
+ Added some limited support for Django admin for the example projects.
+
+2015-04-14  Kirit Saelensminde  <kirit@felspar.com>
+ Fix a model lookup to use the correct API instead of looking in the data itself.
+
 2015-04-10  Kirit Saelensminde  <kirit@felspar.com>
  Added Django 1.8 to the test set, but the tests are not passing.
  Added the `atomic` wrapper around the Slumber views where available.

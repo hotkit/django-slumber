@@ -349,7 +349,7 @@ class BasicViews(ViewTests):
             _meta={'message': 'OK', 'status': 200, 'username': 'service'},
             type=self.url('/slumber_examples/PizzaPrice/'),
             identity=self.url('/slumber_examples/PizzaPrice/data/1/'),
-            display="PizzaPrice object",
+            display="p1 2010-01-01",
             operations=dict(
                 data=self.url('/slumber_examples/PizzaPrice/data/1/'),
                 delete=self.url('/slumber_examples/PizzaPrice/delete/1/'),
@@ -386,7 +386,7 @@ class BasicViews(ViewTests):
         self.assertEquals(len(json['page']), 5)
         self.assertEquals(json['page'][0], {
             'type': self.url('/slumber_examples/PizzaPrice/'),
-            'pk': 5, 'data': self.url('/slumber_examples/PizzaPrice/data/5/'), 'display': 'PizzaPrice object'})
+            'pk': 5, 'data': self.url('/slumber_examples/PizzaPrice/data/5/'), 'display': 'P 2011-04-05'})
         self.assertFalse(json.has_key('next_page'), json.keys())
 
     def test_delete_instance_with_post(self):
@@ -496,6 +496,34 @@ class BasicViewsWithServiceDirectory(ConfigureUser, BasicViews,
         order2 = Order.objects.get(pk=order.pk)
         self.assertEquals(unicode(order2.shop), unicode(order.shop))
         self.assertEquals(order2.shop.id, order.shop.id)
+
+    def test_instance_data_order(self):
+        shop = Shop(name="Home", slug='home', active=True)
+        shop.save()
+        order = Order(shop=self.url("/slumber_examples/Shop/data/%s/" % shop.pk))
+        order.save()
+        response, json = self.do_get('/slumber_examples/Order/data/%s/' % order.pk)
+        self.assertEquals(response.status_code, 200)
+        expected = dict(
+            _meta={'message': 'OK', 'status': 200, 'username': 'service'},
+            type=self.url('/slumber_examples/Order/'),
+            identity=self.url('/slumber_examples/Order/data/1/'),
+            display="Order object",
+            operations=dict(
+                data=self.url('/slumber_examples/Order/data/1/'),
+                delete=self.url('/slumber_examples/Order/delete/1/'),
+                update=self.url('/slumber_examples/Order/update/1/')),
+            fields=dict(
+                id={'data': 1, 'kind': 'value', 'type': 'django.db.models.fields.AutoField'},
+                nested={'data': None,
+                        'kind': 'value',
+                        'type': 'slumber.fields.RemoteForeignKey'},
+                shop={'data': self.url('/slumber_examples/Shop/data/%s/' % shop.pk),
+                      'kind': 'value',
+                      'type': 'slumber.fields.RemoteForeignKey'}
+            ),
+            data_arrays={})
+        self.assertEquals(json, expected)
 
 
 class UserViews(ViewTests):
@@ -625,4 +653,3 @@ class UserViewsPlain(ConfigureUser, UserViews, PlainTests, TestCase):
     pass
 class UserViewsService(ConfigureUser, UserViews, ServiceTests, TestCase):
     pass
-

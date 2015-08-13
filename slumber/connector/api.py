@@ -196,7 +196,7 @@ def _return_data_array(base_url, arrays, instance, name, cache_ttl):
         while True:
             for obj in data['page']:
                 model_url = urljoin(base_url, obj['type'])
-                model = MODEL_URL_TO_SLUMBER_MODEL[model_url]
+                model = get_model(model_url)
                 instance_url = urljoin(base_url, obj['data'])
                 data_array.append(
                     get_instance(model, instance_url, obj['display']))
