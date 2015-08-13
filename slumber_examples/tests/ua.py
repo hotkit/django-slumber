@@ -150,9 +150,9 @@ class TestGet(TestCase):
 
     def test_cache(self):
         try:
-            r1, j1 = get('http://urquell-fn.appspot.com/lib/echo/?__=', 2)
-            r2, j2 = get('http://urquell-fn.appspot.com/lib/echo/?__=', 2)
-            r3, j3 = get('http://urquell-fn.appspot.com/lib/echo/?dummy=&__=', 2)
+            r1, j1 = get('http://httpbin.org/headers', 2)
+            r2, j2 = get('http://httpbin.org/headers', 2)
+            r3, j3 = get('http://httpbin.org/headers?dummy=', 2)
             self.assertFalse(hasattr(r1, 'from_cache'))
             self.assertTrue(hasattr(r2, 'from_cache'))
             self.assertTrue(r2.from_cache)
@@ -196,4 +196,3 @@ class TestUsernameDecorator(ServiceTests, TestCase):
                 get('/slumber/')
         do_get()
         self.assertTrue(self.checked)
-
