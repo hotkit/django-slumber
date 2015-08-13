@@ -5,7 +5,8 @@ from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.fields.related import ManyToOneRel
 
-from slumber._caches import DATABASE_TABLE_TO_SLUMBER_MODEL, DJANGO_MODEL_TO_SLUMBER_MODEL
+from slumber._caches import DATABASE_TABLE_TO_SLUMBER_MODEL, \
+    DJANGO_MODEL_TO_SLUMBER_MODEL
 from slumber.operations.authenticate import AuthenticateUser
 from slumber.operations.authorization import CheckMyPermission, \
     PermissionCheck, ModulePermissions, GetPermissions
