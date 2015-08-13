@@ -11,6 +11,8 @@ APP_FROM_APPNAME = {}
 DJANGO_MODEL_TO_SLUMBER_MODEL = {}
 # Stores the slumber models for given model URLs
 MODEL_URL_TO_SLUMBER_MODEL = {}
+# Stores the slumber model for a given database table name
+DATABASE_TABLE_TO_SLUMBER_MODEL = {}
 
 # Store the URIs for special operations
 OPERATION_URIS = {}
