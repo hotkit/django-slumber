@@ -285,6 +285,12 @@ class BasicViews(ViewTests):
         check_query({'id': s.pk})
         check_query({'name': s.name})
 
+    def test_get_not_exist_instance_return_id(self):
+        response, _ = self.do_get('/slumber_examples/Pizza/data/0/')
+        json = loads(response.content)
+        self.assertEquals(response.status_code, 404, response)
+        self.assertEquals(json['id'], str(0))
+
     def test_instance_data_pizza(self):
         s = Pizza(name='S1', for_sale=True)
         s.save()

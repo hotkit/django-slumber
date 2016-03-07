@@ -109,8 +109,10 @@ def view_handler(view):
             response = {'_meta': dict(status=403, message='Forbidden'),
                 'error': unicode(exception)}
         except ObjectDoesNotExist, exception:
-            response = {'_meta': dict(status=404, message='Not Found'),
-                'error': unicode(exception)}
+            response = {
+                '_meta': dict(status=404, message='Not Found'),
+                'error': unicode(exception),
+                'id': unicode(request.path.rsplit('/', 2)[-2])}
         except NotImplementedError, _:
             response = {
                 '_meta': dict(status=501, message='Not Implemented'),
