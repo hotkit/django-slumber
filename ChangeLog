@@ -1,7 +1,10 @@
-2015-08-11 Nui Narongwet <narongwet@proteus-tech.com>
+2016-03-07  Yothin Muangsommuk  <yothin@proteus-tech.com>
+ Add instance id in response body when return ObjectDoesNotExist
+
+2015-08-11  Nui Narongwet  <narongwet@proteus-tech.com>
  Add a lookup table from database table name to slumber model
 
-2015-06-03 Yothin Muangsommuk <yothin@proteus-tech.com>
+2015-06-03  Yothin Muangsommuk  <yothin@proteus-tech.com>
  Add slumber RemoteForeignKey data_mapping in json formatting for server.
 
 2015-05-12  Kirit Saelensminde  <kirit@felspar.com>

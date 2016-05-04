@@ -1,6 +1,7 @@
 """
     Implements the server side for the instance operators.
 """
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import no_style
 from django.db import connection
 
@@ -52,11 +53,15 @@ class InstanceData(Operation):
     def get(self, request, response, pk, dataset=None):
         """Implement the fetching of attribute data for an instance.
         """
-        instance = self.model.model.objects.get(pk=pk)
-        if dataset:
-            self._get_dataset(request, response, instance, dataset)
-        else:
-            self._get_instance_data(request, response, instance)
+        try:
+            instance = self.model.model.objects.get(pk=pk)
+            if dataset:
+                self._get_dataset(request, response, instance, dataset)
+            else:
+                self._get_instance_data(request, response, instance)
+        except ObjectDoesNotExist, exception:
+            response['_meta'] = dict(status=404, message='Not Found', pk=pk)
+            response['error'] = unicode(exception)
 
     def put(self, request, response, pk):
         """Allow a new version of the resource to be PUT here.
