@@ -289,7 +289,9 @@ class BasicViews(ViewTests):
         response, _ = self.do_get('/slumber_examples/Pizza/data/0/')
         json = loads(response.content)
         self.assertEquals(response.status_code, 404, response)
-        self.assertEquals(json['id'], str(0))
+        self.assertEquals(json['_meta']['status'], 404)
+        self.assertEquals(json['_meta']['pk'], '0')
+        self.assertEquals(json['_meta']['message'], 'Not Found')
 
     def test_instance_data_pizza(self):
         s = Pizza(name='S1', for_sale=True)
