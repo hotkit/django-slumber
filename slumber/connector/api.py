@@ -153,6 +153,8 @@ class _InstanceProxy(object):
             # We now have a cache miss so construct a new connector
             instance = _InstanceConnector(self._url, **self._fields)
             if hasattr(PER_THREAD, 'cache'):
+                # Add this to the thread local instance
+                # pylint: disable = no-member
                 PER_THREAD.cache[self._url] = instance
             else:
                 logging.info("No cache to write instance %s into", self._url)
@@ -243,6 +245,6 @@ class _InstanceConnector(DictObject):
 
 # This is at the end to ensure that the built in proxies are loaded up properly
 # We also don't care that the import is unused
-# pylint: disable = W0611
+# pylint: disable = wrong-import-position, unused-import
 import slumber.connector.proxies
 

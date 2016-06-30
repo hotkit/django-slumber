@@ -4,7 +4,6 @@
 from django.db.models import URLField, SubfieldBase
 
 from slumber.connector.api import _InstanceProxy, get_instance
-#from slumber.connector.dictobject import DictObject
 from slumber.forms import RemoteForeignKeyField
 from slumber.scheme import to_slumber_scheme, from_slumber_scheme
 from slumber.server import get_slumber_services
@@ -27,6 +26,8 @@ class RemoteForeignKey(URLField):
     def deconstruct(self):
         """Added to support Django 1.7 migrations
         """
+        # deconstruct is there
+        # pylint: disable=no-member
         name, path, args, kwargs = super(RemoteForeignKey, self).deconstruct()
         if self.model_url != ",":
             kwargs['model_url'] = self.model_url
@@ -72,6 +73,7 @@ class RemoteForeignKey(URLField):
 
 try:
     # If South in installed then we need to tell it about our custom field
+    # pylint: disable=wrong-import-position
     from south.modelsinspector import add_introspection_rules
     add_introspection_rules([
             (

@@ -101,20 +101,20 @@ def view_handler(view):
             if http_response:
                 return http_response
         except NotAuthorised, _:
-            response = {
+            response = Response({
                 '_meta': dict(status=401, message='Unauthorized',
                     headers={'WWW-Authenticate':'FOST Realm="Slumber"'}),
-                'error': 'No user is logged in'}
+                'error': 'No user is logged in'})
         except Forbidden, exception:
-            response = {'_meta': dict(status=403, message='Forbidden'),
-                'error': unicode(exception)}
+            response = Response({'_meta': dict(status=403, message='Forbidden'),
+                'error': unicode(exception)})
         except ObjectDoesNotExist, exception:
-            response = {'_meta': dict(status=404, message='Not Found'),
-                'error': unicode(exception)}
+            response = Response({'_meta': dict(status=404, message='Not Found'),
+                'error': unicode(exception)})
         except NotImplementedError, _:
-            response = {
+            response = Response({
                 '_meta': dict(status=501, message='Not Implemented'),
-                'error': "Not implemented"}
+                'error': "Not implemented"})
         if request.user.is_authenticated():
             response['_meta']['username'] = request.user.username
         else:

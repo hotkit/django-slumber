@@ -1,4 +1,5 @@
 2016-06-30  Kirit Saelensminde  <kirit@felspar.com>
+ * Fixes for latest Pylint.
  * Fix an issue with newer Django nose releases not supporting old Django releases.
 
 2016-03-07  Yothin Muangsommuk  <yothin@proteus-tech.com>
