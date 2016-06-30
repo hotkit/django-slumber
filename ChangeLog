@@ -1,3 +1,6 @@
+2016-06-30  Kirit Saelensminde  <kirit@felspar.com>
+ * Fix an issue with newer Django nose releases not supporting old Django releases.
+
 2016-03-07  Yothin Muangsommuk  <yothin@proteus-tech.com>
  Add instance id in response body when return ObjectDoesNotExist
 

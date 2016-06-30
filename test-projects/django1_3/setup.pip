@@ -1,4 +1,4 @@
 django < 1.4
-django-nose
+django-nose == 1.4.3
 git+git://github.com/nose-devs/nose.git
 south
